@@ -1,5 +1,5 @@
 ---
-title: "aws cliの設定方法"
+title: "aws cliの設定方法とプロファイル切替"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [aws,cli,awscli]
