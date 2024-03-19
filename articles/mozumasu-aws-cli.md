@@ -45,7 +45,7 @@ aws-cli/2.7.2 Python/3.9.11 Darwin/21.6.0 exe/x86_64 prompt/off
 aws configure
 ```
 
-### デフォルトで使用しあているものとは別で設定する場合
+### デフォルトで使用しているものとは別で設定する場合
 
 ```bash
 aws configure --profile プロファイル名
