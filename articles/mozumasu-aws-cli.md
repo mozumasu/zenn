@@ -3,7 +3,7 @@ title: "aws cliの設定方法とプロファイル切替"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [aws,cli,awscli]
-published: false
+published: true
 ---
 ## aws cliとは
 CLIからAWSのリソースを操作したい時に使用するもの
