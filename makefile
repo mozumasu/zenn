@@ -10,6 +10,7 @@ na:
 	@pnpm exec zenn new:article --slug $(slug) --title "$(title)" --type $(type)
 
 pv:
+	open http://localhost:8000
 	pnpm exec zenn preview
 
 vt:
