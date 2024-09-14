@@ -11,3 +11,6 @@ na:
 
 pv:
 	pnpm exec zenn preview
+
+vt:
+	open https://zenn.dev/search

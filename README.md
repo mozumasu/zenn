@@ -36,15 +36,21 @@ Zenn CLIの表示がZenn.devと異なるときやCLI利用時に更新通知が�
 pnpm install zenn-cli@latest
 ```
 
-## 記事の追加
+### 記事の追加
 
 ```sh
 make na s=custom-suffix title="Custom Title" type=idea
 ```
 
+### Topicの確認
+
+```sh
+make vt
+```
+
 ## 運用方法
 
-## ⭐️コミットメッセージ
+### ⭐️コミットメッセージ
 
 git-czの設定ファイル ([changelog.config.js](changelog.config.js)) でコミットメッセージをテンプレート化している
 
@@ -59,3 +65,6 @@ git-czの設定ファイル ([changelog.config.js](changelog.config.js)) でコ�
 | chore          | CI/CDの変更やパッケージのアップデートなど |
 | docs           | ドキュメントの更新                        |
 
+```
+
+```
