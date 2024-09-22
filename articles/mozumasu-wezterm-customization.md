@@ -9,10 +9,10 @@ published: false
 ## はじめに完成系を晒す
 
 ターミナルがかっこいいとモテるらしいというのをどこかの記事で読んだので、かっこよくターミナルをカスタマイズしてみました。
-完成系はこんな感じです。
+完成系はこんな感じです。スケスケ&ぼかしが入っていていい感じですね！
 
 ![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
-ついでにNeovim起動時の画面も晒しておきます。
+ついでにNeovim時の画面も晒しておきます。
 ![alt wezterm after setting](/images/wezterm-customization/after_setting_2.png =700x)
 
 使用しているターミナルは[wezterm](https://wezfurlong.org/wezterm/)です。
@@ -29,8 +29,101 @@ weztermの特徴は以下の通りです。
 他にも色々良さがあるので、詳しくは公式ドキュメントを参照していただければと思います。
 カスタマイズをたくさんしたい人にはオススメのターミナルです。
 
-:::details 設定ファイル
-メッセージをここに
+### 忙しい人向け：完成系の設定ファイル
+
+読むのが面倒な人向けに完成系の設定ファイルを晒しておきます。
+
+:::details wezterm設定ファイル
+
+```lua:~/.config/wezterm/wezterm.lua
+local wezterm = require("wezterm")
+local config = wezterm.config_builder()
+
+config.automatically_reload_config = true
+config.font_size = 12.0
+config.use_ime = true
+config.window_background_opacity = 0.85
+config.macos_window_background_blur = 20
+
+----------------------------------------------------
+-- Tab
+----------------------------------------------------
+-- タイトルバーを非表示
+config.window_decorations = "RESIZE"
+-- タブバーの表示
+config.show_tabs_in_tab_bar = true
+-- タブが一つの時は非表示
+config.hide_tab_bar_if_only_one_tab = true
+-- falseにするとタブバーの透過が効かなくなる
+-- config.use_fancy_tab_bar = false
+
+-- タブバーの透過
+config.window_frame = {
+  inactive_titlebar_bg = "none",
+  active_titlebar_bg = "none",
+}
+
+-- タブバーを背景色に合わせる
+config.window_background_gradient = {
+  colors = { "#000000" },
+}
+
+-- タブの追加ボタンを非表示
+config.show_new_tab_button_in_tab_bar = false
+-- nightlyのみ使用可能
+-- タブの閉じるボタンを非表示
+config.show_close_tab_button_in_tabs = false
+
+-- タブ同士の境界線を非表示
+config.colors = {
+  tab_bar = {
+    inactive_tab_edge = "none",
+  },
+}
+
+-- タブの形をカスタマイズ
+-- タブの左側の装飾
+local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
+-- タブの右側の装飾
+local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
+
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+  local background = "#5c6d74"
+  local foreground = "#FFFFFF"
+  local edge_background = "none"
+  if tab.is_active then
+    background = "#ae8b2d"
+    foreground = "#FFFFFF"
+  end
+  local edge_foreground = background
+  local title = "   " .. wezterm.truncate_right(tab.active_pane.title, max_width - 1) .. "   "
+  return {
+    { Background = { Color = edge_background } },
+    { Foreground = { Color = edge_foreground } },
+    { Text = SOLID_LEFT_ARROW },
+    { Background = { Color = background } },
+    { Foreground = { Color = foreground } },
+    { Text = title },
+    { Background = { Color = edge_background } },
+    { Foreground = { Color = edge_foreground } },
+    { Text = SOLID_RIGHT_ARROW },
+  }
+end)
+
+----------------------------------------------------
+-- keybinds
+----------------------------------------------------
+-- local act = require("wezterm").action
+
+config.disable_default_key_bindings = true
+config.keys = require("keybinds").keys
+config.key_tables = require("keybinds").key_tables
+config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+
+return config
+
+```
+
 :::
 
 ## weztermのインストール
@@ -53,6 +146,92 @@ brew install --cask wezterm@nightly
 weztermを立ち上げると下記のような画面が表示されます。
 ![alt wezterm before setting](/images/wezterm-customization/before_setting.png)
 ※画像のターミナルは[starship](https://starship.rs/)を導入しているため、プロンプトの部分はすでにカスタマイズされています。
+starshipのカスタマイズ方法は記憶の彼方にあるのでとりあえずコードだけ晒しておきます。
+:::details starshipの設定
+
+```toml:~/.config/starship.toml
+# promptのカラーを設定しています、$変数は後述で設定している変数が差し込まれます
+format = """
+$directory\
+[ ](fg:#88C0D0 bg:#1d2230)\
+$git_branch\
+$git_status\
+[ ](fg:#1d2230)\
+\n$character
+"""
+
+right_format = """
+$cmd_duration\
+$username\
+✨
+$time
+"""
+
+# コマンドラインに1行分のスペースを入れる
+add_newline = true
+
+[username]
+style_user = "white bold"
+style_root = "black bold"
+format = "user: [$user]($style) "
+disabled = false
+
+
+# left_promptとright_promptの間を何で埋めるか設定
+[fill]
+symbol = ' '
+
+[directory]
+style = "fg:#2E3440 bg:#88C0D0 bold"
+# format = "[ $path ]($style)"
+truncation_length = 10
+truncate_to_repo = false
+truncation_symbol = "…/"
+# truncation_symbol = ' ' # nf-fa-folder_open
+# truncate_to_repo = false
+# style = 'fg:#7aa2f7 bg:#1a1b26'
+read_only = ' 󰌾 ' # nf-md-lock
+read_only_style = 'fg:#f7768e bg:#1a1b26'
+format = '[ $path ]($style)[$read_only]($read_only_style)'
+
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[aws]
+disabled = true
+[gcloud]
+disabled = true
+
+[git_branch]
+symbol = ""
+style = "bg:#1d2230"
+format = '[[ $symbol $branch ](fg:#769ff0 bg:#1d2230)]($style)'
+
+[git_status]
+style = "bg:#1d2230"
+format = '[[($all_status$ahead_behind )](fg:#769ff0 bg:#1d2230)]($style)'
+
+[cmd_duration]
+min_time = 1
+style = 'fg:#e0af68'
+format = "[$duration]($style)" # nf-pl-right_soft_divider, nf-mdi-clock
+
+[time]
+disabled = false
+time_format = "%R" # Hour:Minute Format
+# style = "bg:#1d2230"
+format = '[[   $time ](fg:#a0a9cb)]($style)'
+
+[character]
+vimcmd_symbol = '[V](bold green) '
+
+```
+
+:::
 
 ## 設定ファイルの用意
 
@@ -555,11 +734,19 @@ return config
 
 ![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
 
+## キーバインドの設定
+
+見た目が整ったところで、操作性も整えていきましょう。
+
+### キーバインド設定ファイルを作成
+
+weztermのキーバインドはたくさんあるため、デフォルトの設定をファイルに流し込んでカスタマイズしていくのが楽ちんでオススメです。
+
 ## 最後に
 
-weztermの記事を書いた人はコメント欄でぜひ宣伝してください！私も読みたいので！！
-ターミナル自慢お待ちしています！
-いろんな人のカスタマイズを参考にしたい場合は下記がおすすめです。
+weztermの記事を書いた人はコメント欄でぜひ宣伝してください！
+ターミナル自慢もお待ちしています！
+いろんな人のカスタマイズを参考にしたい場合はweztermのGitHub Discussionsを見てみるのもいいかもしれません。
 [Show your wezterms · wez/wezterm · Discussion #628](https://github.com/wez/wezterm/discussions/628)
 
 **weztermはいいぞ**
