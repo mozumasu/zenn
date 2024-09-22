@@ -6,7 +6,7 @@ topics: [wezterm, CLI, terminal]
 published: false
 ---
 
-## はじめに
+## はじめに完成系を晒す
 
 ターミナルがかっこいいとモテるらしいというのをどこかの記事で読んだので、かっこよくターミナルをカスタマイズしてみました。
 完成系はこんな感じです。
@@ -24,14 +24,19 @@ weztermの特徴は以下の通りです。
 - 設定ファイルはNeovimと同じLua言語
 - tmuxのような画面分割ができる
 - 豊富なドキュメントがある
+- **コピーモードが使いやすい！！！**
 
 他にも色々良さがあるので、詳しくは公式ドキュメントを参照していただければと思います。
-カスタマイズをたくさんしたい人にはうってつけのターミナルです。
+カスタマイズをたくさんしたい人にはオススメのターミナルです。
+
+:::details 設定ファイル
+メッセージをここに
+:::
 
 ## weztermのインストール
 
 Homebrewでインストールする場合は下記のコマンドを実行します。
-※この記事ではnightly版を使用しています。
+※一部nightly限定の設定があるため、この記事ではnightly版を使用しています。
 
 ```bash
 # 通常版
@@ -154,7 +159,7 @@ return config
 ### ぼかしを追加
 
 とはいえ、スケスケすぎると文字が見づらいというもの。
-ぼかしを入れつつスケスケと生産性を両立し、「こいつ、、、デキる！」感を演出していきましょう。
+ぼかしを入れてスケスケと視認性を両立し、「こいつ、、、デキる！」感を演出していきましょう。
 
 ```diff lua:~/.config/wezterm/wezterm.lua
 local wezterm = require 'wezterm'
@@ -174,7 +179,7 @@ return config
 
 ![alt blur 20](/images/wezterm-customization/blur_setting.png =700x)
 
-ｴｯ...！？良ｯ！？
+＼( 'ω')／ウオオオオオアアアーーーーッ！！！良いｯ！！！
 ここまでくるともう、あなたはデキる人です。
 私が保証しましょう。
 
@@ -209,6 +214,36 @@ return config
 
 ![alt window_decorations](/images/wezterm-customization/window_decorations_setting.png =700x)
 
+タイトルバーが消えてちょっとすっきりしました。
+
+### タブバーを非表示
+
+タブを使用しない場合は下記の設定で非表示にすることができます。
+私はタブのヘビーユーザーなのでこちらは設定していません。
+
+```lua:~/.config/wezterm/wezterm.lua
+config.show_tabs_in_tab_bar = false
+```
+
+### タブが一つしかない時に非表示
+
+タブが一つしかない時はタブバー要らんな、、、という場合は下記の設定で非表示にすることができます。
+
+```diff lua:~/.config/wezterm/wezterm.lua
+local wezterm = require 'wezterm'
+local config = wezterm.config_builder()
+
+config.automatically_reload_config = true
+config.font_size = 12.0
+config.use_ime = true
+config.window_background_opacity = 0.85
+config.macos_window_background_blur = 20
+config.window_decorations = "RESIZE"
++ config.hide_tab_bar_if_only_one_tab = true
+
+return config
+```
+
 ### タブバーを透明にする
 
 タイトルバーが消え去り、残すところはタブバーのみです。
@@ -224,21 +259,20 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
-+ config.window_frame = {
-+   inactive_titlebar_bg = "none",
-+   active_titlebar_bg = "none",
-+ }
+config.hide_tab_bar_if_only_one_tab = true
++ config.hide_tab_bar_if_only_one_tab = true
 
 return config
 ```
 
 > [window_frame - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/lua/config/window_frame.html?h=window_frame)
 
-透明になりましたね！！
 ![alt window_frame](/images/wezterm-customization/window_frame_setting.png =700x)
+透明になりましたね！！
 
-`config.use_fancy_tab_bar = false`を設定するとタブバーは透過ができなくなるため注意してください。
+`config.use_fancy_tab_bar = false`を設定すると下記の画像のようになり、タブバーは透過ができなくなるため注意してください。
 カクカクしたタブをとるか、透過したタブをとるかはあなた次第です。
+
 ![alt use_fancy_tab_bar](/images/wezterm-customization/use_fancy_tab_bar_setting.png =700x)
 
 > [use_fancy_tab_bar - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/lua/config/use_fancy_tab_bar.html)
@@ -259,6 +293,8 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
  config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
@@ -272,12 +308,13 @@ return config
 
 > [window_background_gradient - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/lua/config/window_background_gradient.html?h=window_background_gradient)
 
-タブバーが背景と同じ色になりました！！見栄えがいいね！！
 ![alt window_background_gradient](/images/wezterm-customization/window_background_gradient_setting.png =700x)
+タブバーが背景と同じ色になりました！！見栄えがいいね！！
 
 `window_background_gradient`は背景にグラデーションをつけることもできます。
 下記は公式ドキュメントの例です。
 ![alt radial-gradient](https://wezfurlong.org/wezterm/screenshots/linear-gradient.png)
+_参照: [window_background_gradient - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/lua/config/window_background_gradient.html?h=window_background_gradient)_
 
 ### タブバーの+を消す
 
@@ -294,6 +331,8 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
  config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
@@ -328,6 +367,8 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
  config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
@@ -362,6 +403,8 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
  config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
@@ -405,6 +448,8 @@ config.use_ime = true
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
  config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
@@ -447,6 +492,8 @@ return config
 
 ### タブの形を変更
 
+タブの形も変更しちゃいましょう。
+
 ```diff lua:~/.config/wezterm/wezterm.lua
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
@@ -455,6 +502,11 @@ config.automatically_reload_config = true
 config.font_size = 12.0
 config.use_ime = true
 config.window_background_opacity = 0.85
+config.macos_window_background_blur = 20
+config.window_decorations = "RESIZE"
+config.hide_tab_bar_if_only_one_tab = true
+
+ config.window_frame = {
    inactive_titlebar_bg = "none",
    active_titlebar_bg = "none",
  }
@@ -503,13 +555,10 @@ return config
 
 ![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
 
-
 ## 最後に
 
-イケイケターミナルで自己肯定感アゲてこ！🫶🩷
-
 weztermの記事を書いた人はコメント欄でぜひ宣伝してください！私も読みたいので！！
-weztermの自慢も待ってます！！！
+ターミナル自慢お待ちしています！
 いろんな人のカスタマイズを参考にしたい場合は下記がおすすめです。
 [Show your wezterms · wez/wezterm · Discussion #628](https://github.com/wez/wezterm/discussions/628)
 
