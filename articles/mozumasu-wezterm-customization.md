@@ -1,6 +1,6 @@
 ---
 title: "モテるターミナルにカスタマイズしよう（wezterm）"
-emoji: "😊"
+emoji: "💘"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [wezterm, CLI, terminal]
 published: false
@@ -9,10 +9,16 @@ published: false
 ## はじめに完成系を晒す
 
 ターミナルがかっこいいとモテるらしいというのをどこかの記事で読んだので、かっこよくターミナルをカスタマイズしてみました。
+意外と簡単にできるので身構えずにコーヒーでも飲みながらやってみてください。☕️
+
 完成系はこんな感じです。スケスケ&ぼかしが入っていていい感じですね！
 
 ![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
-ついでにNeovim時の画面も晒しておきます。
+現在有効になっているタブが黄色くなります。
+
+![alt wezterm after setting](/images/wezterm-customization/after_setting.gif =700x)
+
+ついでにNeoVimの画面も晒しておきます。
 ![alt wezterm after setting](/images/wezterm-customization/after_setting_2.png =700x)
 
 使用しているターミナルは[wezterm](https://wezfurlong.org/wezterm/)です。
@@ -25,6 +31,9 @@ weztermの特徴は以下の通りです。
 - tmuxのような画面分割ができる
 - 豊富なドキュメントがある
 - **コピーモードが使いやすい！！！**
+
+`Leader`キー(自分はControl+Q) + `[`でコピーモードに入り、Vimのキーバインドで操作してコピーすることができます。
+![alt wezterm after setting](/images/wezterm-customization/copy_mode.gif =700x)
 
 他にも色々良さがあるので、詳しくは公式ドキュメントを参照していただければと思います。
 カスタマイズをたくさんしたい人にはオススメのターミナルです。
@@ -113,14 +122,210 @@ end)
 ----------------------------------------------------
 -- keybinds
 ----------------------------------------------------
--- local act = require("wezterm").action
-
 config.disable_default_key_bindings = true
 config.keys = require("keybinds").keys
 config.key_tables = require("keybinds").key_tables
 config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
 
 return config
+
+```
+
+```lua:~/.config/wezterm/keybinds.lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+-- Show which key table is active in the status area
+wezterm.on("update-right-status", function(window, pane)
+  local name = window:active_key_table()
+  if name then
+    name = "TABLE: " .. name
+  end
+  window:set_right_status(name or "")
+end)
+
+return {
+  keys = {
+    {
+      -- workspaceの切り替え
+      key = "w",
+      mods = "LEADER",
+      action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),
+    },
+    {
+      --workspaceの名前変更
+      key = "$",
+      mods = "LEADER",
+      action = act.PromptInputLine({
+        description = "(wezterm) Set workspace title:",
+        action = wezterm.action_callback(function(win, pane, line)
+          if line then
+            wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
+          end
+        end),
+      }),
+    },
+    {
+      key = "W",
+      mods = "LEADER|SHIFT",
+      action = act.PromptInputLine({
+        description = "(wezterm) Create new workspace:",
+        action = wezterm.action_callback(function(window, pane, line)
+          if line then
+            window:perform_aciton(
+              act.SwitchToWorkspace({
+                name = line,
+              }),
+              pane
+            )
+          end
+        end),
+      }),
+    },
+    -- コマンドパレット表示
+    { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
+    -- Tab移動
+    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+    { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+    -- Tab入れ替え
+    { key = "{", mods = "LEADER", action = act({ MoveTabRelative = -1 }) },
+    -- Tab新規作成
+    { key = "t", mods = "SUPER", action = act({ SpawnTab = "CurrentPaneDomain" }) },
+    -- Tabを閉じる
+    { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
+    { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
+
+    -- 画面フルスクリーン切り替え
+    { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
+
+    -- コピーモード
+    -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
+    { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
+    -- コピー
+    { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+    -- 貼り付け
+    { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+
+    -- Pane作成 leader + r or d
+    { key = "d", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    { key = "r", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+    -- Paneを閉じる leader + x
+    { key = "x", mods = "LEADER", action = act({ CloseCurrentPane = { confirm = true } }) },
+    -- Pane移動 leader + hlkj
+    { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
+    { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
+    { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
+    { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
+    -- Pane選択
+    { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
+    -- 選択中のPaneのみ表示
+    { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+
+    -- フォントサイズ切替
+    { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
+    { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
+    -- フォントサイズのリセット
+    { key = "0", mods = "CTRL", action = act.ResetFontSize },
+
+    -- タブ切替 Cmd + 数字
+    { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
+    { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
+    { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
+    { key = "4", mods = "SUPER", action = act.ActivateTab(3) },
+    { key = "5", mods = "SUPER", action = act.ActivateTab(4) },
+    { key = "6", mods = "SUPER", action = act.ActivateTab(5) },
+    { key = "7", mods = "SUPER", action = act.ActivateTab(6) },
+    { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
+    { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
+
+    -- コマンドパレット
+    { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
+    -- 設定再読み込み
+    { key = "r", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+    -- キーテーブル用
+    { key = "s", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
+    {
+      key = "a",
+      mods = "LEADER",
+      action = act.ActivateKeyTable({ name = "activate_pane", timeout_milliseconds = 1000 }),
+    },
+  },
+  -- キーテーブル
+  -- https://wezfurlong.org/wezterm/config/key-tables.html
+  key_tables = {
+    -- Paneサイズ調整 leader + s
+    resize_pane = {
+      { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
+      { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
+      { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
+      { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
+
+      -- Cancel the mode by pressing escape
+      { key = "Enter", action = "PopKeyTable" },
+    },
+    activate_pane = {
+      { key = "h", action = act.ActivatePaneDirection("Left") },
+      { key = "l", action = act.ActivatePaneDirection("Right") },
+      { key = "k", action = act.ActivatePaneDirection("Up") },
+      { key = "j", action = act.ActivatePaneDirection("Down") },
+    },
+    -- copyモード leader + [
+    copy_mode = {
+      -- 移動
+      { key = "h", mods = "NONE", action = act.CopyMode("MoveLeft") },
+      { key = "j", mods = "NONE", action = act.CopyMode("MoveDown") },
+      { key = "k", mods = "NONE", action = act.CopyMode("MoveUp") },
+      { key = "l", mods = "NONE", action = act.CopyMode("MoveRight") },
+      -- 最初と最後に移動
+      { key = "^", mods = "NONE", action = act.CopyMode("MoveToStartOfLineContent") },
+      { key = "$", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+      -- 左端に移動
+      { key = "0", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+      { key = "o", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEnd") },
+      { key = "O", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
+      --
+      { key = ";", mods = "NONE", action = act.CopyMode("JumpAgain") },
+      -- 単語ごと移動
+      { key = "w", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+      { key = "b", mods = "NONE", action = act.CopyMode("MoveBackwardWord") },
+      { key = "e", mods = "NONE", action = act.CopyMode("MoveForwardWordEnd") },
+      -- ジャンプ機能 t f
+      { key = "t", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = true } }) },
+      { key = "f", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = false } }) },
+      { key = "T", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
+      { key = "F", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
+      -- 一番下へ
+      { key = "G", mods = "NONE", action = act.CopyMode("MoveToScrollbackBottom") },
+      -- 一番上へ
+      { key = "g", mods = "NONE", action = act.CopyMode("MoveToScrollbackTop") },
+      -- viweport
+      { key = "H", mods = "NONE", action = act.CopyMode("MoveToViewportTop") },
+      { key = "L", mods = "NONE", action = act.CopyMode("MoveToViewportBottom") },
+      { key = "M", mods = "NONE", action = act.CopyMode("MoveToViewportMiddle") },
+      -- スクロール
+      { key = "b", mods = "CTRL", action = act.CopyMode("PageUp") },
+      { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
+      { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
+      { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
+      -- 範囲選択モード
+      { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
+      { key = "v", mods = "CTRL", action = act.CopyMode({ SetSelectionMode = "Block" }) },
+      { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+      -- コピー
+      { key = "y", mods = "NONE", action = act.CopyTo("Clipboard") },
+
+      -- コピーモードを終了
+      {
+        key = "Enter",
+        mods = "NONE",
+        action = act.Multiple({ { CopyTo = "ClipboardAndPrimarySelection" }, { CopyMode = "Close" } }),
+      },
+      { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
+      { key = "c", mods = "CTRL", action = act.CopyMode("Close") },
+      { key = "q", mods = "NONE", action = act.CopyMode("Close") },
+    },
+  },
+}
 
 ```
 
@@ -150,7 +355,6 @@ starshipのカスタマイズ方法は記憶の彼方にあるのでとりあえ
 :::details starshipの設定
 
 ```toml:~/.config/starship.toml
-# promptのカラーを設定しています、$変数は後述で設定している変数が差し込まれます
 format = """
 $directory\
 [ ](fg:#88C0D0 bg:#1d2230)\
@@ -238,10 +442,18 @@ vimcmd_symbol = '[V](bold green) '
 設定ファイルは`~/.wezterm.lua`に配置します。
 uiの設定とキーバインドを別のファイルに分けて管理する派の方は`~/.config/wezterm/wezterm.lua`と`~/.config/wezterm/keybind.lua`で分けるのもありです。
 この記事では後者で設定していきます。
-このカスタマイズを機に設定ファイルをGitHubで管理したくなった場合は下記の記事が参考にしてください。
-[ようこそdotfilesの世界へ #Vim - Qiita](https://qiita.com/yutkat/items/c6c7584d9795799ee164)
 
-まずは下記のような設定ファイルの雛形を用意しましょう。
+このカスタマイズを機に設定ファイルをGitHubで管理したくなった場合は下記の記事が参考にしてください。
+@[card](https://qiita.com/yutkat/items/c6c7584d9795799ee164)
+
+まずは、`~/.config/wezterm`ディレクトリを作成し、その中に`wezterm.lua`を作成します。
+
+```bash
+mkdir -p ~/.config/wezterm
+touch ~/.config/wezterm/wezterm.lua
+```
+
+続いて、設定ファイルに下記のような雛形を記述します。
 
 ```lua:~/.config/wezterm/wezterm.lua
 -- Pull in the wezterm API
@@ -260,7 +472,7 @@ config.color_scheme = 'AdventureTime'
 return config
 ```
 
-> 参照: [Configuration - Wez's Terminal Emulator](https://arc.net/l/quote/upsihqso)
+> [Configuration - Wez's Terminal Emulator](https://arc.net/l/quote/upsihqso)
 
 ## window全体の設定
 
@@ -734,18 +946,261 @@ return config
 
 ![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
 
+公式ドキュメントには他にもたくさんの設定があります。
+ぜひ自分好みにカスタマイズしてみてください。
+
 ## キーバインドの設定
 
 見た目が整ったところで、操作性も整えていきましょう。
 
 ### キーバインド設定ファイルを作成
 
-weztermのキーバインドはたくさんあるため、デフォルトの設定をファイルに流し込んでカスタマイズしていくのが楽ちんでオススメです。
+weztermのキーバインドはたくさんあります。
+下記のコマンドを入力すると、現在の設定が表示されます。
+
+```shell
+wezterm show-keys
+```
+
+...結構ありますね。この量を全て書いていくのは大変なので現在の設定をファイルに流し込んでからカスタマイズしていきましょう。
+
+```shell
+cd ~/.config/wezterm
+wezterm show-keys --lua > keybinds.lua
+```
+
+keybinds.luaを読み込めるようにwezterm.luaに下記を追加しましょう。
+
+```lua:~/.config/wezterm/wezterm.lua
+config.keys = require("keybinds").keys
+config.key_tables = require("keybinds").key_tables
+```
+
+デフォルトのキーバインドを無効にする場合は下記の設定を追加します。
+
+```lua:~/.config/wezterm/wezterm.lua
+config.disable_default_key_bindings = true
+```
+
+### leaderキーの設定
+
+`leader`キーとはprefixキーのことで、Vimでいうところの`<Leader>`にあたります。
+つまり、「これからショートカットキーを打つモードに入るぜ！」という合図をするのようなものです。
+デフォルトでは`Control`+`a`に設定されていますが、このキーバインドはEmacsの行頭へ移動するキーバインドと被るため私は`Control`+`q`に変更しています。
+
+```lua:~/.config/wezterm/wezterm.lua
+config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+```
+
+> [Key Binding - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/keys.html#voidsymbol)
+
+自分が設定しているキーバインドも置いておきます。
+
+:::details keybinds.lua
+
+```lua:~/.config/wezterm/keybinds.lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+-- Show which key table is active in the status area
+wezterm.on("update-right-status", function(window, pane)
+  local name = window:active_key_table()
+  if name then
+    name = "TABLE: " .. name
+  end
+  window:set_right_status(name or "")
+end)
+
+return {
+  keys = {
+    {
+      -- workspaceの切り替え
+      key = "w",
+      mods = "LEADER",
+      action = act.ShowLauncherArgs({ flags = "WORKSPACES", title = "Select workspace" }),
+    },
+    {
+      --workspaceの名前変更
+      key = "$",
+      mods = "LEADER",
+      action = act.PromptInputLine({
+        description = "(wezterm) Set workspace title:",
+        action = wezterm.action_callback(function(win, pane, line)
+          if line then
+            wezterm.mux.rename_workspace(wezterm.mux.get_active_workspace(), line)
+          end
+        end),
+      }),
+    },
+    {
+      key = "W",
+      mods = "LEADER|SHIFT",
+      action = act.PromptInputLine({
+        description = "(wezterm) Create new workspace:",
+        action = wezterm.action_callback(function(window, pane, line)
+          if line then
+            window:perform_aciton(
+              act.SwitchToWorkspace({
+                name = line,
+              }),
+              pane
+            )
+          end
+        end),
+      }),
+    },
+    -- コマンドパレット表示
+    { key = "p", mods = "SUPER", action = act.ActivateCommandPalette },
+    -- Tab移動
+    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+    { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+    -- Tab入れ替え
+    { key = "{", mods = "LEADER", action = act({ MoveTabRelative = -1 }) },
+    -- Tab新規作成
+    { key = "t", mods = "SUPER", action = act({ SpawnTab = "CurrentPaneDomain" }) },
+    -- Tabを閉じる
+    { key = "w", mods = "SUPER", action = act({ CloseCurrentTab = { confirm = true } }) },
+    { key = "}", mods = "LEADER", action = act({ MoveTabRelative = 1 }) },
+
+    -- 画面フルスクリーン切り替え
+    { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
+
+    -- コピーモード
+    -- { key = 'X', mods = 'LEADER', action = act.ActivateKeyTable{ name = 'copy_mode', one_shot =false }, },
+    { key = "[", mods = "LEADER", action = act.ActivateCopyMode },
+    -- コピー
+    { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+    -- 貼り付け
+    { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+
+    -- Pane作成 leader + r or d
+    { key = "d", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    { key = "r", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+    -- Paneを閉じる leader + x
+    { key = "x", mods = "LEADER", action = act({ CloseCurrentPane = { confirm = true } }) },
+    -- Pane移動 leader + hlkj
+    { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
+    { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
+    { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
+    { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
+    -- Pane選択
+    { key = "[", mods = "CTRL|SHIFT", action = act.PaneSelect },
+    -- 選択中のPaneのみ表示
+    { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+
+    -- フォントサイズ切替
+    { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
+    { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
+    -- フォントサイズのリセット
+    { key = "0", mods = "CTRL", action = act.ResetFontSize },
+
+    -- タブ切替 Cmd + 数字
+    { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
+    { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
+    { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
+    { key = "4", mods = "SUPER", action = act.ActivateTab(3) },
+    { key = "5", mods = "SUPER", action = act.ActivateTab(4) },
+    { key = "6", mods = "SUPER", action = act.ActivateTab(5) },
+    { key = "7", mods = "SUPER", action = act.ActivateTab(6) },
+    { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
+    { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
+
+    -- コマンドパレット
+    { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
+    -- 設定再読み込み
+    { key = "r", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+    -- キーテーブル用
+    { key = "s", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
+    {
+      key = "a",
+      mods = "LEADER",
+      action = act.ActivateKeyTable({ name = "activate_pane", timeout_milliseconds = 1000 }),
+    },
+  },
+  -- キーテーブル
+  -- https://wezfurlong.org/wezterm/config/key-tables.html
+  key_tables = {
+    -- Paneサイズ調整 leader + s
+    resize_pane = {
+      { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
+      { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
+      { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
+      { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
+
+      -- Cancel the mode by pressing escape
+      { key = "Enter", action = "PopKeyTable" },
+    },
+    activate_pane = {
+      { key = "h", action = act.ActivatePaneDirection("Left") },
+      { key = "l", action = act.ActivatePaneDirection("Right") },
+      { key = "k", action = act.ActivatePaneDirection("Up") },
+      { key = "j", action = act.ActivatePaneDirection("Down") },
+    },
+    -- copyモード leader + [
+    copy_mode = {
+      -- 移動
+      { key = "h", mods = "NONE", action = act.CopyMode("MoveLeft") },
+      { key = "j", mods = "NONE", action = act.CopyMode("MoveDown") },
+      { key = "k", mods = "NONE", action = act.CopyMode("MoveUp") },
+      { key = "l", mods = "NONE", action = act.CopyMode("MoveRight") },
+      -- 最初と最後に移動
+      { key = "^", mods = "NONE", action = act.CopyMode("MoveToStartOfLineContent") },
+      { key = "$", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+      -- 左端に移動
+      { key = "0", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+      { key = "o", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEnd") },
+      { key = "O", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
+      --
+      { key = ";", mods = "NONE", action = act.CopyMode("JumpAgain") },
+      -- 単語ごと移動
+      { key = "w", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+      { key = "b", mods = "NONE", action = act.CopyMode("MoveBackwardWord") },
+      { key = "e", mods = "NONE", action = act.CopyMode("MoveForwardWordEnd") },
+      -- ジャンプ機能 t f
+      { key = "t", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = true } }) },
+      { key = "f", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = false } }) },
+      { key = "T", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
+      { key = "F", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
+      -- 一番下へ
+      { key = "G", mods = "NONE", action = act.CopyMode("MoveToScrollbackBottom") },
+      -- 一番上へ
+      { key = "g", mods = "NONE", action = act.CopyMode("MoveToScrollbackTop") },
+      -- viweport
+      { key = "H", mods = "NONE", action = act.CopyMode("MoveToViewportTop") },
+      { key = "L", mods = "NONE", action = act.CopyMode("MoveToViewportBottom") },
+      { key = "M", mods = "NONE", action = act.CopyMode("MoveToViewportMiddle") },
+      -- スクロール
+      { key = "b", mods = "CTRL", action = act.CopyMode("PageUp") },
+      { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
+      { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
+      { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
+      -- 範囲選択モード
+      { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
+      { key = "v", mods = "CTRL", action = act.CopyMode({ SetSelectionMode = "Block" }) },
+      { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+      -- コピー
+      { key = "y", mods = "NONE", action = act.CopyTo("Clipboard") },
+
+      -- コピーモードを終了
+      {
+        key = "Enter",
+        mods = "NONE",
+        action = act.Multiple({ { CopyTo = "ClipboardAndPrimarySelection" }, { CopyMode = "Close" } }),
+      },
+      { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
+      { key = "c", mods = "CTRL", action = act.CopyMode("Close") },
+      { key = "q", mods = "NONE", action = act.CopyMode("Close") },
+    },
+  },
+}
+```
+
+:::
 
 ## 最後に
 
 weztermの記事を書いた人はコメント欄でぜひ宣伝してください！
-ターミナル自慢もお待ちしています！
+ターミナル&dotfiles自慢もお待ちしています！
 いろんな人のカスタマイズを参考にしたい場合はweztermのGitHub Discussionsを見てみるのもいいかもしれません。
 [Show your wezterms · wez/wezterm · Discussion #628](https://github.com/wez/wezterm/discussions/628)
 
