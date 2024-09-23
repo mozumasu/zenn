@@ -3,7 +3,7 @@ title: "モテるターミナルにカスタマイズしよう（wezterm）"
 emoji: "💘"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [wezterm, CLI, terminal]
-published: false
+published: true
 ---
 
 ## はじめに完成系を晒す
