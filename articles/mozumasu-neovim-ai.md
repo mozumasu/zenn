@@ -8,7 +8,7 @@ published: false
 
 ## はじめに
 
-Cursorみたいに、NeoVimでAIに質問できるプラグインを紹介します。
+Cursorみたいに、NeoVimでAIに質問できるプラグインです。
 @[card](https://github.com/yetone/avante.nvim)
 
 ## avante.nvimとは
@@ -65,7 +65,7 @@ lazy.nvimでインストールする場合は下記のコードを追加しま�
 }
 ```
 
-プロバイダーの設定が住んでいない場合は`ANTHROPIC_API_KEY`の入力を求められます。
+プロバイダーの設定が済んでいない場合は`ANTHROPIC_API_KEY`の入力を求められます。
 ![avante start](/images/avante/avante_start.png)
 
 ## キーバインド
@@ -87,3 +87,28 @@ lazy.nvimでインストールする場合は下記のコードを追加しま�
 | `[` `x`            | 次の競合に移動                           |
 | `[` `[`            | 前のコードブロックに移動(結果ウィンドウ) |
 | `]` `]`            | 次のコードブロックに移動(結果ウィンドウ) |
+
+## Copilot
+
+neovimでCopilotを使用したい場合はCopilot.luaがオススメです。
+
+Copilotをいい感じに使用する場合は下記のプラグインを使用します。
+
+- LazyVimで使用したい場合は、以下のように一行加えるだけで設定できます。
+
+```diff lua:~/.config/nvim/lua/config/lazy.lua
+require("lazy").setup({
+  spec = {
+    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
++   { import = "lazyvim.plugins.extras.coding.copilot" },
+    { import = "plugins" },
+  },
+})
+```
+
+> [Copilot | LazyVim](https://www.lazyvim.org/extras/coding/copilot)
+
+### デフォルトの設定を変更する
+
+Extrasのデフォルトの設定だとEnterで補完するようになっているため、意図せずに補完が適用されることがあります。
+Tabで補完できるように変更します。
