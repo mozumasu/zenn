@@ -1,35 +1,69 @@
 ---
-title: "クソザコだってVimりたい！(NeoVim,LazyVim)"
+title: "クソザコだってVimりたい！(Neovim,LazyVim)"
 emoji: "💤"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [lazyvim, neovim, lua]
 published: false
 ---
 
-## はじめに
+## 概要
 
-Vimmerの方の画面を見ると、人間離れした速さでコードを書いていて、まるで魔法を使っているかのように感じます。
+NeovimをカスタマイズしてVimのキーバインドを練習する環境を構築していくぜ！
+
+この記事は以下のような方にオススメです。
+
+- Vimのキーバインドを開発で試してみたいな〜
+- カスタマイズってどうやるの？
+- LazyVimってどんな感じで設定されてるんだろ〜
+
+## なぜ人はVimるのか
+
+Vimは歴史のあるテキストエディターです。
+昨今では次々と新しいエディターが登場していますが、今もVimを使い始める人が後を絶ちません。(ソース: [エンジニアの楽園Vim-jp](https://vim-jp.org/docs/chat.html))
+その自分なりに理由を考えてみました。
+
+- 起動が爆速
+- ターミナルで使える
+- VimならVim Script、NeovimならLuaで細かくカスタマイズできる
+- マウスを使わずに爆速コーディングできる
+- 独特だが慣れると快適なキーバインド
+- かっこいい
+- ただでさえかっこいいのに、カスタマイズでさらにかっこいい
+
+ちなみにVimといえば、VimとNeovimという2つのエディターがあります。
+違いを知りたい方は下記の記事を参考にしてみてください。
+今回はNeovimを使っていきます。
+@[card](https://qiita.com/powdersugar828828/items/f31ca3bd28d3163fae6a)
+
+Vimmerの方の画面を見ると人間離れした速さでコードを書いていてまるで魔法を使っているかのように感じます。
 そんなVimmerに憧れて、Vimを使ってみたいと思っている方も多いのではないでしょうか？
 
-しかし、Vimは学習コストが高く、設定も自身で行う必要があるためなかなか手が出しづらいです。
+Vimに慣れるためにはやはり実際に使ってみることが一番です。
 
 🐮 < 「設定が済んでいるやつで試せたらなぁ〜」
-🦥 < 「そんなあなたにLazyVimをご紹介！！」
+🦥 < 「そんなあなたにセットアップ済みのNeovimをご紹介！！」
 
-Vimの操作を練習するにも、playgroundがかっこいい方がモチベが上がりますよね。
-早速NeoVimとLazyVimを使ってバチイケコーディング環境を構築しちゃいましょう！
+LazyVimのスターターを導入すれば今すぐVimのキーバインドでコーディングを始めることができます！
+![LazyVim](https://user-images.githubusercontent.com/292349/213447056-92290767-ea16-430c-8727-ce994c93e9cc.png)
+
+しかも見た目はこんな感じに簡単に変更できちゃうんです。(デフォルトのキーバインド: `leader`→`u`→`C`)
+![alt change color](/images/lazyvim/change_color.gif =700x)
+日替わりでテーマを変えて楽しむことだってできちゃいまね。
+
+設定済みのNeovimを使ってみることによって、設定方法を知りつつキーバインドの設定なども参考にすることができます。
+この記事を読み終わる頃にはNeovimのカスタマイズに興味が出ること間違いなしです。
+
+早速NeovimとLazyVimを使ってバチイケコーディング環境を構築しちゃいましょう！
 
 ## LazyVimとは
 
-LazyVimとは[lazy.nvim](https://github.com/folke/lazy.nvim)というプラグインマネージャーでNeoVimをセットアップしたものです。
+LazyVimとは[lazy.nvim](https://github.com/folke/lazy.nvim)というプラグインマネージャーでNeovimをセットアップしたものです。
 @[card](https://www.lazyvim.org/)
 このセットアップは簡単に拡張したり、カスタマイズできたりするのでVimの初心者にもおすすめです。
-見た目も超かっこいいです。
 
-![LazyVim](https://user-images.githubusercontent.com/292349/213447056-92290767-ea16-430c-8727-ce994c93e9cc.png)
-しかも見た目はこんな感じに簡単に変更できちゃうんです。(デフォルトのキーバインド: `leader`→`u`→`C`)
-日替わりでテーマを変えて楽しむことだってできちゃいます。
-![alt change color](/images/lazyvim/change_color.gif =700x)
+ちなみにすでにセットアップ済みのNeovimはLazyVim意外にも[AstroNvim](https://astronvim.com/)というものもあります。
+LazyVimとAstroNvimの設定を見比べるのも結構面白いです。
+@[card](https://github.com/AstroNvim/astrocommunity)
 
 ### Dockerでサクッと試す
 
