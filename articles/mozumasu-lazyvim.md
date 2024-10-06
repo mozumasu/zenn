@@ -82,7 +82,7 @@ docker run -w /root -it --rm alpine:edge sh -uelic '
 
 Dockerを使用すると、ホストマシンの隔離された領域で特定のコマンドを1つのプロセスとして実行することができます。
 
-今回の場合は、隔離された領域にAlpine Linuxの最新版をインストールし、LazyVimをセットアップするためのコマンドを実行してnvimというNeoVimを起動するコマンドを実行しています。
+今回の場合は、隔離された領域にAlpine Linuxの最新版をインストールし、LazyVimをセットアップするためのコマンドを実行してnvimというNeovimを起動するコマンドを実行しています。
 
 Dockerは下記の記事がめちゃくちゃわかりやすいのでぜひ読んでみてください。
 最初にこの本に出会いたかった！
@@ -317,7 +317,7 @@ keydel("t", "<C-l>", { desc = "Go to Right Window" })
 
 :::
 
-## NeoVim内でできるだけ管理したい
+## Neovim内でできるだけ管理したい
 
 みなさんは、エディタ内でありとあらゆることを完結させたいという欲望はありませんか？
 実はプラグインやツールを使用することで、Neovim内で大抵のことは完結させることができます。
@@ -348,7 +348,7 @@ issueやプルリクエストは[Octo](https://www.lazyvim.org/extras/util/octo)
 
 ### docker管理
 
-どうせならNeoVim内でDockerも管理したいですよね？したいよね？
+どうせならNeovim内でDockerも管理したいですよね？したいよね？
 そんなあなたにおすすめのプラグインがこちら！
 
 @[card](https://github.com/abiosoft/colima)
@@ -358,7 +358,7 @@ colimaでdockerを起動し、lazydockerでコンテナを管理しましょう�
 そして、`<leader>d`でlazydockerを開くことができます。
 lazydockerのキーバインドは`?`を押すと現在いるpane内で使用できるキーバインド一覧が表示されます。
 
-lazydockerをNeoVim内で開くための設定は以下の通りです。
+lazydockerをNeovim内で開くための設定は以下の通りです。
 
 ```lua:~/.config/nvim/lua/config/keymaps.lua
 -- lazydocker
@@ -392,3 +392,8 @@ path:**/neo-tree.lua
 
 パス意外にもissueやPRで検索することもできます。
 検索ヒット数が少ないのであればフィルターをCodeにしてファイル名のみで検索をかけることもあります。
+
+### 参照
+
+URLを開く
+[VimでgfしたらURLをブラウザで開く](https://blog.atusy.net/2023/12/09/gf-open-url/)
