@@ -27,8 +27,6 @@ published: false
 
 ## 使用するツールの紹介と導入
 
-![gif](/images/lazy-git/hoge.gif)
-
 ### ghq
 
 @[card](https://github.com/x-motemen/ghq)
@@ -195,6 +193,14 @@ module.exports = {
 ```
 
 :::
+
+### Git管理をシンプルに
+
+Git管理を簡単にするツール`lazygit`を使用します。
+ターミナルでもNeovimでも使用することができます。
+下記のように簡単にファイルをステージング&コミットし、Pushすることができます。
+![lazygit](/images/lazy-git/lazygit.gif =700x)
+
 コミットメッセージを英語にしたい場合はNeovimを使ってサクッと翻訳してコミットしましょう。
 
 TODO: 英語に翻訳してコミット
