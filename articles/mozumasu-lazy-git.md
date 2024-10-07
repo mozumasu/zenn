@@ -25,42 +25,6 @@ published: false
 目指す姿↓↓
 ここにGifを載せる
 
-## 使用するツールの紹介と導入
-
-### ghq
-
-@[card](https://github.com/x-motemen/ghq)
-
-インストール
-
-```sh
-brew install ghq
-```
-
-`ghq`で管理するリポジトリのディレクトリのパスは`~/.gitconfig`の`[ghq] root`で指定します。
-
-```ini:~/.gitconfig
-[ghq]
- root = /Users/username/src
-```
-
-### GitHub CLI (gh)
-
-@[card](https://github.com/cli/cli)
-GitHub CLIの導入は以下の記事を参考にしてください。
-@[card](https://zenn.dev/toraco/articles/d6b760fd11bf3a)
-
-### git-cz
-
-[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)というコミットメッセージの標準規格に従ったコミットメッセージを作成することができます。
-@[card](https://github.com/streamich/git-cz)
-
-インストール
-
-```sh
-npm install -g git-cz
-```
-
 ## 学習の初めをスマートに
 
 新しい言語やツールを試す時、GitHubリポジトリを用意してローカルにもディレクトリを用意すると思います。
@@ -205,10 +169,47 @@ Git管理を簡単にするツール`lazygit`を使用します。
 
 TODO: 英語に翻訳してコミット
 
+## 使用するツールの紹介と導入
+
+### ghq
+
+@[card](https://github.com/x-motemen/ghq)
+
+インストール
+
+```sh
+brew install ghq
+```
+
+`ghq`で管理するリポジトリのディレクトリのパスは`~/.gitconfig`の`[ghq] root`で指定します。
+
+```ini:~/.gitconfig
+[ghq]
+ root = /Users/username/src
+```
+
+### GitHub CLI (gh)
+
+@[card](https://github.com/cli/cli)
+GitHub CLIの導入は以下の記事を参考にしてください。
+@[card](https://zenn.dev/toraco/articles/d6b760fd11bf3a)
+
+### git-cz
+
+[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)というコミットメッセージの標準規格に従ったコミットメッセージを作成することができます。
+@[card](https://github.com/streamich/git-cz)
+
+インストール
+
+```sh
+npm install -g git-cz
+```
+
+## おわりに
+
+タイトルを考えるのが苦手で迷ったらモテるをつければいいと思っている節がある。
+次回は真面目なタイトルを考えられるように頑張る。
+
 ## 参照
 
 [ghqでリポジトリ管理を簡単にする](https://zenn.dev/oreo2990/articles/13c80cf34a95af)
-
-```
-
-```
