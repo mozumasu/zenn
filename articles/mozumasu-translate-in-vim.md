@@ -30,6 +30,7 @@ published: false
 対応している翻訳エンジンは色々選べるようです。
 自分はどちらもGoogle翻訳を使用しています。
 
+自分の設定ファイルを置いておきます。
 :::details 設定ファイル(パッケージマネージャー: lazy.nvim)
 
 `<cmd>`と`:`が混在しているのは、Visualモードの時の挙動が安定しないためです。
@@ -261,6 +262,59 @@ man 調べたいコマンド | col -b | nvim -
 翻訳したい部分を選択して[avante.nvim](https://github.com/yetone/avante.nvim)の編集機能を使って翻訳します。
 
 ![translate man](/images/translate-in-vim/translate_man.gif =700x)
+
+:::details avante.nvimの設定ファイル
+
+```lua ~/.config/nvim/lua/plugins/avante.lua
+return {
+  "yetone/avante.nvim",
+  event = "VeryLazy",
+  lazy = false,
+  version = false, -- set this if you want to always pull the latest change
+  opts = {
+    provider = "copilot",
+  },
+  keys = { "<leader>a", desc = "Avante" },
+  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+  build = "make",
+  -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+  dependencies = {
+    "stevearc/dressing.nvim",
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    --- The below dependencies are optional,
+    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+    "zbirenbaum/copilot.lua", -- for providers='copilot'
+    {
+      -- support for image pasting
+      "HakonHarnes/img-clip.nvim",
+      event = "VeryLazy",
+      opts = {
+        -- recommended settings
+        default = {
+          embed_image_as_base64 = false,
+          prompt_for_file_name = false,
+          drag_and_drop = {
+            insert_mode = true,
+          },
+          -- required for Windows users
+          -- use_absolute_path = true,
+        },
+      },
+    },
+    {
+      -- Make sure to set this up properly if you have lazy=true
+      "MeanderingProgrammer/render-markdown.nvim",
+      opts = {
+        file_types = { "markdown", "Avante" },
+      },
+      ft = { "markdown", "Avante" },
+    },
+  },
+}
+```
+
+:::
 
 ## おわりに
 
