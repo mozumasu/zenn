@@ -1,8 +1,0 @@
-[default]
-extend-ignore-re = ["<cmd>.+<cr>", "<leader>.+`","Translate."]
-
-[default.extend-words]
-mozumasu = "mozumasu"
-iterm = "iterm"
-args = "args"
-tre = "tre"
