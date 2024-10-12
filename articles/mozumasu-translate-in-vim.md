@@ -27,7 +27,8 @@ published: false
 @[card](https://github.com/potamides/pantran.nvim)
 
 といった感じで使い分けています。
-どちらもGoogle翻訳を使用しています。他の翻訳エンジンも設定可能です。
+対応している翻訳エンジンは色々選べるようです。
+自分はどちらもGoogle翻訳を使用しています。
 
 :::details 設定ファイル(パッケージマネージャー: lazy.nvim)
 
@@ -231,13 +232,37 @@ return {
 ## pantran.nvim (Neovim)
 
 長めの文章を翻訳する時に使っています。
-日本語を英語に翻訳してコメントやコミットメッセージを書く時にも重宝します。
-
 @[card](https://github.com/potamides/pantran.nvim)
 
-### ウィンドウで翻訳
+### 翻訳してコミットメッセージを書く
 
-### おまけ: manコマンドの出力をどうにかこうにかして翻訳する
+日本語を英語に翻訳してコメントやコミットメッセージを書く時にも重宝します。
+
+1. `<leader>tw`で翻訳ウィンドウを表示
+2. `S`で言語を切り替え
+3. 翻訳した内容を`<C-y>`でコピー
+4. [Lazygit](https://github.com/jesseduffield/lazygit)&[git-cz](https://github.com/streamich/git-cz)でコミットメッセージを作成
+
+![pantran.nvim](/images/translate-in-vim/pantran_nvim.gif =700x)
+
+英語でコメントやコミットメッセージを書くハードルが下がりますね。
+
+## おまけ: manコマンドの出力をどうにかこうにかして翻訳する
 
 急ぎでmanコマンドの内容確認しないといけない時に日本語にして読みたくなることがあります。
 絶対もっといい方があるとは思いつつ置いておきます。
+
+以下のコマンドで、manの内容をNeovimで開き、
+
+```sh
+man 調べたいコマンド | col -b | nvim -
+```
+
+翻訳したい部分を選択して[avante.nvim](https://github.com/yetone/avante.nvim)の編集機能を使って翻訳します。
+
+![translate man](/images/translate-in-vim/translate_man.gif =700x)
+
+## おわりに
+
+vim駅伝まだまだ募集中だよ！！！気軽に参加してみてね！！！
+@[card](https://vim-jp.org/ekiden/)
