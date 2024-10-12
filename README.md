@@ -65,6 +65,8 @@ git-czの設定ファイル ([changelog.config.js](changelog.config.js)) でコ�
 | chore          | CI/CDの変更やパッケージのアップデートなど |
 | docs           | ドキュメントの更新                        |
 
-```
+## 動画をGIFに変換
 
+```sh
+ffmpeg -i input.mov -r 10 -loop 0 output.gif
 ```
