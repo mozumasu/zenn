@@ -3,7 +3,7 @@ title: "NeoVimで翻訳したろ"
 emoji: "😊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [neovim, vim]
-published: false
+published: true
 ---
 
 :::message
