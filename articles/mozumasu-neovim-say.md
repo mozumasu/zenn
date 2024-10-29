@@ -3,7 +3,7 @@ title: "Neovimを喋らせたろ"
 emoji: "🐈"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [neovim, say]
-published: true
+published: false
 publishedAt: 2024-10-30 07:00
 ---
 
