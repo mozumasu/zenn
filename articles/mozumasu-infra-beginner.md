@@ -8,15 +8,47 @@ published: false
 
 ## はじめに
 
-インフラ周りのタスクをやり始めて3ヶ月くらい立ったので、これ知っておいて良かったなとか教わって良かったなというものをまとめてみました。
+インフラ周りのタスクをやり始めて3ヶ月くらい立ったので、役に立った知識をまとめました。
 インフラも気になるなと思っている方の参考になれば幸いです。
 
 とはいえ自分の主観をつらつら書いているので、こうした方がいいよ！という意見があればぜひ教えていただきたいです。
 
 ## CLIの設定
 
+## シェルの設定
+
 shellは特にこだわりがないのであれば多機能で情報も豊富なzshがオススメです。
-CIやサーバー環境でよく使用されているbashとも似ているというメリットもあります。
+zshはCIやサーバー環境でよく使用されているbashの拡張版です。
+
+### zshの設定ファイル
+
+### エイリアスの設定
+
+とにかくいろんなコマンドを打ちまくるのでエイリアス登録は必須です。
+自分はこんな感じで設定しています。
+
+```sh
+abbr -S ll='ls -l' >>/dev/null
+abbr -S la='ls -A' >>/dev/null
+abbr -S f='open .' >>/dev/null
+```
+
+@[card](https://qiita.com/ucan-lab/items/1794940a64882021dcb1)
+
+設定ファイルも置いておきます。
+<https://github.com/mozumasu/dotfiles/blob/main/.config/zsh/.zshrc#L64>
+
+エイリアスの設定ですが自分は以下の2通りで設定しています。
+
+```sh: ~/.zshrc
+# 入力後にスペースを入力したり、コマンド実行すると元のコマンドが表示される (Zshの独自機能)
+abbr -S ll='ls -l' >>/dev/null
+# 元のコマンドを表示しない
+alias ggrks='google'
+```
+
+関数のエイリアスを設定する場合はalias、コマンドのエイリアスを設定する場合はabbrを使います。
+ggrksは元のコマンドを表示したいくないのでaliasを使っています。
 
 ## CLIツール
 
@@ -31,6 +63,14 @@ CLI生活を豊かにするためには操作対象の選択やディレクト�
 @[card](https://github.com/junegunn/fzf)
 
 ### zコマンド
+
+zコマンドは一度移動したことのあるディレクトリに瞬時に移動することができるツールです。
+@[card](https://github.com/rupa/z)
+例えば、dotfilesという名前のディレクトリに移動したい場合は、ディレクトリ名の一部を以下のように入力するだけで移動できます。
+
+```sh
+z dot
+```
 
 ## サーバーの接続情報管理 ~/.ssh/config
 
@@ -215,6 +255,36 @@ LSPを設定しておけば補完候補でどんな機能があるかを教え�
 
 ### サーバーに接続できない時はまずはポートが空いているか確認
 
+## Docker
+
+コンテナを使用した動作検証を行ったり、ECSやEKSを使用している場合はDockerを使うことが多いです。
+そのためDockerの基本的な概念や操作は押さえておく必要があります。
+
+Dockerについてはインフラ初心者でも読みやすい以下の書籍がオススメです。
+使いも多く、コンテナそのものの技術への理解が深まります。
+
+### Dockerの起動
+
+Dockerの起動を行うためにDockerデスクトップを使用すると思いますが、じつはCLIでもColimaというツールを使ってDockerを起動することができます。
+@[card](https://github.com/abiosoft/colima)
+
+```sh
+# Dockerの起動
+colima start
+# Dockerの停止
+colima stop
+```
+
+### Dockerの管理や操作
+
+コンテナのプロセスやログの確認にはlazydockerを使用しています。コマンドを都度入力する手間が省けて便利です。
+@[card](https://github.com/jesseduffield/lazydocker)
+他の選択肢としては[docui](https://github.com/skanehira/docui)や[Oxker](https://github.com/mrjackwills/oxker)などがあります。
+
+```sh
+lazydokcer
+```
+
 ## おまけ: 心構えとか
 
 4ヶ月目の人間の心構えって何やねん、と思われるかもしれませんがおいておきます。誇り高く生きるために。
@@ -295,3 +365,5 @@ Ansibleは凝ろうと思えば凝れるし、簡単に使えるようにもで�
 <https://qiita.com/passol78/items/2ad123e39efeb1a5286b>
 zshの設定
 <https://qiita.com/ucan-lab/items/1794940a64882021dcb1>
+DockerのTUIツール
+<https://zenn.dev/toridori/articles/5ac8d3618c9009>
