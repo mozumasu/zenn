@@ -8,18 +8,19 @@ published: false
 
 ## 概要
 
-NeovimをカスタマイズしてVimのキーバインドを練習する環境を構築していくぜ！
+NeovimをカスタマイズしてVimのキーバインドを練習する環境を構築していくよ=^・ω・^=
 
-この記事は以下のような方にオススメです。
+こんな人にオススメ
 
-- Vimのキーバインドを開発で試してみたいな〜
+- Vimのキーバインドを開発で試してみたいな
 - カスタマイズってどうやるの？
-- LazyVimってどんな感じで設定されてるんだろ〜
+- LazyVimってどんな感じで設定されてるんだろ
+- 思考の速さでコーディングしたい
 
 ## なぜ人はVimるのか
 
 Vimは歴史のあるテキストエディターです。
-昨今では次々と新しいエディターが登場していますが、今もVimを使い始める人が後を絶ちません。(ソース: [エンジニアの楽園Vim-jp](https://vim-jp.org/docs/chat.html))
+昨今新しいエディターが次々と登場していますが、今もVimを使い始める人が後を絶ちません。(ソース: [エンジニアの楽園Vim-jp](https://vim-jp.org/docs/chat.html))
 その自分なりに理由を考えてみました。
 
 - 起動が爆速
@@ -38,7 +39,7 @@ Vimは歴史のあるテキストエディターです。
 Vimmerの方の画面を見ると人間離れした速さでコードを書いていてまるで魔法を使っているかのように感じます。
 そんなVimmerに憧れて、Vimを使ってみたいと思っている方も多いのではないでしょうか？
 
-Vimに慣れるためにはやはり実際に使ってみることが一番です。
+Vimに慣れるためには実際に使ってみることが一番です。
 
 🐮 < 「設定が済んでいるやつで試せたらなぁ〜」
 🦥 < 「そんなあなたにセットアップ済みのNeovimをご紹介！！」
@@ -51,9 +52,9 @@ LazyVimのスターターを導入すれば今すぐVimのキーバインドで�
 日替わりでテーマを変えて楽しむことだってできちゃいまね。
 
 設定済みのNeovimを使ってみることによって、設定方法を知りつつキーバインドの設定なども参考にすることができます。
-この記事を読み終わる頃にはNeovimのカスタマイズに興味が出ること間違いなしです。
+この記事を読み終わる頃にはNeovimのカスタマイズに興味が湧いていることでしょう。
 
-早速NeovimとLazyVimを使ってバチイケコーディング環境を構築しちゃいましょう！
+早速LazyVimを使ってバチイケコーディング環境を構築しちゃいましょう！
 
 ## LazyVimとは
 
@@ -61,7 +62,7 @@ LazyVimとは[lazy.nvim](https://github.com/folke/lazy.nvim)というプラグ�
 @[card](https://www.lazyvim.org/)
 このセットアップは簡単に拡張したり、カスタマイズできたりするのでVimの初心者にもおすすめです。
 
-ちなみにすでにセットアップ済みのNeovimはLazyVim意外にも[AstroNvim](https://astronvim.com/)というものもあります。
+すでにセットアップ済みのNeovimといえば、LazyVim意外にも[AstroNvim](https://astronvim.com/)というものもあります。
 LazyVimとAstroNvimの設定を見比べるのも結構面白いです。
 @[card](https://github.com/AstroNvim/astrocommunity)
 
@@ -84,18 +85,109 @@ Dockerを使用すると、ホストマシンの隔離された領域で特定�
 
 今回の場合は、隔離された領域にAlpine Linuxの最新版をインストールし、LazyVimをセットアップするためのコマンドを実行してnvimというNeovimを起動するコマンドを実行しています。
 
-Dockerは下記の記事がめちゃくちゃわかりやすいのでぜひ読んでみてください。
-最初にこの本に出会いたかった！
-@[card](https://zenn.dev/suzuki_hoge/books/2022-03-docker-practice-8ae36c33424b59)
+Dockerはこちらの本が仕組みから解説されていておすすめです。
+[開発系エンジニアのためのDocker絵とき入門](https://amzn.asia/d/9CO0UzZ)
 :::
 
 ---
 
 ## LazyVimのスターターを導入
 
-### 日本語や赤い波線が引かれる
+公式ドキュメントに従ってLazyVimを導入していきます。
+
+> [🛠️ Installation | LazyVim](https://www.lazyvim.org/installation)
+
+まず既存のNeovimの設定ファイルをバックアップします。
+
+```sh
+mv ~/.config/nvim{,.bak}
+mv ~/.local/share/nvim{,.bak}
+mv ~/.local/state/nvim{,.bak}
+mv ~/.cache/nvim{,.bak}
+```
+
+LazyVimをインストールします。
+
+```sh
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+```
+
+不要な.gitディレクトリを削除します。
+
+```sh
+rm -rf ~/.config/nvim/.git
+```
+
+試しにNeovimを起動してみましょう。
+
+```sh
+nvim
+```
+
+## 設定方法
+
+LazyVimの公式ドキュメントが充実しているので、参考にしつつ設定していきましょう。
+
+## ファイル構成
+
+LazyVimの設定ファイルの全体像は以下の通りです。
+
+```sh
+~/.config/nvim               # Neovimの設定ディレクトリ
+├── lua
+│   ├── config
+│   │   ├── autocmds.lua     # 自動コマンド（autocmd）の設定ファイル
+│   │   ├── keymaps.lua      # キーマッピング（ショートカットキー）の設定ファイル
+│   │   ├── lazy.lua         # Lazy.nvim（プラグインマネージャー）の設定ファイル
+│   │   └── options.lua      # 基本オプション設定ファイル
+│   └── plugins              # プラグインの設定ファイルを保存するディレクトリ
+│       ├── spec1.lua        # プラグインの設定を記述したLuaスクリプト（1つ目の設定例）
+│       └── spec2.lua        # プラグインの設定を記述したLuaスクリプト（2つ目の設定例）
+└── init.toml                # Neovimの初期化設定ファイル（Lazy.nvimや特殊設定で使う場合）
+```
+
+> [⚙️ Configuration | LazyVim](https://www.lazyvim.org/configuration)
+
+一般的な設定は`~/.config/nvim/lua/config`ディレクトリに配置します。
+このディレクトリ配下にある`autocmds.lua`, `keymaps.lua`, `lazy.lua`, `options.lua`の4つのファイルは自動で読み込まれるため、手動でrequireする必要はありません。
+
+```sh diff
+~/.config/nvim                 # Neovimの設定ディレクトリ
+  ├── lua
+  │   ├── config
++ │   │   ├── autocmds.lua     # 自動コマンド（autocmd）の設定ファイル
++ │   │   ├── keymaps.lua      # キーマッピング（ショートカットキー）の設定ファイル
++ │   │   ├── lazy.lua         # Lazy.nvim（プラグインマネージャー）の設定ファイル
++ │   │   └── options.lua      # 基本オプション設定ファイル
+  │   └── plugins              # プラグインの設定ファイルを保存するディレクトリ
+  │       ├── spec1.lua        # プラグインの設定を記述したLuaスクリプト（1つ目の設定例）
+  │       └── spec2.lua        # プラグインの設定を記述したLuaスクリプト（2つ目の設定例）
+  └── init.toml                # Neovimの初期化設定ファイル（Lazy.nvimや特殊設定で使う場合）
+```
+
+> [General Settings | LazyVim](https://www.lazyvim.org/configuration/general)
+
+プラグインを追加したい場合は、`~/.config/nvim/lua/config/plugins`ディレクトリに配置します。
+例としてspec1.lua, spec2.luaというファイルがありますが、実際にプラグインを追加する場合は`プラグイン名.lua`や`機能名.lua`などのファイル名にしておくとわかりやすいです。
+
+```sh diff
+~/.config/nvim                 # Neovimの設定ディレクトリ
+  ├── lua
+  │   ├── config
+  │   │   ├── autocmds.lua     # 自動コマンド（autocmd）の設定ファイル
+  │   │   ├── keymaps.lua      # キーマッピング（ショートカットキー）の設定ファイル
+  │   │   ├── lazy.lua         # Lazy.nvim（プラグインマネージャー）の設定ファイル
+  │   │   └── options.lua      # 基本オプション設定ファイル
+  │   └── plugins              # プラグインの設定ファイルを保存するディレクトリ
++ │       ├── spec1.lua        # プラグインの設定を記述したLuaスクリプト（1つ目の設定例）
++ │       └── spec2.lua        # プラグインの設定を記述したLuaスクリプト（2つ目の設定例）
+  └── init.toml                # Neovimの初期化設定ファイル（Lazy.nvimや特殊設定で使う場合）
+```
+
+## 日本語や赤い波線が引かれる
 
 拡張子が.mdのファイルを開くと日本語に大量の赤い波線が引かれていることがあります。
+![alt マークダウンファイルの日本語に赤い波線が引かれる](/images/lazyvim/spellcheck.png =700x)
 下記のようにoptions.luaに設定を追加することで解決できます。
 
 ```lua:~/.config/nvim/lua/config/options.lua
@@ -106,28 +198,8 @@ vim.opt.spelllang:append("cjk")
 また、Vimの辞書に登録されていない単語がある場合にも赤い線が引かれることがあります。
 辞書に登録したい場合は登録したい文字にカーソルを合わせて`zg`を押します。
 
-## 設定方法
-
-LazyVimの公式ドキュメントが充実しているので、参考にしつつ設定していきましょう。
-
-## ファイル構成
-
-```sh
-~/.config/nvim
-├── lua
-│   ├── config
-│   │   ├── autocmds.lua
-│   │   ├── keymaps.lua
-│   │   ├── lazy.lua
-│   │   └── options.lua
-│   └── plugins
-│       ├── spec1.lua
-│       ├── **
-│       └── spec2.lua
-└── init.toml
-```
-
-> [⚙️ Configuration | LazyVim](https://www.lazyvim.org/configuration)
+Vimでの日本語の扱いは以下の記事が参考になります。
+@[card](https://zenn.dev/vim_jp/articles/e038e42b0e78d5)
 
 ## どんな設定がされているかをコードで確認したい
 
@@ -220,6 +292,11 @@ return {
   end,
 },
 ```
+
+::: details deprecated: floatingターミナルの設定を変更
+
+ver13.x以降では`LazyVim.terminal`は非推奨となりました。
+<https://www.lazyvim.org/news#13x>
 
 ### ターミナルに枠をつける
 
@@ -317,10 +394,10 @@ keydel("t", "<C-l>", { desc = "Go to Right Window" })
 
 :::
 
-## Neovim内でできるだけ管理したい
+## Neovimから出たくない
 
 みなさんは、エディタ内でありとあらゆることを完結させたいという欲望はありませんか？
-実はプラグインやツールを使用することで、Neovim内で大抵のことは完結させることができます。
+私はあります。できるだけNeovimに引きこもれるように設定していきましょう。
 
 ### Lazy Extras
 
@@ -342,18 +419,15 @@ require("lazy").setup({
 ### GitHub
 
 issueやプルリクエストは[Octo](https://www.lazyvim.org/extras/util/octo)で管理できます。
-仕事で使用しているレポジトリの情報が表示されちゃうのでGIFは割愛...。
-
-## おまけ
 
 ### docker管理
 
 どうせならNeovim内でDockerも管理したいですよね？したいよね？
 そんなあなたにおすすめのプラグインがこちら！
+colimaでdockerを起動し、lazydockerでコンテナを管理しましょう！
 
 @[card](https://github.com/abiosoft/colima)
 @[card](https://github.com/jesseduffield/lazydocker)
-colimaでdockerを起動し、lazydockerでコンテナを管理しましょう！
 `control + /`でターミナルを開いて、`colima start`でDockerを起動します。
 そして、`<leader>d`でlazydockerを開くことができます。
 lazydockerのキーバインドは`?`を押すと現在いるpane内で使用できるキーバインド一覧が表示されます。
@@ -381,7 +455,7 @@ Dockerfileを書く場合はLazyExtrasの機能を追加するものもあるの
 
 ### 他の人の設定をみてみる
 
-周りにVimmerがおらず、設定方法が悩ましい場合は他の人の設定を参考にするのも1つの方法です。
+周りにVimmerがおらず、設定方法が悩ましい場合はGitHubの検索を使うのがオススメです。
 GitHubにはファイルパスを指定して検索する機能があります。
 以下のように検索欄に入力すると、neo-tree.luaというファイルを検索することができます。
 プラグイン名.luaみたいな感じで検索することが多いです。
@@ -392,6 +466,10 @@ path:**/neo-tree.lua
 
 パス意外にもissueやPRで検索することもできます。
 検索ヒット数が少ないのであればフィルターをCodeにしてファイル名のみで検索をかけることもあります。
+
+## 最後に
+
+Vimmerが増えたら嬉しいな。
 
 ### 参照
 
