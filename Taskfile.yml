@@ -1,0 +1,42 @@
+version: "3"
+
+vars:
+  slug_base: mozumasu
+  title: "Default Title"
+  type: "tech"
+  slug_suffix: "{{ if .s }}{{ .s }}{{ else }}new-article{{ end }}"
+  slug: "{{.slug_base}}-{{.slug_suffix}}"
+
+tasks:
+  default:
+    desc: "Show available tasks and execute the selected one using fzf"
+    silent: true
+    cmds:
+      - |
+        selected_task=$(task -l | awk 'NR > 1 && $2 !="default:" { sub(/:$/, "", $2); print $2 }' | \
+          fzf --prompt="Select a Task> " \
+              --preview="task -l")
+        if [ -n "$selected_task" ]; then
+          task "$selected_task"
+        else
+          echo "No task selected."
+        fi
+
+  # デフォルト値の設定と記事作成
+  na:
+    desc: Create a new Zenn article
+    cmds:
+      - pnpm exec zenn new:article --slug {{.slug}} --title "{{.title}}" --type {{.type}}
+
+  # プレビューを開く
+  pv:
+    desc: Open Zenn preview in a browser
+    cmds:
+      - open http://localhost:8000
+      - pnpm exec zenn preview
+
+  # Zenn 検索を開く
+  vt:
+    desc: Open Zenn search in a browser
+    cmds:
+      - open https://zenn.dev/search
