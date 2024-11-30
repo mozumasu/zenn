@@ -30,10 +30,19 @@ tasks:
 
   # プレビューを開く
   pv:
-    desc: Open Zenn preview in a browser
+    desc: "Preview selected article in the browser"
+    silent: true
     cmds:
-      - open http://localhost:8000
-      - pnpm exec zenn preview
+      - |
+        selected_file=$(find articles -type f -name "*.md" | fzf --prompt="Select an article: ")
+        if [ -z "$selected_file" ]; then
+          echo "No file selected."
+          exit 1
+        fi
+        file_path=$(echo "$selected_file" | sed 's/\.md$//')
+        echo "Opening http://localhost:8000/$file_path"
+        open "http://localhost:8000/$file_path"
+        pnpm exec zenn preview
 
   # Zenn 検索を開く
   vt:
