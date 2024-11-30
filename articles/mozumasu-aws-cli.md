@@ -1,41 +1,56 @@
 ---
-title: "aws cliの設定方法とプロファイル切替"
+title: "AWS CLIの設定方法とプロファイル切替"
 emoji: "🐙"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [aws,cli,awscli]
+topics: [aws, cli, awscli]
 published: true
 ---
-## aws cliとは
-CLIからAWSのリソースを操作したい時に使用するもの
-これによりawsのコマンドを使用することができる
 
-awsコマンド例
+## aws cliの導入
+
+### aws cliとは
+
+AWS CLIとは、AWSのサービスをコマンドラインから操作するためのツールです。
+aws cliをインストールすると`aws`コマンドが使えるようになります。
+
 ```bash
+# awsコマンドの例
 aws s3 ls
 ```
-使用するにはAWSのアクセスキーID、シークレットアクセスキーを設定する必要がある
 
+使用するには以下の2つを設定する必要があります。
 
-## aws cliのインストール
+- AWSのアクセスキーID
+- シークレットアクセスキー
 
-インストール
+### aws cliのインストール
+
+公式ドキュメントに各OSごとのインストール方法が記載されています。
+@[card](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/getting-started-install.html)
+
+MacOSの場合は以下のコマンドでインストールすることができます。
+
 ```bash
-$ curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
-$ sudo installer -pkg ./AWSCLIV2.pkg -target /
+curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+sudo installer -pkg ./AWSCLIV2.pkg -target /
 ```
 
-インストールされているか確認
+`aws --version`でバージョンが表示されればインストールができています。
 
 ```bash
 $ aws --version
-
-# 実行結果
 aws-cli/2.7.2 Python/3.9.11 Darwin/21.6.0 exe/x86_64 prompt/off
 ```
 
-[AWS CLI の最新バージョンを使用してインストールまたは更新を行う - AWS Command Line Interface](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/getting-started-install.html)
-
 ---
+
+## 現在の設定確認
+
+```bash
+aws configure list
+```
+
+![alt aws configure list](/images/aws-cli-aws-configure-list.png)
 
 ## 接続情報の設定
 
@@ -51,47 +66,36 @@ aws configure
 aws configure --profile プロファイル名
 ```
 
-上記を実行すると、`~/.aws/config`と`~/.aws/credentials`にその内容が追加される
+上記を実行すると、`~/.aws/config`と`~/.aws/credentials`に設定内容が追加されます。
 
 - `~/.aws/config`の内容
-    
-    リージョンが書き込まれる
-    
-    ```bash
-    $ cat ~/.aws/config
-    
-    [default] #プロファイル名
-    region = ap-northeast-1
-    [test] #プロファイル名
-    region = ap-northeast-1
-    ```
-    
+  リージョンが書き込まれる
+
+  ```bash
+  $ cat ~/.aws/config
+
+  [default] #プロファイル名
+  region = ap-northeast-1
+  [test] #プロファイル名
+  region = ap-northeast-1
+  ```
+
 - `~/.aws/credentials`の内容
-    
-    アクセスキーIDとシークレットアクセスキーが書き込まれる
-    
-    ```bash
-    $ cat ~/.aws/credentials 
-    
-    [default] #プロファイル名
-    aws_access_key_id = AAAAAAAAAAAAAAAAAAAA
-    aws_secret_access_key = BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-    
-    [test] #プロファイル名
-    aws_access_key_id = AAAAAAAAAAAAAAAAAAAA
-    aws_secret_access_key = BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-    ```
-    
+  アクセスキーIDとシークレットアクセスキーが書き込まれる
+
+  ```bash
+  $ cat ~/.aws/credentials
+
+  [default] #プロファイル名
+  aws_access_key_id = AAAAAAAAAAAAAAAAAAAA
+  aws_secret_access_key = BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+  [test] #プロファイル名
+  aws_access_key_id = AAAAAAAAAAAAAAAAAAAA
+  aws_secret_access_key = BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+  ```
 
 ## 設定の切替
-
-### 使用中の設定確認
-
-```bash
-aws configure list
-```
-
-![alt aws configure list](/images/aws-cli-aws-configure-list.png)
 
 ### プロファイルの切替
 
@@ -102,13 +106,12 @@ export AWS_DEFAULT_PROFILE=プロファイル名
 ```
 
 - 例
-    
-    ```bash
-    export AWS_DEFAULT_PROFILE=prod
-    ```
-    
-    ![alt プロファイルの切替](/images/aws-cli-aws-default-profile.png)
-    
+
+  ```bash
+  export AWS_DEFAULT_PROFILE=prod
+  ```
+
+  ![alt プロファイルの切替](/images/aws-cli-aws-default-profile.png)
 
 ### コマンド実行時のみプロファイルを切替
 

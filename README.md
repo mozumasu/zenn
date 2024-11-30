@@ -1,4 +1,23 @@
-# Zenn CLI
+# Zennの記事管理
+
+## taskコマンド
+
+```sh
+# 実行可能なタスク一覧を表示
+task
+
+# 新規記事を追加
+task na
+# sにはsuffixを指定
+# titleには記事のタイトルを指定
+task na s=slidev title="window-customization"
+
+# 記事のプレビュー (preview)
+task pv
+
+# トピックの確認(view topics)
+task vt
+```
 
 - [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
 
@@ -65,6 +84,8 @@ git-czの設定ファイル ([changelog.config.js](changelog.config.js)) でコ�
 | chore          | CI/CDの変更やパッケージのアップデートなど |
 | docs           | ドキュメントの更新                        |
 
-```
+## 動画をGIFに変換
 
+```sh
+ffmpeg -i input.mov -r 10 -loop 0 output.gif
 ```
