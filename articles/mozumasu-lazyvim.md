@@ -184,7 +184,7 @@ LazyVimの設定ファイルの全体像は以下の通りです。
   └── init.toml                # Neovimの初期化設定ファイル（Lazy.nvimや特殊設定で使う場合）
 ```
 
-## 日本語や赤い波線が引かれる
+## 日本語に赤い波線が引かれる
 
 拡張子が.mdのファイルを開くと日本語に大量の赤い波線が引かれていることがあります。
 ![alt マークダウンファイルの日本語に赤い波線が引かれる](/images/lazyvim/spellcheck.png =700x)
@@ -197,6 +197,8 @@ vim.opt.spelllang:append("cjk")
 
 また、Vimの辞書に登録されていない単語がある場合にも赤い線が引かれることがあります。
 辞書に登録したい場合は登録したい文字にカーソルを合わせて`zg`を押します。
+登録した単語は`~/.config/nvim/spell`ディレクトリに保存されます。
+プロジェクト固有名詞などを登録することがあるため、自分はgitignoreしています。
 
 Vimでの日本語の扱いは以下の記事が参考になります。
 @[card](https://zenn.dev/vim_jp/articles/e038e42b0e78d5)
@@ -244,24 +246,88 @@ return {
 }
 ```
 
-## キーバインドを変更
+## LazyVimのキーバインドを変更
 
 キーバインドを自分で設定する場合は、`LazyVim.safe_keymap_set`ではなく、`vim.keymap.set`を使用します。
 デフォルトのキーバインドを無効化したい場合は、`vim.keymap.del`を使用します。
 
-```lua
+```lua:~/.config/nvim/lua/config/keymaps.lua
+local keymap = vim.keymap.set
+local keydel = vim.keymap.del
 
+-- keymapを追加
+keymap("n", "<C-a>", "ggVG")
+
+-- デフォルトのキーバインドを無効化
+keydel("n", "<leader>ft", { desc = "Terminal (cwd)" })
+keydel("n", "<leader>fT", { desc = "Terminal (root)" })
 ```
 
 > [Keymaps | LazyVim](https://www.lazyvim.org/configuration/keymaps)
 
-### キーバインドを無効化
+#### NeoVimのターミナルをカスタマイズ
+
+ターミナルはプロジェクトルートと、現在いるディレクトリの両方で開きたいので`<c-/`でルートディレクトリ、`<c-_>`で現在いるディレクトリで開くように設定しています。
+
+```lua:~/.config/nvim/lua/config/keymaps.lua
+-- terminal
+keymap("n", "<c-/>", function()
+  Snacks.terminal()
+end, { desc = "Terminal (Root Dir)" })
+
+keymap("n", "<c-_>", function()
+  Snacks.terminal(nil, { cwd = LazyVim.root() })
+end, { desc = "Terminal (cwd)" })
+```
+
+#### カーソル下のリンクをブラウザに飛べるようにしてみる
+
+NeoVimでメモを撮りたくなってきた頃だと思うので、カーソル下にあるリンクをサクッと確認できるように設定してみましょう。
+
+```lua:~/.config/nvim/lua/config/keymaps.lua
+-- カーソルしたのリンクを開く
+keymap("n", "gh", function()
+  local cfile = vim.fn.expand("<cfile>")
+  if cfile:match("^https?://") then
+    os.execute("open '" .. cfile .. "'") -- for macOS
+  else
+    vim.cmd("normal! gF!")
+  end
+end, { desc = "link open" })
+
+-- カーソルしたのプラグインのGitHubリポジトリを開く
+keymap("n", "<leader>gR", function()
+  local github_repogitory_name = vim.fn.expand("<cfile>")
+  if github_repogitory_name:match(".+/[^/]+") then
+    os.execute("open 'https://github.com/" .. github_repogitory_name .. "'") -- for macOS
+  else
+    vim.cmd("normal!, gF!")
+  end
+end, { desc = "GitHub repogitory" })
+```
+
+#### カーソル下の単語を手軽に置換できるようにする
+
+```lua:~/.config/nvim/lua/config/keymaps.lua
+-- カーソル下の単語を置換
+keymap("n", "#", function()
+  local current_word = vim.fn.expand("<cword>")
+  vim.api.nvim_feedkeys(":%s/" .. current_word .. "//g", "n", false)
+  -- :%s/word/CURSOR/g
+  local ll = vim.api.nvim_replace_termcodes("<Left><Left>", true, true, true)
+  vim.api.nvim_feedkeys(ll, "n", false)
+  vim.opt.hlsearch = true
+end, { desc = "substitusion word under cursor" })
+
+```
+
+### プラグインのキーバインドを無効化
 
 特定のキーバインドを無効化する場合は下記のようにfalseを設定していして無効化できます。
 
 ```lua
 return {
-  "nvim-telescope/telescope.nvim",
+  "nvim-telescope/telescope.nvim", -- プラグイン名
   keys = {
     -- キーバインドを指定して無効化
     {"<leader>/", false},
@@ -279,7 +345,7 @@ return {
 
 ### キーバインドをまとめて無効化
 
-一つずつ指定して設定するのが面倒な場合は下記のように無効化することも可能です。
+一つずつ指定して設定するのが面倒な場合は下記のように新たに定義しなおすことも可能です。
 
 ```lua
 return {
