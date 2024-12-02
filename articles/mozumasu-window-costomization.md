@@ -48,6 +48,9 @@ published: false
 @[card](https://github.com/koekeishiya/yabai)
 @[card](https://www.raycast.com)
 
+あとはswayやhyperlandとかでしょうか。
+Linuxユーザーであればi3が人気なようです。
+
 Yabaiも候補にあるのですが、MACのセキュリティ設定を変更する必要があるため、今回はAeroSpaceを使用してみることにしました。
 AeroSpaceというツールが動画で使い方を解説していたためこちらを使用してみることにしました。
 @[card](https://github.com/nikitabobko/AeroSpace)
@@ -650,3 +653,32 @@ SketchyBarは`sketchybar`コマンドで起動できるため以下のように�
 
 ![bar-hidden](/images/window-customization/bar-hidden.png)
 _外部ディスプレイ接続時_
+
+## ウィンドウ間の切り替えをわかりやすく: alt-tab
+
+MacOSはWindowsとは違い、ウィンドウ切り替えのプレビューで画面が表示されずにアイコンが表示されます。
+Windowsを使用していたこともあり、Windowsのようにプレビューを表示できるようにしたいと思いました。
+
+そこでalt-tabを導入しました。
+@[card](https://github.com/lwouis/alt-tab-macos)
+
+以下の点で`alt-tab`が気に入っています。
+
+- windowの切り替えに現在のスペースにあるものが表示され、別のワークスペースで表示されているものは表示されない
+- ウィンドウのプレビューが表示される
+- 同じアプリケーションが別ウィンドウで立ち上がっている場合、両方表示される
+- 開いているウィンドウがないアプリは表示されない
+
+### alt-tabのインストール
+
+インストールは以下のコマンドで行います。
+
+```sh
+brew install --cask alt-tab
+```
+
+> 参照: [alt-tab — Homebrew Formulae](https://formulae.brew.sh/cask/alt-tab)
+
+alt-tabを起動し、アクセシビティを許可します。
+再度`alt-tab`を起動するとアプリの設定画面が表示されます。
+自分は以下の設定で使用しています。
