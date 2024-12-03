@@ -15,11 +15,11 @@ published_at: 2024-12-04 07:00
 @[card](https://zenn.dev/t_kitamura/articles/dd2161bb4d3038)
 
 この頃海外のエンジニアの環境構築動画を見るのにハマっているため、Mapifyから試してみようと思います。
-また、「[ドキュメント読み込み機能が便利だった](https://zenn.dev/t_kitamura/articles/dd2161bb4d3038#%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF%E6%A9%9F%E8%83%BD%E3%81%8C%E4%BE%BF%E5%88%A9%E3%81%A0%E3%81%A3%E3%81%9F)」にある公式ドキュメントベースで回答を生成してくれるの便利ですね！
+「[ドキュメント読み込み機能が便利だった](https://zenn.dev/t_kitamura/articles/dd2161bb4d3038#%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF%E6%A9%9F%E8%83%BD%E3%81%8C%E4%BE%BF%E5%88%A9%E3%81%A0%E3%81%A3%E3%81%9F)」にある公式ドキュメントベースで回答を生成してくれるのも便利ですね！
 
 ## はじめに
 
-コード管理スマートにしたい！
+コード管理スマートにしたい！カッコつけたい！😎
 
 ⭐️愉快なつらみたち⭐️
 
@@ -30,7 +30,6 @@ published_at: 2024-12-04 07:00
 - [ ] プロジェクトごとにコミットメッセージのプレフィックスが違う..だと..？
 - [ ] 絵文字つけ忘れ&コミットメッセージ間違えちゃった😭
 - [ ] プロジェクトルートに戻るために`cd ../`を繰り返し続ける人生...
-      etc...
 
 こいつらを！全部！解決してやるぜぇ〜〜！！！💪
 
@@ -46,8 +45,11 @@ published_at: 2024-12-04 07:00
 
 ![demo gh ghq](/images/lazy-git/demo_gh_ghq.gif)
 
-[gh](https://github.com/cli/cli)コマンドでGitHubリポジトリを作成し、[ghq](https://github.com/x-motemen/ghq)コマンドでローカルに clone & git init します。
-そしてghqでgit管理しているプロジェクト一覧を取得し、[fzf](https://github.com/junegunn/fzf)で選択してプロジェクトディレクトリへ移動します。
+具体的には以下の手順を行なっています。
+
+1. [gh](https://github.com/cli/cli)コマンドでGitHubリポジトリを作成し
+2. [ghq](https://github.com/x-motemen/ghq)コマンドでローカルに clone & git init
+3. ghqでgit管理しているプロジェクト一覧を取得し、[fzf](https://github.com/junegunn/fzf)で選択してプロジェクトディレクトリへ移動
 
 ```sh
 # GitHubリポジトリを作成
@@ -56,7 +58,9 @@ gh repo create [プロジェクト名] --private
 # ローカルにクローン & git init
 ghq get [プロジェクト名]
 
-# ^Gでghqで管理しているリポジトリ一覧を取得し、fzfで選択して移動
+# ^Gでghqで管理しているリポジトリ一覧を取得し、fzfで選択して移動 (^Gはあらかじめ.zshrcに設定)
+# 設定していない場合は以下のコマンドで同じことができる
+ghq list | fzf | xargs -I{} cd $(ghq root)/{}
 ```
 
 それぞれのツールの導入やら使い方やらを解説していきます。
@@ -172,11 +176,13 @@ gh browse
 
 ---
 
-### ローカルにあるリポジトリを管理 (ghq, fzf)
+### ローカルにあるリポジトリを管理 (ghq)
+
+#### ghqとは
 
 ghqはローカルにあるリポジトリを管理するためのツールです。
 @[card](https://github.com/x-motemen/ghq)
-ghqで管理すると、クローンするパスが整理されるため、今自分がいるディレクトリや配置先のディレクトリを意識せずにクローンできます。
+クローンするパスをghqで管理するため、自分が今いるディレクトリを意識せずクローンすることができます。
 クローンするためにいちいちディレクトリ移動する必要がなくなるのがいいですね。
 以下のコマンドで管理しているリポジトリの一覧を取得できるのも便利です。
 
@@ -184,9 +190,6 @@ ghqで管理すると、クローンするパスが整理されるため、今�
 # ghqで管理しているリポジトリ一覧
 ghq list
 ```
-
-fzfはリストから曖昧検索して選択することができるツールです。
-@[card](https://github.com/junegunn/fzf)
 
 #### ghqの導入
 
@@ -268,11 +271,23 @@ GLOBAL OPTIONS:
 
 ### プロジェクトディレクトリにサクッと移動(ghq, fzf)
 
-クローン先のパスが長いな〜と感じるかもしれませんが、
-aliasを設定して`^G`を押すとサクッと移動できるようにしておけば負担になることもありません。
+#### fzfとは
 
-こんな感じでリポジトリ一覧からfzfで曖昧検索して指定したリポジトリに移動できるようになります。
+fuzzy finderの一つで、リストから曖昧検索して選択することができるツールです。
+使えばわかります。使いましょう。
 ![demo ghq fzf](/images/lazy-git/ghq_fzf.png)
+@[card](https://github.com/junegunn/fzf)
+
+#### fzfの導入
+
+インストールは以下のコマンドで行います。
+
+```sh
+brew install fzf
+```
+
+ghqのパスが長いな〜と感じるかもしれませんが、
+aliasを設定して`^G`を押すとサクッと移動できるようにしておけば負担になることもありません。
 
 ```shell:~/.zshrc
 # ghq
@@ -306,15 +321,20 @@ bindkey '^g' ghq-fzf
 > - [ ] プロジェクトごとにコミットメッセージのプレフィックスが違う..だと..？
 > - [ ] 絵文字つけ忘れ&コミットメッセージ間違えちゃった😭
 
-[Lazygit]()でTUI操作によるGitコマンドの入力の手間を省き、[git-cz](https://github.com/streamich/git-cz)でプレフィックスとコミットメッセージのフォーマットを行います。
-Pushして該当のリポジトリをブラウザで開いています。
 ![demo lazygit git-cz](/images/lazy-git/demo_lazygit_git-cz.gif)
+画像は以下の手順を行なっている様子です。
+
+1. [Lazygit](https://github.com/jesseduffield/lazygit)でファイルをステージング
+2. Lazygit経由で[git-cz](https://github.com/streamich/git-cz)を実行してコミット
+3. LazygitでPush
+4. `ghq browse`で今いるディレクトリのGitHubリポジトリをブラウザで開く
 
 ### コミットメッセージを美しく (git-cz)
 
 git-czは[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)というコミットメッセージの標準規格に従ったコミットメッセージを作成することができます。
+要はプレフィックスとフォーマットを強制してコミットメッセージを美しくしてくれるツールです。
 @[card](https://github.com/streamich/git-cz)
-以下のように対話形式でコミットメッセージを作成することができるため、プレフィックスが覚えられない&絵文字つけ忘れ問題もgit-czが解決してくれます。
+以下のように対話形式でプレフィックスを選んでコミットメッセージを作成することができるため、プレフィックスが覚えられない&絵文字つけ忘れ問題もgit-czが解決してくれます。
 ![git-cz](/images/lazy-git/git_cz.gif =700x)
 
 #### git-czの導入
@@ -418,8 +438,14 @@ module.exports = {
 
 ### Git管理を簡単に (Lazygit)
 
-Git管理を簡単にするツール`lazygit`を使用します。
+Git管理を簡単にするTUIツール`lazygit`を使用します。
+![lazygit](/images/lazy-git/lazygit.jpg =700x)
+
+@[card](https://github.com/jesseduffield/lazygit)
+
 コミットを手軽に分けたり、修正したい！みたいな時に重宝します。
+`?`でキーバインド一覧を表示できます。gitのコマンドはおろか、lazygitの操作なんて覚えられない！って人でも安心ですね。
+![lazygit help](/images/lazy-git/lazygit_help.jpg =700x)
 ターミナルでもNeovimでも使用することができます。
 下記のように簡単にファイルをステージング&コミットし、Pushすることができます。
 ![lazygit](/images/lazy-git/lazygit.gif =700x)
