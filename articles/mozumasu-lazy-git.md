@@ -498,7 +498,7 @@ alias proot='cd $(git rev-parse --show-toplevel)'
 
 ## おわりに
 
-アドベントカレンダー5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
+[アドベントカレンダー](https://qiita.com/advent-calendar/2024/miraito-inc)5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
 ツールオタクとしては目が離せない内容ですね。
 明日もぜひお楽しみに🎄
 
