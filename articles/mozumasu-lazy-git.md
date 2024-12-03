@@ -6,6 +6,16 @@ topics: [lazygit, gh, ghq, git]
 published: false
 ---
 
+:::message
+この記事は[ミライトデザイン Advent Calendar 2024](https://qiita.com/advent-calendar/2024/miraito-inc)の4日目です。
+3日目は[ブッチ](https://zenn.dev/t_kitamura)さんの「2024年 お世話になったAIサービス」という記事でした。
+:::
+
+@[card](https://zenn.dev/t_kitamura/articles/dd2161bb4d3038)
+
+この頃海外のエンジニアの環境構築動画を見るのにハマっているため、Mapifyから試してみようと思います。
+また、「[ドキュメント読み込み機能が便利だった](https://zenn.dev/t_kitamura/articles/dd2161bb4d3038#%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF%E6%A9%9F%E8%83%BD%E3%81%8C%E4%BE%BF%E5%88%A9%E3%81%A0%E3%81%A3%E3%81%9F)」にある公式ドキュメントベースで回答を生成してくれるの便利ですね！
+
 ## はじめに
 
 コード管理スマートにしたい！
@@ -31,13 +41,12 @@ published: false
 > - [ ] あれ？ディレクトリどこにおいたっけ？？
 > - [ ] プロジェクトのディレクトリに移動するために長いパスを打つ苦行
 
-ターミナルに閉じこもるために、[gh](https://github.com/cli/cli)コマンドでGitHubリポジトリを作成し、
-[ghq](https://github.com/x-motemen/ghq)コマンドでローカルに clone & git init します。
-そしてghqでgit管理しているプロジェクト一覧取得し、[fzf](https://github.com/junegunn/fzf)で選択して移動します。
+こんな感じでCLIでGitHubリポジトリとローカルのリポジトリを用意することができるようになります。
 
 ![demo gh ghq](/images/lazy-git/demo_gh_ghq.gif)
 
-画像は以下の手順を行なっています。
+[gh](https://github.com/cli/cli)コマンドでGitHubリポジトリを作成し、[ghq](https://github.com/x-motemen/ghq)コマンドでローカルに clone & git init します。
+そしてghqでgit管理しているプロジェクト一覧を取得し、[fzf](https://github.com/junegunn/fzf)で選択してプロジェクトディレクトリへ移動します。
 
 ```sh
 # GitHubリポジトリを作成
@@ -48,6 +57,8 @@ ghq get [プロジェクト名]
 
 # ^Gでghqで管理しているリポジトリ一覧を取得し、fzfで選択して移動
 ```
+
+それぞれのツールの導入やら使い方やらを解説していきます。
 
 ---
 
@@ -146,6 +157,13 @@ GitHub Actionsコマンド
 
 ::::
 
+今いるリポジトリをブラウザで開くコマンドもあり、URLの共有や画面共有の時に便利ですね。
+
+```sh
+# 今いるリポジトリをブラウザで開く
+gh browse
+```
+
 ✌️✌️✌️✌️解決✌️✌️✌️✌️
 これでターミナルとずっと一緒❤️❤️
 
@@ -155,9 +173,19 @@ GitHub Actionsコマンド
 
 ### ローカルにあるリポジトリを管理 (ghq, fzf)
 
-ローカルでのリポジトリ管理はghqコマンドで行います。
-
+ghqはローカルにあるリポジトリを管理するためのツールです。
 @[card](https://github.com/x-motemen/ghq)
+ghqで管理すると、クローンするパスが整理されるため、今自分がいるディレクトリや配置先のディレクトリを意識せずにクローンできます。
+クローンするためにいちいちディレクトリ移動する必要がなくなるのがいいですね。
+以下のコマンドで管理しているリポジトリの一覧を取得できるのも便利です。
+
+```sh
+# ghqで管理しているリポジトリ一覧
+ghq list
+```
+
+fzfはリストから曖昧検索して選択することができるツールです。
+@[card](https://github.com/junegunn/fzf)
 
 #### ghqの導入
 
@@ -192,7 +220,7 @@ ghq get user-name/project-name
 [.gitconfigで指定したディレクトリ] + [github.com/user-name/project-name]
 ```
 
-例: mozumasu/dotfilesをクローンした場合のパス
+例えば、mozumasu/dotfilesをクローンした場合は以下のようになります。
 
 ```text
 /Users/mozumasu/src/github.com/src/mozumasu/dotfiles
@@ -242,6 +270,9 @@ GLOBAL OPTIONS:
 クローン先のパスが長いな〜と感じるかもしれませんが、
 aliasを設定して`^G`を押すとサクッと移動できるようにしておけば負担になることもありません。
 
+こんな感じでリポジトリ一覧からfzfで曖昧検索して指定したリポジトリに移動できるようになります。
+![demo ghq fzf](/images/lazy-git/ghq_fzf.png)
+
 ```shell:~/.zshrc
 # ghq
 function ghq-fzf() {
@@ -275,6 +306,7 @@ bindkey '^g' ghq-fzf
 > - [ ] 絵文字つけ忘れ&コミットメッセージ間違えちゃった😭
 
 [Lazygit]()でTUI操作によるGitコマンドの入力の手間を省き、[git-cz](https://github.com/streamich/git-cz)でプレフィックスとコミットメッセージのフォーマットを行います。
+Pushして該当のリポジトリをブラウザで開いています。
 ![demo lazygit git-cz](/images/lazy-git/demo_lazygit_git-cz.gif)
 
 ### コミットメッセージを美しく (git-cz)
@@ -386,6 +418,7 @@ module.exports = {
 ### Git管理を簡単に (Lazygit)
 
 Git管理を簡単にするツール`lazygit`を使用します。
+コミットを手軽に分けたり、修正したい！みたいな時に重宝します。
 ターミナルでもNeovimでも使用することができます。
 下記のように簡単にファイルをステージング&コミットし、Pushすることができます。
 ![lazygit](/images/lazy-git/lazygit.gif =700x)
@@ -395,11 +428,6 @@ Git管理を簡単にするツール`lazygit`を使用します。
 LazyGitでよくやる操作を紹介します。
 
 #### コミット前のファイルを一時退避 (Stash)
-
-LazygitでStashしたい場合は以下の方法があります。
-
-- s: 変更の差分を丸ごとStash
-- S: Stash方法を選択してStash
 
 差分を全てStash
 
@@ -469,8 +497,9 @@ alias proot='cd $(git rev-parse --show-toplevel)'
 
 ## おわりに
 
-タイトルを考えるのが苦手で迷ったらモテるをつければいいと思っている節がある。
-次回は真面目なタイトルを考えられるように頑張る。
+アドベントカレンダー5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
+ツールオタクとしては目が離せない内容ですね。
+明日もぜひお楽しみに🎄
 
 ## 参照
 
