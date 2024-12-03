@@ -436,6 +436,116 @@ module.exports = {
 > - [x] プレフィックス多すぎておぼえられな〜い
 > - [x] プロジェクトごとにコミットメッセージのプレフィックスが違う..だと..？
 
+もちろんグローバル設定も用意可能です。
+グローバル設定は`~chanlog.config.js`に配置します。
+
+:::details ~/.chanlog.config.js (グローバル設定)
+
+```js:~/.chanlog.config.js
+module.exports = {
+  disableEmoji: false,
+  format: "{type}{scope}: {emoji}{subject}",
+  list: [
+    "feat",
+    "test",
+    "fix",
+    "chore",
+    "docs",
+    "refactor",
+    "style",
+    "ci",
+    "perf",
+    "package",
+    "config",
+    "WIP",
+  ],
+  maxMessageLength: 64,
+  minMessageLength: 3,
+  questions: [
+    "type",
+    "scope",
+    "subject",
+    "body",
+    "breaking",
+    "issues",
+    "lerna",
+  ],
+  scopes: [],
+  types: {
+    feat: {
+      description: "新機能",
+      emoji: "🎸",
+      value: "feat",
+    },
+    chore: {
+      description: "ビルド関連やライブラリの変更",
+      emoji: "🤖",
+      value: "chore",
+    },
+    ci: {
+      description: "CI関連の変更",
+      emoji: "🎡",
+      value: "ci",
+    },
+    docs: {
+      description: "ドキュメントの更新",
+      emoji: "✏️",
+      value: "docs",
+    },
+    fix: {
+      description: "不具合の修正",
+      emoji: "🐛",
+      value: "fix",
+    },
+    perf: {
+      description: "パフォーマンス改善",
+      emoji: "⚡️",
+      value: "perf",
+    },
+    refactor: {
+      description: "リファクタリング",
+      emoji: "💡",
+      value: "refactor",
+    },
+    style: {
+      description: "コードの処理に影響しない変更（スペースや書式設定など)",
+      emoji: "💄",
+      value: "style",
+    },
+    test: {
+      description: "テストコード",
+      emoji: "💍",
+      value: "test",
+    },
+    //自分用に追加
+    package: {
+      description: "パッケージ",
+      emoji: "📦",
+      value: "package",
+    },
+    config: {
+      description: "設定ファイル",
+      emoji: "⚙",
+      value: "config",
+    },
+    WIP: {
+      description: "作業途中",
+      emoji: "🚧",
+      value: "WIP",
+    },
+  },
+  messages: {
+    type: "プレフィックスを選択:",
+    subject: "コミットのタイトル（概要）を入力(option):\n",
+    body: "変更内容の詳細を入力(option):\n",
+    breaking: "重大な変更を入力(option):\n",
+    issues: "関連するisuueを入力(option), 例 #123:",
+  },
+};
+```
+
+:::
+
 ### Git管理を簡単に (Lazygit)
 
 Git管理を簡単にするTUIツール`lazygit`を使用します。
@@ -449,6 +559,18 @@ Git管理を簡単にするTUIツール`lazygit`を使用します。
 ターミナルでもNeovimでも使用することができます。
 下記のように簡単にファイルをステージング&コミットし、Pushすることができます。
 ![lazygit](/images/lazy-git/lazygit.gif =700x)
+
+#### Lazygitの導入
+
+```sh
+brew install jesseduffield/lazygit/lazygit
+```
+
+lazygitって入力するのが大変なのでaliasを設定しておくと便利です。
+
+```sh:~/.zshrc
+abbr -S lg='lazygit' >>/dev/null
+```
 
 ### LazyGitでよくやる操作
 
@@ -475,10 +597,12 @@ Git管理を簡単にするTUIツール`lazygit`を使用します。
 #### コミット漏れを修正 (git commit --amend)
 
 ファイルをステージングした状態で`A`
+![lazygit_amend](/images/lazy-git/lazygit_amend.gif =700x)
 
 #### コミットメッセージを修正
 
 修正したいコミットメッセージにカーソルを合わせて`r`を押すとコミットメッセージを編集することができます。
+![lazygit_rename](/images/lazy-git/lazygit_rename.gif =700x)
 
 #### コミットの内容を変更したい (fixup)
 
@@ -496,6 +620,31 @@ fixupよくわからんって人は以下の記事を参考にしてください
 > - [x] 絵文字つけ忘れ&コミットメッセージ間違えちゃった😭
 
 ### Lazygitからgit-czを使う
+
+lazygitの設定ファイルは`~/.config/lazygit/config.yml`にあります。
+自分は以下のように設定して、`C`でgit-czを実行できるようにしています。
+
+```yaml:~/.config/lazygit/config.yml
+# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+
+customCommands:
+  - command: git cz
+    context: files
+    subprocess: true
+    key: C
+
+gui:
+  language: "ja"
+  showIcons: true
+
+# log customize
+git:
+  branchLogCmd: "git log --graph --color=always --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' {{branchName}} --"
+  allBranchesLogCmd: "git log --graph --color=always --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all"
+  paging:
+    colorArg: always
+    pager: delta --dark --paging=never
+```
 
 ## プロジェクトルートに戻る時もスマートに
 
@@ -522,10 +671,8 @@ alias proot='cd $(git rev-parse --show-toplevel)'
 
 ## おわりに
 
+少しでも皆様のCLI生活が快適になれば幸いです。
+
 [アドベントカレンダー](https://qiita.com/advent-calendar/2024/miraito-inc)5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
 ツールオタクとしては目が離せない内容ですね。
 明日もぜひお楽しみに🎄
-
-## 参照
-
-[ghqでリポジトリ管理を簡単にする](https://zenn.dev/oreo2990/articles/13c80cf34a95af)
