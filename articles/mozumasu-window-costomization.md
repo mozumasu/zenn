@@ -22,15 +22,15 @@ published: false
 
 - 清く: ウィンドウが整理されている
 - 正しく: 思考とウィンドウの挙動がシンクロしている
-- 美しく: ウィンドウのデザインが美しい
+- 美しく: 視界に入れたら心が踊るデザインになっている
 
-また、センスは優れたデザインや美しいものをみて磨かれていくものだと思っています。
-日々プロダクト開発に勤しむものとして、視界に映るディスプレイも美しくあるべきです。
+センスは優れたデザインや美しいものをみて磨かれていくものだと思っています。
+日々プロダクト開発に勤しむものとして、視界に映るデスクトップも美しくあるべきです。
 
 しかし、いきなりデスクトップを美しろと言われても何から手をつければいいかわからないものです。
 そこで、この記事ではデスクトップ設定の一例を紹介しようと思います。
 
-## どんな選択肢があるかを知る
+### どんな選択肢があるかを知る
 
 まずデスクトップのカスタマイズの全体像を知ることが重要です。
 どうやら世の中には「UnixPorn」という言葉があるようですね。
@@ -43,6 +43,7 @@ published: false
 
 ## この記事でやること
 
+- ウィンドウマネジメントツールの選定
 - [AeroSpace](https://github.com/nikitabobko/AeroSpace)の設定 : ウィンドウマネジメントツール
 - [JankyBorders](https://github.com/FelixKratz/JankyBorders)の設定 : アクティブウィンドウに枠をつける
 - [SketchyBar](https://github.com/FelixKratz/SketchyBar)の設定 : メニューバーのカスタマイズ
@@ -68,14 +69,26 @@ published: false
 また、設定をコード管理したいという思いもあり、他のウィンドウマネジメントツールを探してみました。
 
 ウィンドウ管理するツールといえば、以下のようなものがあります。
+全部はまだ試せていませんがせっかくなので紹介します。
 
-@[card](https://github.com/rxhanson/Rectangle)
 @[card](https://magnet.crowdcafe.com/)
+導入に$4.99かかる。
+@[card](https://github.com/rxhanson/Rectangle)
+Macユーザーがよく使っている。
+自分もこれを使っていた。
 @[card](https://github.com/i3/i3)
+Linuxユーザーがよく使っている。
+ウィンドウマネージャーといえばこれ。
 @[card](https://github.com/koekeishiya/yabai)
+i3の代替。MACのセキュリティのSIP無効化が必要。この無効化によってワークスペースのアニメーションを消すことができる。
+SIP無効化は避けたいため断念。
 @[card](https://github.com/ianyh/Amethyst)
+よくわからん
 @[card](https://www.raycast.com)
+ランチャーツールだが、ウィンドウのリサイズや移動もできる。
+移動の挙動がしっくりこなくて断念。
 @[card](https://github.com/MrKai77/Loop)
+よくわからん
 
 Linuxであればi3やYabai、Macユーザーでよく見るのはRectangleとRaycastの組み合わせが多いように思います。
 最近だとswayやhyperlandとかでしょうか。
