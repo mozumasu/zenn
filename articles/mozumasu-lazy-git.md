@@ -662,6 +662,8 @@ git:
 
 > - [ ] プロジェクトルートに戻るために`cd ../`を繰り返し続ける人生...
 
+### プロジェクトルートに戻る
+
 実はgitコマンドには`git rev-parse --show-toplevel`という便利コマンドがあります。
 これを以下のようにaliasに設定しておくと`proot`でプロジェクトルートに移動することができます。
 
@@ -675,6 +677,20 @@ abbr -S proot='cd $(git rev-parse --show-toplevel)' >>/dev/null
 alias proot='cd $(git rev-parse --show-toplevel)'
 ```
 
+### 直前のディレクトリに戻る
+
+`cd -`で直前のディレクトリに戻ることができます。
+プロジェクトルートから移動した場合は`cd -`でもプロジェクトルートに戻ることができます。
+
+通常は`cd -`で戻って、`cd -`で戻れなかったら`proot`にして使い分けてもいいかもしれません。
+
+追加でzshの設定ファイルに以下のオプションを追加しておくと`cd`無しでディレクトリ移動ができるようになります。
+`-`だけで戻れるので楽ですね。
+
+```sh:~/.zshrc
+setopt auto_cd
+```
+
 これでもう`../`を繰り返す必要はありませんね🎵
 
 > - [x] プロジェクトルートに戻るために`cd ../`を繰り返し続ける人生...
@@ -686,3 +702,7 @@ alias proot='cd $(git rev-parse --show-toplevel)'
 [アドベントカレンダー](https://qiita.com/advent-calendar/2024/miraito-inc)5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
 ツールオタクとしては目が離せない内容ですね。
 明日もぜひお楽しみに🎄
+
+```
+
+```
