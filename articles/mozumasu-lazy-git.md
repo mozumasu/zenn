@@ -626,8 +626,11 @@ fixupよくわからんって人は以下の記事を参考にしてください
 
 - 間違ってコミットしたブランチに`スペースキー`で移動
 - 移動したいコミットにカーソルを合わせて`C`
-- コミットを持っていきたいブランチに移動
+- コミットを持っていきたいブランチに`スペースキー`で移動
 - `V`でコミットを貼り付ける
+
+![cherry-pick](/images/lazy-git/lazygit_cherry_pick.gif =700x)
+\_例: lazy-gitブランチのコミットをmainブランチに持っていく\_
 
 ### Lazygitからgit-czを使う
 
@@ -702,7 +705,3 @@ setopt auto_cd
 [アドベントカレンダー](https://qiita.com/advent-calendar/2024/miraito-inc)5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
 ツールオタクとしては目が離せない内容ですね。
 明日もぜひお楽しみに🎄
-
-```
-
-```
