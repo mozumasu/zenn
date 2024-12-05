@@ -630,7 +630,6 @@ fixupよくわからんって人は以下の記事を参考にしてください
 - `V`でコミットを貼り付ける
 
 ![cherry-pick](/images/lazy-git/lazygit_cherry_pick.gif =700x)
-\_例: lazy-gitブランチのコミットをmainブランチに持っていく\_
 
 ### Lazygitからgit-czを使う
 
