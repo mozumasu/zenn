@@ -572,6 +572,22 @@ lazygitって入力するのが大変なのでaliasを設定しておくと便�
 abbr -S lg='lazygit' >>/dev/null
 ```
 
+:::message
+
+12/6追記:
+
+[さいぬ](https://zenn.dev/sainu)さんからコメントいただきましたので共有させていただきます！
+
+こちらの書き方の方が設定ファイルで`>>/dev/null`まみれにならず、記述がシンプルになるため視認性が上がりますね！
+
+```sh:~/.zshrc
+abbr -S --quieter lg='lazygit'
+or
+abbr -S -qq lg='lazygit'
+```
+
+:::
+
 ### LazyGitでよくやる操作
 
 #### コミット前のファイルを一時退避 (Stash)
@@ -697,6 +713,34 @@ setopt auto_cd
 
 > - [x] プロジェクトルートに戻るために`cd ../`を繰り返し続ける人生...
 
+## git-czとcz-git (12/6追記)
+
+:::message
+
+[unvalley](https://zenn.dev/kirohi)さんよりコメントいただきましたので共有させていただきます！
+
+git-czよりも軽量化されパフォーマンスが上がったcz-git (czg) というツールがあるようです。
+
+@[card](https://github.com/Zhengqbbb/cz-git)
+
+> 148 MB node_modules/git-cz
+> 1.9 MB node_modules/cz-git
+
+確かにかなり軽量化されていますね...！
+
+git-czとcz-gitの差分は以下にまとまっているようです。
+
+@[card](https://cz-git.qbb.sh/guide/why)
+
+AI にGit コミット メッセージの件名を生成させる設定もあります。
+![alt](https://user-images.githubusercontent.com/40693636/219867044-3ca9823d-9294-4e02-9a5b-624578844168.gif)
+
+> 参照: [OpenAI | cz-git](https://cz-git.qbb.sh/recipes/openai)
+
+よく書くメッセージをエイリアス設定することもできるため、より快適にコミットメッセージを作成できるようになりそうです。
+
+:::
+
 ## おわりに
 
 少しでも皆様のCLI生活が快適になれば幸いです。
@@ -704,3 +748,5 @@ setopt auto_cd
 [アドベントカレンダー](https://qiita.com/advent-calendar/2024/miraito-inc)5日目は[ucan](https://qiita.com/ucan-lab)さんの「JavaScriptビルドツールの歴史と進化」という記事です。
 ツールオタクとしては目が離せない内容ですね。
 明日もぜひお楽しみに🎄
+
+また、コメントやTwitterにてコメントいただきありがとうございました！自身の知識のアップデートできて嬉しい限りです。
