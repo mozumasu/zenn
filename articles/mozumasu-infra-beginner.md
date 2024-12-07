@@ -434,6 +434,12 @@ multipassでは、Ubuntuのみにはなりますが、Apple SiliconでもVMを�
 
 IaC（Infrastructure as Code）とは、インフラをコードで管理することです。
 何となくでTerraformを触っていたのですが、実務で使う時がきました。
+
+Terraformの学習は以下の本がオススメです。
+
+[実践Terraform　AWSにおけるシステム設計とベストプラクティス](https://amzn.asia/d/dfg5FiU)
+![実践Terraform　AWSにおけるシステム設計とベストプラクティス](https://m.media-amazon.com/images/I/81qkEHKXdyL._SY522_.jpg)
+
 人生何があるかわからないので、色々触っておくもんですね。
 
 自分は以下の場面で使うことがありました。
