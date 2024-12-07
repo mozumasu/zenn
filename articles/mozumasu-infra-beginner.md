@@ -2,8 +2,8 @@
 title: "楽しいインフラエンジニア入門"
 emoji: "🍣"
 type: "idea" # tech: 技術記事 / idea: アイデア
-topics: [ansible, infra]
-published: false
+topics: [tips]
+published: true
 ---
 
 :::message
