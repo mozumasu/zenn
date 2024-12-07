@@ -105,7 +105,7 @@ Feloは日本のスタートアップ会社によって開発されたAI検索�
 
 英語が苦手な人は以下のツールで翻訳できるようにすると捗ります。
 
-選択行を本卯役するなら
+選択行を翻訳するなら
 @[card](https://chromewebstore.google.com/detail/mouse-tooltip-translator/hmigninkgibhdckiaphhmbgcghochdjc)
 カーソル位置の単語の意味を調べるなら
 @[card](https://chromewebstore.google.com/detail/mouse-dictionary/dnclbikcihnpjohihfcmmldgkjnebgnj)
