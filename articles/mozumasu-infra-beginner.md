@@ -525,4 +525,6 @@ lazydokcer
 
 最初はインフラ向いていないかも！と思っていたのですが、気づいたらインフラが好きになっていました。
 
-読んでいただきありがとうございました。
+明日の[ミライトデザイン Advent Calendar 2024](https://qiita.com/advent-calendar/2024/miraito-inc)の8日目は[yuki](https://qiita.com/tkek321)さんの「ギャップロックについて」です。
+
+お楽しみに！🦌
