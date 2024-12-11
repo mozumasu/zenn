@@ -1,34 +1,67 @@
 ---
 title: "デスクトップは「清く・正しく・美しく」"
-emoji: "😺"
+emoji: "🎄"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [JankyBorders, AeroSpace, SketchyBar]
 published: false
 ---
 
 :::message
-この記事は[ミライトデザイン Advent Calendar 2024](https://qiita.com/advent-calendar/2024/miraito-inc)の12/7の記事です。
-明日12/8は[]()さんの「[]()」という記事です。
+この記事は[ミライトデザイン Advent Calendar 2024](https://qiita.com/advent-calendar/2024/miraito-inc)の11日目の記事です。
+10日目は[FrozenVoice](https://qiita.com/FrozenVoice)さんの「[2024年に導入して満足度が高かったアイテム10選](https://qiita.com/FrozenVoice/items/2852a9333c73959f4145)」という記事でした。
 :::
+
+かなりの頻度でガジェットを購入していて驚きました😳
+購入したものを見るのって楽しいですね！自分はAirPods Pro 2 が今年のMVPでした🏆
+
+## 理想を求めて
+
+- 思考を邪魔しない、アニメーション無しのワークスペース切り替え！
+- ウィンドウの自動調整！
+- 操作はキーボードで完結！
+- 美しいメニューバー！
+- 判別しやすいアクティブウィンドウ！
+- 設定はコード管理！
+- ウィンドウ切り替えはプレビュー表示！
+
+この冬、私は「**すべて**」を手に入れたいと思う。🎅
+![alt 完成系](/images/window-customization/my-dream-demo.gif)
+_🎀🎄⭐️⭐️⭐️⭐️⭐️操作はやっぱキーボードっしょ⭐️⭐️⭐️⭐️⭐️🎄🎀_
+
+![alt-tab デモ](/images/window-customization/demo-alt-tab.gif)
+_⛷️ウィンドウ切り替えはプレビュー付きが好き⛷️_
+
+![alt SketchyBar](/images/window-customization/menu-bar.png)
+_🍎マークを🎄にしてクリスマス気分に_
+
+### この記事でやること
+
+- ウィンドウマネージャーの選定
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace)の設定 : ウィンドウマネージャー
+- [JankyBorders](https://github.com/FelixKratz/JankyBorders)の設定 : アクティブウィンドウに枠をつける
+- [SketchyBar](https://github.com/FelixKratz/SketchyBar)の設定 : メニューバーのカスタマイズ
+- [alt-tab](https://github.com/lwouis/alt-tab-macos)の設定: ウィンドウ切り替えのプレビュー表示
+
+参考になるかわからない自分のdotfilesも置いておきます。
+@[card](https://github.com/mozumasu/dotfiles)
+
+---
 
 ## デスクトップは人の思考やあり方を表す
 
-デスクトップは人の思考の表れであり心の状態です。
+> デスクトップの乱れは思考の乱れ
 
-> デスクトップの乱れは思考の乱れであり、デスクトップが整理された状態は思考が整理された状態を示す
+デスクトップは「清く・正しく・美しく」あるべきです。
+ここでの「清く・正しく・美しく」はどんな意味なのでしょうか？
 
-よって、デスクトップは「清く・正しく・美しく」あるべきです。
-デスクトップにおける「清く・正しく・美しく」はどんな意味なのでしょうか？
+- **清く**: ウィンドウが整理されている
+- **正しく**: 思考とウィンドウの挙動がシンクロしている
+- **美しく**: 視界に入れたら心が踊るデザインになっている
 
-- 清く: ウィンドウが整理されている
-- 正しく: 思考とウィンドウの挙動がシンクロしている
-- 美しく: 視界に入れたら心が踊るデザインになっている
+センスは優れたデザインや美しいものをみて磨かれていくものであり、
+プロダクト開発に勤しむものとして視界に映るデスクトップも美しくあるべきです。
 
-センスは優れたデザインや美しいものをみて磨かれていくものだと思っています。
-日々プロダクト開発に勤しむものとして、視界に映るデスクトップも美しくあるべきです。
-
-しかし、いきなりデスクトップを美しろと言われても何から手をつければいいかわからないものです。
-そこで、この記事ではデスクトップ設定の一例を紹介しようと思います。
+この記事ではデスクトップ設定の一例を紹介しようと思います。
 
 ### どんな選択肢があるかを知る
 
@@ -41,102 +74,144 @@ published: false
 
 ここからまずは自分デスクトップの最終形態をイメージしましょう。
 
-## この記事でやること
+## ウィンドウマネージャーの選定
 
-- ウィンドウマネジメントツールの選定
-- [AeroSpace](https://github.com/nikitabobko/AeroSpace)の設定 : ウィンドウマネジメントツール
-- [JankyBorders](https://github.com/FelixKratz/JankyBorders)の設定 : アクティブウィンドウに枠をつける
-- [SketchyBar](https://github.com/FelixKratz/SketchyBar)の設定 : メニューバーのカスタマイズ
+### ウィンドウマネージャーとは
 
-:::details 設定ファイルの完成系(AeroSpace, JankyBorders, SketchyBar)
+ウィンドウマネージャー (WM) とは、ウィンドウを管理するためのツールです。
+以下のような種類があります。
 
-:::
+- **スタック型 (SWM: Stacking Window Manager)**
+  MacやWindowsはこのタイプ
+  ウィンドウを重ねて表示
+- **タイル型 (TWM: Tiling Window Manager)**
+  ウィンドウを画面全体にタイル状に配置し、重ならないようにする
+  自動で画面がリサイズされる
 
-## AeroSpace: ウィンドウマネジメント
+GitHubで探すときには「[window-manager](https://github.com/topics/window-manager)」で検索すると出てきます。
 
-### ウィンドウマネジメントツールの選定
+---
 
-まずウィンドウマネジメントツールを選定するにあたり、重要視するポイントを洗い出します。
+まずはウィンドウマネジメントツールを選定するにあたり、重要視するポイントを洗い出しましょう。
 自分の場合は以下のようなポイントを重視しました。
 
 - 全ての操作をキーボードで完結させる
+- 脳のリソースを消費しすぎない
 - 設定ファイルをコード管理できる
-- ウィンドウのサイズを自動調整してくれる
 - MacのSIPを無効にしないで使用できる
 - 外部ディスプレイ接続時も安定して使える
+- Macでも使える
 
-私はRaycastでウィンドウのリサイズや移動を行っていましたが、外部ディスプレイを接続するとウィンドウの位置がずれるなどの問題が発生しました。
-また、設定をコード管理したいという思いもあり、他のウィンドウマネジメントツールを探してみました。
+今まで [Rectangle](https://rectangleapp.com/) でウィンドウのリサイズや移動を行っていましたが、外部ディスプレイを接続するとウィンドウの位置がずれるなどの問題が発生しました。
+また、それぞれのレイアウトに対応するキーバインドを覚えるのが面倒でした。
 
-ウィンドウ管理するツールといえば、以下のようなものがあります。
-全部はまだ試せていませんがせっかくなので紹介します。
+そこで代わりになりそうなウィンドウマネージャーを探して以下にまとめました。
 
-@[card](https://magnet.crowdcafe.com/)
-導入に$4.99かかる。
-@[card](https://github.com/rxhanson/Rectangle)
-Macユーザーがよく使っている。
-自分もこれを使っていた。
-@[card](https://github.com/i3/i3)
-Linuxユーザーがよく使っている。
-ウィンドウマネージャーといえばこれ。
-@[card](https://github.com/koekeishiya/yabai)
-i3の代替。MACのセキュリティのSIP無効化が必要。この無効化によってワークスペースのアニメーションを消すことができる。
-SIP無効化は避けたいため断念。
-@[card](https://github.com/ianyh/Amethyst)
-よくわからん
-@[card](https://www.raycast.com)
-ランチャーツールだが、ウィンドウのリサイズや移動もできる。
-移動の挙動がしっくりこなくて断念。
-@[card](https://github.com/MrKai77/Loop)
-よくわからん
+---
 
-Linuxであればi3やYabai、Macユーザーでよく見るのはRectangleとRaycastの組み合わせが多いように思います。
-最近だとswayやhyperlandとかでしょうか。
+### ウィンドウマネージャーの選定肢
 
-Yabaiも候補にあるのですが、MACのセキュリティ設定を変更する必要があるため、今回はAeroSpaceを使用してみることにしました。
+#### Linux
+
+タイル型
+
+- [i3](https://i3wm.org/) ⭐️9.6k
+  X11ベースのLinuxのタイル型ウィンドウマネージャー
+- [sway](https://github.com/swaywm/sway) ⭐️14.8k
+  X11用のi3ウィンドウマネージャーの代替として設計されたWayland上で動作するウィンドウマネージャー
+  11ベースのウィンドウマネージャーよりも軽量でパフォーマンスが高い
+  ウィンドウギャップや透過などの機能があるが、ぼかしや丸み、トランジッションなどの機能はない
+  i3と互換性があるため、i3の設定ファイルをそのまま使える
+- [Xmonad](https://github.com/xmonad/xmonad) ⭐️3.4k
+  MacOSで使う場合は画面管理が大変[^1]
+  Haskell で設定項目を記述する
+
+- [Hyprland](https://github.com/hyprwm/Hyprland) ⭐️22.1k
+  Waylandプロトコルに基づくウィンドウマネージャー
+  見た目がよく多機能でカスタマイズ性高め[^2]
+  自分がLinuxユーザーならこれを使っていたかも
+
+  @[youtube](https://youtu.be/gOGM0uHCDFk?si=yt6YgrO3Zo7-pUZx)
+
+#### Mac
+
+フロート型
+
+- [Magnet](https://magnet.crowdcafe.com/)
+  導入に$4.99かかる。
+
+- [Rectangle](https://github.com/rxhanson/Rectangle) ⭐️26.1k
+  Macユーザーがよく使っている。
+  自分もこれを使っていた。
+  有料版の Rectangle Pro ($9.99) もある
+
+- [Raycast](https://www.raycast.com)
+  ランチャーツールだが、ウィンドウのリサイズや移動もできる。
+  移動の挙動がしっくりこなくて断念。
+  アプリケーション起動を特定のキーに割り当てができるため、1画面に1つ表示するような使い方をしている人に向いている
+
+- [Loop](https://github.com/MrKai77/Loop) ⭐️7.1k
+  マウスを画面端に持っていくことなくウィンドウを移動できる
+  少ないキーバインドでいろんなレイアウトができるのが脳のリソースを消費しなくて良い
+  単体でウィンドウに境界線をつけることができる
+  設定はGUIで行う
+
+タイル型
+
+- [Amethyst](https://github.com/ianyh/Amethyst) ⭐️14.9
+  XmonadのMac版
+  設定ファイルはYAML形式で記述
+
+- [yabai](https://github.com/koekeishiya/yabai)
+  i3ライクに使えるタイル型ウィンドウマネージャー
+  ワークスペースの切り替えのアニメーションを消すにはSIP無効化が必要
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace) ⭐️8.7k
+  独自のワークスペースがある！！切り替えアニメーションがない！！！
+  起動したアプリを特定のワークスペースに自動で割り当て可能！！！
+  コード管理できる！！！！
+  君に決めた！！！！
+
+AeroSpaceが自分の求めるものに近かったので試してみようと思います。
+こちらの投稿者もAeroSpaceに行き着いたようです。気が合いますね。
 @[card](https://www.reddit.com/r/MacOS/comments/18w0aej/aerospace_probably_the_best_window_manager_for/)
-AeroSpaceというツールが動画で使い方を解説していたためこちらを使用してみることにしました。
-@[card](https://github.com/nikitabobko/AeroSpace)
 
-youtubeに詳細な解説がのっているためぜひ参考にしていただきたいです。
-どんな機能があるかは概要紹介の動画を見ていただけるとわかりやすいです。
+## AeroSpace
 
-**使い方の概要**
+以下の動画と公式ドキュメントを参考に設定していきます。
+最初に動画をみた後に公式ドキュメントを読むのがオススメです。
+
+### AeroSpaceの設定で参考にしたもの
+
+#### 公式ドキュメント
+
+@[card](https://nikitabobko.github.io/AeroSpace/guide)
+
+#### 使い方の概要
 
 @[youtube](https://youtu.be/UOl7ErqWbrk?si=wFvtNex4sCGk_T0y)
 
-**詳しい設定方法**
+#### 詳しい設定方法
 
 @[youtube](https://youtu.be/-FoWClVHG5g?si=QhcJhuEkmHAHRWGI)
 
-ただ、この動画を上げている方は最近Raycastで管理する方法に変えたとのことです。
-シンプルさを求めるならRaycastを使うのが良いかもしれません。
+ただ、この動画を上げている方は最近[Raycastで管理する方法](https://youtu.be/DBifQv9AYhc?si=x-Xj3HETNmg6eXE2)に変えたとのことです。
+両方試して合うものを使うのが良いと思います。
 
-自分の思想に合うものを選んでもらえればと思います。
+### AeroSpaceのメリット
 
-### AeroSpaceのメリット・デメリット
-
-自分が実際に使用した中で感じたメリット・デメリットをまとめました。
-
-メリット
+自分が実際に使用した中で感じたメリットは以下の通りです。
 
 - Macのワークスペースとは異なるAeroSpace独自のワークスペースを使用しており、ワークスペース切り替え時に無駄なアニメーションを挟まない
-- 自動的にウィンドウのサイズを調整してくれる
-- キーボードで操作が完結する
+- タイル型WMなので、自動的にウィンドウのサイズを調整してくれる
+- キーボードで操作が完結
 - 設定ファイルでカスタマイズを行うため、コード管理できる
-- 使用しているウィンドウのみが有効になるため、透けてるターミナルの後ろに他のウィンドウが表示されることがなくなり、ターミナルのかっこよさが際立つ
+- 透けてるターミナルの後ろに他のウィンドウが表示されることがなくなり、ターミナルのかっこよさが際立つ (**重要**)
 - `alt + 特定の文字`に特定のアプリケーションを割り当てることができるため、目的のウィンドウに素早く移動できる
-- ウィンドウのレイヤーを意識する必要が出てきて他のウィンドウマネジメントよりもリッチだがその分複雑
 - タスクごとにワークスペースを割り当てる使い方ができる
 
-デメリット
+タスク間のスイッチコストが減って、作業効率が上がりました。
 
-- 1/4サイズにして意図した配置にするのが難しい
-- ウィンドウのレイヤーを意識する必要が出てきて他のウィンドウマネジメントよりもリッチだがその分複雑
-- フロートウィンドウかタイルウィンドウにするかの切り替えを考える必要が出てくる
-
-多機能なウィンドウマネジメントツールなので、多くの機能を求める人におすすめのツールになります。
-より、シンプルにウィンドウを管理したい人はRectangleやRaycastを併用して使用するのが良いかもしれません。
+### AeroSpaceコマンドで起動/停止
 
 AeroSpaceは以下のコマンドで起動/停止ができるため、使いたい時だけ使うこともできます。
 
@@ -147,7 +222,48 @@ aerospace enable on
 aerospace enable off
 ```
 
-とりあえず試しましょう。
+:::details aerospace --help (日本語ver)
+
+```sh
+使用法: aerospace [-h|--help] [-v|--version] <サブコマンド> [<args>...]
+
+サブコマンド:
+  balance-sizes                   現在のワークスペース内のすべてのウィンドウのサイズをバランスさせる
+  close                           フォーカスされたウィンドウを閉じる
+  close-all-windows-but-current   フォーカスされたワークスペースで、現在のウィンドウ以外のすべてのウィンドウを閉じる
+  config                          AeroSpaceの設定オプションを照会する
+  debug-windows                   バグレポートを作成するためにアクセシビリティAPIのデバッグ情報を記録するインタラクティブコマンド
+  enable                          一時的にウィンドウ管理を無効にする
+  flatten-workspace-tree          フォーカスされたワークスペースのツリーをフラットにする
+  focus                           指定された方向の最も近いウィンドウにフォーカスを設定する
+  focus-back-and-forth            現在の要素と以前にフォーカスされた要素を交互に切り替える
+  focus-monitor                   相対方向、順序、またはパターンでモニターにフォーカスする
+  fullscreen                      フォーカスされたウィンドウのフルスクリーンモードを切り替える
+  join-with                       フォーカスされたウィンドウと指定された方向の最も近いノードを共通の親コンテナの下に置く
+  layout                          フォーカスされたウィンドウのレイアウトを指定されたレイアウトに変更する
+  list-apps                       Dockに表示され、ユーザーインターフェースを持つ可能性のある実行中のアプリケーションのリストを表示する
+  list-exec-env-vars              exec-*コマンドとコールバックが実行される環境変数をリストする
+  list-monitors                   条件を満たすモニターを表示する
+  list-windows                    条件を満たすウィンドウを表示する
+  list-workspaces                 条件を満たすワークスペースを表示する
+  macos-native-fullscreen         フォーカスされたウィンドウのmacOSフルスクリーンを切り替える
+  macos-native-minimize           フォーカスされたウィンドウを最小化する
+  mode                            指定されたバインディングモードをアクティブにする
+  move                            フォーカスされたウィンドウを指定された方向に移動する
+  move-mouse                      マウスを要求された位置に移動する
+  move-node-to-monitor            相対方向、順序、またはパターンでモニターにウィンドウを移動する
+  move-node-to-workspace          フォーカスされたウィンドウを指定されたワークスペースに移動する
+  move-workspace-to-monitor       フォーカスされたワークスペースを次または前のモニターに移動する
+  reload-config                   現在アクティブな設定をリロードする
+  resize                          フォーカスされたウィンドウのサイズを変更する
+  split                           フォーカスされたウィンドウを分割する
+  summon-workspace                要求されたワークスペースをフォーカスされたモニターに移動する
+  trigger-binding                 ユーザーが押したかのようにAeroSpaceバインディングをトリガーする
+  workspace                       指定されたワークスペースにフォーカスする
+  workspace-back-and-forth        フォーカスされたワークスペースと以前にフォーカスされたワークスペースを交互に切り替える
+```
+
+:::
 
 ### AeroSpaceのインストール
 
@@ -400,66 +516,195 @@ alt-shift-l = ['join-with right', 'mode main']
 
 ### AeroSpaceキーバインド
 
-#### レイアウト切り替え
-
-| キーバインド | コマンド                               | 説明                               |
-| ------------ | -------------------------------------- | ---------------------------------- |
-| `alt-slash`  | `layout tiles horizontal vertical`     | タイルレイアウトの切り替え         |
-| `alt-period` | `layout accordion horizontal vertical` | アコーディオンレイアウトの切り替え |
-
 #### ウィンドウフォーカスの移動
 
-| キーバインド | コマンド      | 説明                 |
-| ------------ | ------------- | -------------------- |
-| `alt-h`      | `focus left`  | 左のウィンドウに移動 |
-| `alt-j`      | `focus down`  | 下のウィンドウに移動 |
-| `alt-k`      | `focus up`    | 上のウィンドウに移動 |
-| `alt-l`      | `focus right` | 右のウィンドウに移動 |
+`alt` + `h/j/k/l`でウィンドウフォーカスを移動できます。
+
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#focus
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+```
 
 #### ウィンドウの移動
 
-| キーバインド  | コマンド     | 説明                 |
-| ------------- | ------------ | -------------------- |
-| `alt-shift-h` | `move left`  | ウィンドウを左へ移動 |
-| `alt-shift-j` | `move down`  | ウィンドウを下へ移動 |
-| `alt-shift-k` | `move up`    | ウィンドウを上へ移動 |
-| `alt-shift-l` | `move right` | ウィンドウを右へ移動 |
+ウィンドウの移動は`alt` + `shift` + `h/j/k/l`です。
+
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#move
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+```
+
+#### レイアウト切り替え
+
+AeroSpaceには2種類のレイアウトがあります。
+
+- タイル: ウィンドウを重ねずに並べて表示
+- アコーディオン: ウィンドウを重ねて表示
+
+デフォルトのキーバインドは以下のように設定されています。
+タイル: `alt` + `/`
+アコーディオン: `alt` + `,`
+
+```toml:~/.config/aerospace/aerospace.toml
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+```
 
 #### ウィンドウのリサイズ
 
-| キーバインド      | コマンド           | 説明         |
-| ----------------- | ------------------ | ------------ |
-| `alt-shift-minus` | `resize smart -50` | サイズを縮小 |
-| `alt-shift-equal` | `resize smart +50` | サイズを拡大 |
+ウィンドウを小さく: `alt` + `shift` + `-`
+ウィンドウを大きく: `alt` + `shift` + `=`
+
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#resize
+alt-shift-minus = 'resize smart -50'
+alt-shift-equal = 'resize smart +50'
+```
+
+自分はJIS配列なので以下のようにカスタマイズしています。
+
+```toml:~/.config/aerospace/aerospace.toml
+# alt + - でウィンドウを小さく, alt + = でウィンドウを大きく
+alt-minus = 'resize smart -50'
+alt-shift-minus = 'resize smart +50'
+```
 
 #### ワークスペース操作
 
-| キーバインド      | コマンド                       | 説明                                 |
-| ----------------- | ------------------------------ | ------------------------------------ |
-| `alt-[1-9]`       | `workspace [1-9]`              | ワークスペースを切り替え             |
-| `alt-shift-[1-9]` | `move-node-to-workspace [1-9]` | ウィンドウを指定ワークスペースに移動 |
+ワークスペースを切り替えたい場合は、`alt` + `[1-9]`で切り替えることができます。
+選択しているウィンドウを指定のワークスペースに移動したい場合は`alt` + `shift` + `[1-9]`で移動できます。
+
+:::details ワークスペースの設定
+
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#workspace
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+alt-a = 'workspace A' # In your config, you can drop workspace bindings that you don't need
+alt-b = 'workspace B'
+alt-c = 'workspace C'
+alt-d = 'workspace D'
+alt-e = 'workspace E'
+alt-f = 'workspace F'
+alt-g = 'workspace G'
+alt-i = 'workspace I'
+alt-m = 'workspace M'
+alt-n = 'workspace N'
+alt-o = 'workspace O'
+alt-p = 'workspace P'
+alt-q = 'workspace Q'
+alt-r = 'workspace R'
+alt-s = 'workspace S'
+alt-t = 'workspace T'
+alt-u = 'workspace U'
+alt-v = 'workspace V'
+alt-w = 'workspace W'
+alt-x = 'workspace X'
+alt-y = 'workspace Y'
+alt-z = 'workspace Z'
+
+# See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+alt-shift-a = 'move-node-to-workspace A'
+alt-shift-b = 'move-node-to-workspace B'
+alt-shift-c = 'move-node-to-workspace C'
+alt-shift-d = 'move-node-to-workspace D'
+alt-shift-e = 'move-node-to-workspace E'
+alt-shift-f = 'move-node-to-workspace F'
+alt-shift-g = 'move-node-to-workspace G'
+alt-shift-i = 'move-node-to-workspace I'
+alt-shift-m = 'move-node-to-workspace M'
+alt-shift-n = 'move-node-to-workspace N'
+alt-shift-o = 'move-node-to-workspace O'
+alt-shift-p = 'move-node-to-workspace P'
+alt-shift-q = 'move-node-to-workspace Q'
+alt-shift-r = 'move-node-to-workspace R'
+alt-shift-s = 'move-node-to-workspace S'
+alt-shift-t = 'move-node-to-workspace T'
+alt-shift-u = 'move-node-to-workspace U'
+alt-shift-v = 'move-node-to-workspace V'
+alt-shift-w = 'move-node-to-workspace W'
+alt-shift-x = 'move-node-to-workspace X'
+alt-shift-y = 'move-node-to-workspace Y'
+alt-shift-z = 'move-node-to-workspace Z'
+```
+
+:::
 
 #### 複数モニター間の移動
 
-| キーバインド    | コマンド                                       | 説明                               |
-| --------------- | ---------------------------------------------- | ---------------------------------- |
-| `alt-tab`       | `workspace-back-and-forth`                     | 前のワークスペースに戻る           |
-| `alt-shift-tab` | `move-workspace-to-monitor --wrap-around next` | ワークスペースを次のモニターに移動 |
+ワークスペースを別のモニターに移動したい場合は、`alt` + `tab`で前のワークスペースに戻り、`alt` + `shift` + `tab`で次のワークスペースに移動します。
 
-#### モード切り替え
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
+alt-tab = 'workspace-back-and-forth'
+# See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
+alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+```
 
-| キーバインド    | コマンド                                       | 説明                               |
-| --------------- | ---------------------------------------------- | ---------------------------------- |
-| `alt-tab`       | `workspace-back-and-forth`                     | 前のワークスペースに戻る           |
-| `alt-shift-tab` | `move-workspace-to-monitor --wrap-around next` | ワークスペースを次のモニターに移動 |
+---
 
 ### 特定のアプリケーションを指定のワークスペースに表示する
 
 特定のアプリケーションを指定のワークスペースに表示する設定もできます。
-自分はこちらは設定していません。
+`alt` + `S` でSlack、`alt` + `N` でNotionを表示するようにしています。
 
-```diff toml:~/.config/aerospace/aerospace.toml
+```toml:~/.config/aerospace/aerospace.toml
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace S'
 
+[[on-window-detected]]
+if.app-id = 'notion.id'
+run = 'move-node-to-workspace N'
+```
+
+アプリの`app-id`は以下のコマンドで取得できます。
+
+```sh
+aerospace list-apps
+```
+
+### 使用できるキー
+
+使用できるキーは、設定ファイルに以下のように記述されています。
+
+```toml:~/.config/aerospace/aerospace.toml
+# All possible keys:
+# - Letters.        a, b, c, ..., z
+# - Numbers.        0, 1, 2, ..., 9
+# - Keypad numbers. keypad0, keypad1, keypad2, ..., keypad9
+# - F-keys.         f1, f2, ..., f20
+# - Special keys.   minus, equal, period, comma, slash, backslash, quote, semicolon, backtick,
+#                   leftSquareBracket, rightSquareBracket, space, enter, esc, backspace, tab
+# - Keypad special. keypadClear, keypadDecimalMark, keypadDivide, keypadEnter, keypadEqual,
+#                   keypadMinus, keypadMultiply, keypadPlus
+# - Arrows.         left, down, up, right
+
+# All possible modifiers: cmd, alt, ctrl, shift
+
+# All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 ```
 
 ### キーバインドに複数の操作を割り当てる
@@ -472,12 +717,40 @@ alt-shift-l = ['join-with right', 'mode main']
 + alt-shift-1 = ['move-node-to-workspace 1', 'workspace 1']
 ```
 
+### AeroSpaceの設定の反映 (サービスモード)
+
+AeroSpaceの設定ファイルを変更した後は`alt` + `shift` + `;` → `Esc`で設定をリロードします。
+
+```toml:~/.config/aerospace/aerospace.toml
+# See: https://nikitabobko.github.io/AeroSpace/commands#mode
+alt-shift-semicolon = 'mode service'
+
+# 'service' binding mode declaration.
+# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+[mode.service.binding]
+esc = ['reload-config', 'mode main']
+r = ['flatten-workspace-tree', 'mode main'] # reset layout
+f = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+backspace = ['close-all-windows-but-current', 'mode main']
+```
+
+---
+
 ### AeroSpace使用時にMission Controlの画面が小さくなる問題
 
 `^ + ↑`やトラックパッドを四本指で上にスワイプすると表示される Mission Controlで、各ウィンドウが画面が小さくなってしまいます。
+
 こちらは設定 > デスクトップとDock > Mission Control > ウィンドウをアプリケーションごとにグループ化 を有効にすることで解決できます。
 
 ![Mission Contorol設定](/images/window-customization/mission-control.png)
+
+GUIで設定するのが面倒な場合は以下のコマンドを実行します。
+
+```sh
+defaults write com.apple.spaces spans-displays -bool true && killall SystemUIServer
+```
+
+---
 
 ## JankyBorders: アクティブウィンドウに枠をつける
 
@@ -550,6 +823,22 @@ brew services restart borders
 
 ![Jankeyborders](/images/window-customization/jankeyborders.png)
 
+自分は以下の色にしています。
+
+```sh:.config/borders/bordersrc
+#!/bin/bash
+
+options=(
+  style=round
+  width=4.0
+  hidpi=on
+  active_color=0xc0ff00f2
+  inactive_color=0xff0080ff
+)
+
+borders "${options[@]}"
+```
+
 ## SketchyBar: Menu barのカスタマイズ
 
 Menu barもカスタマイズしたい場合はSketchyBarを使います。
@@ -560,6 +849,8 @@ Menu barもカスタマイズしたい場合はSketchyBarを使います。
 
 コントロールセンター > 下の方にスクロール > メニューバーを自動的に表示/非表示 の設定にて`常に`を選択
 設定すると、画面上部にマウスカーソルを持っていかない限り、メニューバーが表示されなくなります。
+
+![alt デフォルトのメニューバーの設定](/images/window-customization/hide-default-menu-bar.png)
 
 ### SketchyBarのインストール
 
@@ -713,9 +1004,18 @@ sbar.bar({
 
 ![SketchyBar](/images/window-customization/sketchybar2.png)
 
+#### 足跡のアイコンを🎄に変更
+
+以下のように変更すると足跡のアイコンが🎄に変わります。
+
+```diff lua:~.config//sketchybar/items/widget/paw.lua
+-   string = app_icons["paw"],
++   string = "🎄",
+```
+
 ### AeroSpaceとSketchyBarの併用
 
-AeroSpaceの公式ドキュメントを参考に、AeroSpaceとSketchyBarを併用する方法を紹介します。
+SketchyBarにAeroSpaceのワークスペースを表示する方法は以下のページにまとまっています。
 
 > 参照: [AeroSpace Goodies](https://nikitabobko.github.io/AeroSpace/goodness#show-aerospace-workspaces-in-sketchybar)
 
@@ -729,14 +1029,6 @@ SketchyBarは`sketchybar`コマンドで起動できるため以下のように�
 + after-startup-command = ['exec-and-forget borders', 'exec-and-forget sketchybar']
 ```
 
-#### AeroSpaceのワークスペースをSketchyBarに表示
-
-デフォルトの設定のままだとAeroSpaceのワークスペースが表示されないため、設定をする必要があります。
-また、外部ディスプレイを接続するとMenu barが表示されなくなる問題があります。
-
-![bar-hidden](/images/window-customization/bar-hidden.png)
-_外部ディスプレイ接続時_
-
 ## ウィンドウ間の切り替えをわかりやすく: alt-tab
 
 MacOSはWindowsとは違い、ウィンドウ切り替えのプレビューで画面が表示されずにアイコンが表示されます。
@@ -745,28 +1037,19 @@ Windowsを使用していたこともあり、Windowsのようにプレビュー
 そこでalt-tabを導入しました。
 @[card](https://github.com/lwouis/alt-tab-macos)
 
-### alt-tabの特徴
-
-alt-tabのメリット
+### alt-tabのお気に入りポイント
 
 - windowの切り替えに現在のスペースにあるものが表示され、別のワークスペースで表示されているものは表示されない
-- ウィンドウのプレビューが表示される
 - 同じアプリケーションが別ウィンドウで立ち上がっている場合、両方表示される
 - 開いているウィンドウがないアプリは表示されない
 
-alt-tabのデメリット
-
-- 別ワークスペースに切り替えた直後の動作が遅く、前のワークスペースのウィンドウが表示されてしまう
-  ただし、前ワークスペースのウィンドウを俯瞰して見るという使い方もできるため、人によってはメリットかもしれない。
-  一通り使ったら自分にとってはメリットだった。
-
-ワークスペースの切り替えアニメーションはオフにはできるのですが、フェードアニメーションはオフにはできないようです。
-![ディスプレイのアニメーションをオフ](/images/window-customization/disable-display-animation.png)
-_ワークスペースの切り替えアニメーションをオフ_
-_`設定` > `アクセシビリティ` > `ディスプレイ` > `視差効果を減らす` をオンにすることで無効化できる_
 ただし、AeroSpaceの現在いるワークスペース以外で起動しているアプリもalt-tabで表示されてしまうという問題があります。
 alt-tabとAeroSpaceの統合は技術的に難しいようです。
 @[card](https://github.com/lwouis/alt-tab-macos/issues/3773)
+
+そのため、たまにしか開かないウィンドウをMacの別ワークスペースに分けて使うことが多いです。
+
+---
 
 ### alt-tabのインストール
 
@@ -782,10 +1065,32 @@ alt-tabを起動し、アクセシビティを許可します。
 再度`alt-tab`を起動するとアプリの設定画面が表示されます。
 自分は以下の設定で使用しています。
 
-## ちょっとした小話: 自分が最も美しいと感じるウィンドウマネジメント
+![alt alt-tab コントロール](/images/window-customization/alt-tab-control.png)
+![alt alt-tab 外観](/images/window-customization/alt-tab-appearance.png)
 
-私は現在MacOSを使用していますが、今まで触れてきたウィンドウマネジメントの中で最も優れているなと感じるのはWindowsのウィンドウマネジメントです。
-標準でキーボードのみのウィンドウ操作ができるのはもちろん、操作に使用するキーはわずか5個(widdowsキー, 矢印キー)のみです。
-5つのキーでウィンドウのリサイズ(1/2や1/4)、ウィンドウの移動ができるのは、ウィンドウ管理によって消費される脳のリソースが最小限で美しい仕組みだと思います。
+### 余談: MACのワークスペースの切り替えアニメーションは完全にはオフにできない
 
-MacOSでも似たような操作ができるようなツールを求めて来年もウィンドウマネジメントを探し続けていくことになりそうです。
+ワークスペースの切り替えアニメーションはオフにはできるのですが、フェードアニメーションはオフにはできないようです。
+![ディスプレイのアニメーションをオフ](/images/window-customization/disable-display-animation.png)
+_ワークスペースの切り替えアニメーションをオフ_
+_`設定` > `アクセシビリティ` > `ディスプレイ` > `視差効果を減らす` をオンにすることで無効化できる_
+
+完全にアニメーション0にする手段が欲しいところ。。。
+
+## 終わりに
+
+[VimConf2024](https://vimconf.org/2024/)の参加者のデスクトップがカッコ良すぎて、気づいたらウィンドウのカスタマイズをしていました。
+大満足のイベントでしたので、来年は[個人スポンサー](https://vimconf2024-individual-sponsor.peatix.com/)になろうと思います。
+
+さて、明日のミライトデザインのアドカレは HADOマスター [ucan](https://qiita.com/ucan-lab) さんの「Laravel から一歩先へ。クリーンアーキテクチャによる柔軟な設計術」という記事です。
+変化に強いアプリケーションを作るための設計術は必見ですね！
+
+## 参照
+
+[^1]:
+    > XQuartz という、macOS 上で X Window System を動かすソフトウェアを使えば、Xmonad は動かせないこともないです。が、macOS 上のネイティブなアプリケーションは XQuartz 上で動作しない（参照: [Xmonad/Using xmonad on Apple OSX](https://wiki.haskell.org/Xmonad/Using_xmonad_on_Apple_OSX)）ため、画面管理が煩雑になってしまいます...
+    > @[card](https://zenn.dev/defaultcf/articles/my-engineering-productivity-tool)
+
+[^2]:
+    > Hyprlandのカスタマイズはこちらの記事が参考になります。
+    > @[card](https://zenn.dev/watagame/articles/hyprland-nix)
