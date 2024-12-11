@@ -1,9 +1,9 @@
 ---
-title: "デスクトップは「清く・正しく・美しく」"
+title: "デスクトップは「清く・正しく・美しく」AeroSpace, JankyBorders, SketchyBar, alt-tab"
 emoji: "🎄"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [JankyBorders, AeroSpace, SketchyBar]
-published: false
+published: true
 ---
 
 :::message
