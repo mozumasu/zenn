@@ -2,7 +2,7 @@
 title: "モテるGit管理 (gh, ghq, git-cz, lazygit)"
 emoji: "💪"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [lazygit, gh, ghq, git]
+topics: [lazygit, gh, ghq, git, contest2024]
 published: true
 published_at: 2024-12-04 07:00
 ---
