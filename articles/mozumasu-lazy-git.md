@@ -750,6 +750,54 @@ AI にGit コミット メッセージの件名を生成させる設定もあり
 
 :::
 
+---
+
+## .gitignoreの用意だってスマートに (gibo)
+
+giboは.gitignoreのテンプレートを作成するCLIツールです。
+名前の由来はgitignore boilerplates (定型文) からきているようです。
+@[card](https://github.com/simonwhitaker/gibo)
+
+利用できるテンプレート一覧は`gibo list`で確認できます。
+`gibo dump [利用したいテンプレート]`で.gitignoreに作成できます。
+
+自分は以下のような関数を用意して利用しています。
+
+```sh:~/.zshrc
+alias gia='create_gitignore'
+
+# giboで.gitignoreを作成
+create_gitignore() {
+    local input_file="$1"
+
+    # 引数がない場合は.gitignoreに追加
+    if [[ -z "$input_file" ]]; then
+        input_file=".gitignore"
+    fi
+
+    # テンプレートを選択
+    local selected=$(gibo list | fzf \
+        --multi \
+        --preview "gibo dump {} | bat --style=numbers --color=always --paging=never")
+
+    # 未選択の場合は終了
+    if [[ -z "$selected" ]]; then
+        echo "No templates selected. Exiting."
+        return
+    fi
+
+    # 選択したテンプレートを指定したファイルに追加
+    echo "$selected" | xargs gibo dump >> "$input_file"
+
+    # 結果のファイルをbatで表示
+    bat "$input_file"
+}
+```
+
+以下のように`Tab`で複数のテンプレートを指定して.gitignoreを作成することができます。
+
+![create .gitignore](/images/lazy-git/create_gitignore.gif =700x)
+
 ## おわりに
 
 少しでも皆様のCLI生活が快適になれば幸いです。
