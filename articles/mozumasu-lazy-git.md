@@ -304,6 +304,13 @@ bindkey '^g' ghq-fzf
 ```
 
 自分はファジーファインダーにfzf, プレビューにbatを使用しています。この部分はお好きなものに書き換えてください。
+batのインストールは以下のコマンドで行います。
+
+```sh
+brew install bat
+```
+
+@[card](https://github.com/sharkdp/bat)
 コードはこちらの記事に載っているものを使用させていただだいています。コードの詳細な解説もあるありがたい記事です。感謝🙏
 @[card](https://qiita.com/tomoyamachi/items/e51d2906a5bb24cf1684)
 
@@ -588,7 +595,7 @@ abbr -S -qq lg='lazygit'
 
 :::
 
-### LazyGitでよくやる操作
+### Lazygitでよくやる操作
 
 #### コミット前のファイルを一時退避 (Stash)
 
@@ -658,10 +665,32 @@ fixupよくわからんって人は以下の記事を参考にしてください
 
 ### Lazygitからgit-czを使う
 
-lazygitの設定ファイルは`~/.config/lazygit/config.yml`にあります。
+~~lazygitの設定ファイルは`~/.config/lazygit/config.yml`にあります。~~
+
+:::message
+2025/1/5 追記
+OSごとにlazygitの設定ファイルの配置場所が変わります。
+
+lazygitの設定ファイルの配置場所はOSごとに異なっており、それぞれ以下のようになります。
+
+- Linux: `~/.config/lazygit/config.yml`
+- MacOS: `~/Library/Application Support/lazygit/config.yml`
+- Windows: `%LOCALAPPDATA%\lazygit\config.yml`または`%APPDATA%\lazygit\config.yml`
+
+MacOSでもLinuxと同様に`~/.config`配下で管理したい場合は、シェルの設定ファイルに`XDG_CONFIG_HOME`を設定する必要があります。
+
+```sh:~/.zshenv
+export XDG_CONFIG_HOME=${HOME}/.config
+```
+
+> 参照: [lazygit/docs/Config.md at master · jesseduffield/lazygit](https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md)
+
+[Nikita Kamaev](https://zenn.dev/nerzie)さん、コメントいただきありがとうございます！🙏
+:::
+
 自分は以下のように設定して、`C`でgit-czを実行できるようにしています。
 
-```yaml:~/.config/lazygit/config.yml
+```yaml:~/.config/lazygit/config.yml または ~/Library/Application Support/lazygit/config.yml
 # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
 customCommands:
