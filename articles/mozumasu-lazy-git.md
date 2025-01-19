@@ -709,7 +709,15 @@ git:
   allBranchesLogCmd: "git log --graph --color=always --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all"
   paging:
     colorArg: always
-    pager: delta --dark --paging=never
+    pager: delta --dark --paging=never # ここの設定を使用する場合はdeltaのインストールが必要
+```
+
+また、diff表示を見やすくするために私は`delta`を使用しています。
+
+@[card](https://github.com/dandavison/delta)
+
+```sh
+brew install git-delta
 ```
 
 ## プロジェクトルートに戻る時もスマートに
