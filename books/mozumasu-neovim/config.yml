@@ -1,0 +1,15 @@
+title: "Hello, Neovim！"
+summary: "vimvimする"
+topics: ["neovim", "lazyvim"] # トピック（5つまで）
+published: false # falseだと下書き
+price: 0 # 有料の場合200〜5000
+toc_depth: 1
+chapters:
+  - 1.neovim
+  - 2.nvim_appname
+  - 3.lazyvim
+  - 4.lazy-nvim
+  - base-settigns
+  - oil-nvim
+  - fall-nvim
+  - ファジーにファインドするプラグインを設定しよう
