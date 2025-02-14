@@ -9,7 +9,8 @@ chapters:
   - 2.nvim_appname
   - 3.lazyvim
   - 4.lazy-nvim
-  - base-settigns
+  - 5.lsp
+  - 6.base-settigns
   - oil-nvim
   - fall-nvim
   - ファジーにファインドするプラグインを設定しよう
