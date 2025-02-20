@@ -341,6 +341,19 @@ customCommands:
 
 ---
 
+## 設定ファイルを指定して実行
+
+プロジェクトルート以外に設定ファイルをおきたい場合は、`czg --config`で指定することができます。
+
+```sh
+# 例: ./config/cz.json の設定を使用してコミットする
+czg --config="./config/cz.json"
+```
+
+> [czg --config | cz-git](https://cz-git.qbb.sh/cli/config)
+
+---
+
 ## おわりに
 
 **cz-git** はいいぞ
