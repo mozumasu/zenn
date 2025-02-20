@@ -1,6 +1,6 @@
 ---
-title: "コミットメッセージはAIに書いてもらう (cz-git)"
-emoji: "🐙"
+title: "CLIでもコミットメッセージはAIに書いてもらえる (cz-git,czg)"
+emoji: "⚡️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [git, czgit, czg]
 published: false
@@ -8,40 +8,48 @@ published: false
 
 ## はじめに
 
-[モテるGit管理 (gh, ghq, git-cz, lazygit)](https://zenn.dev/mozumasu/articles/mozumasu-lazy-git)のコメントで **cz-git** を紹介していただいたので試しに使ってみました。
-元々はgit-czを使っていたのですが、 AI でコミットメッセージを自動生成できるのが便利でもう手放せません。
-
-cz-gitはこんな感じのことができます。
-
-> - [ ] プレフィックスを選んでコミットメッセージを生成
-> - [ ] 絵文字あり/なし を簡単に切り替え
-> - [ ] コミットメッセージをAIに生成してもらう
+[モテるGit管理 (gh, ghq, git-cz, lazygit)](https://zenn.dev/mozumasu/articles/mozumasu-lazy-git)のコメントにて **cz-git** を紹介していただいたので試しに使ってみました。
 
 ## cz-git とは？
 
 cz-gitとは、対話形式でコミットメッセージをフォーマットに沿って作成することができるツールです。
+英語であれば、コミットメッセージをAIに生成してもらうこともできちゃいます。
+
+![czg demo](/images/cz-git/demo.gif =700x)
+_AIでコミットメッセージを作成している様子_
+
+@[card](https://cz-git.qbb.sh/)
+@[card](https://github.com/Zhengqbbb/cz-git)
+
 コミットメッセージのフォーマットは、[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) の元である [Angular のコミットメッセージ標準](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit) に準拠しています。
 
-似たツールとして git-cz や Commitizen がありますが、cz-git はそれらの複雑な依存関係を解決し、より軽量化したものです。
+似たツールとして [git-cz](https://github.com/streamich/git-cz) や [Commitizen](https://github.com/commitizen/cz-cli) がありますが、cz-git は複雑な依存関係を解決し、さらに軽量化しています。
+
+> 148 MB node_modules/git-cz
+> 1.9 MB node_modules/cz-git
+
+### cz-gitの推しポイント
+
+以前はgit-czを使っていたのですが、cz-gitの場合は以下のようなメリットがあったため移行しました。
+
+- 絵文字あり/なし を簡単に切り替え
+- AIによるコミットメッセージ生成
+- package.jsonを元にscopeを自動設定
 
 ## czg とは？
 
-公式のページを見にいくと、cz-gitの他にczgとやらについて記載があります。
-cz-gitは単体では、
+公式のページを見にいくと、どうやらcz-gitの他にczgというものがあるようです。
 
-### cz-git
+@[card](https://cz-git.qbb.sh/cli/)
 
-コマンドは `cz` または `git cz` で起動する
+czgとは、cz-gitをCLIツールとして利用できるようにしたものです。
 
-### czg
+プロジェクトごとに導入する場合は cz-git、CLIツールとして手軽に使用したい場合は czg を利用すると良いでしょう。
+cz-gitの場合は `cz` または `git cz` で実行するのに対し、czg の場合は `czg` または `git czg` で実行できます。
 
-cz-git の機能を直接利用できる
+この記事ではCLIツールとして使用するため czg の導入方法を紹介します。
 
-コマンドは `czg` または `git czg` で起動する
-
-グローバルでCLIツールとして利用したい場合はこちらを使用する
-
-インストール
+## インストール
 
 ```sh
 # npmの場合
@@ -49,25 +57,6 @@ npm install -g czg cz-git
 ```
 
 > 参照: [czg | Interactive Commitizen CLI that generate standardized git commit message](https://cz-git.qbb.sh/cli/install)
-
-### cz-git と czg の違い
-
-If you using cz or git cz command will start commitizen CLI + cz-git adapter
-If you using czg or git czg command will only start czg CLI
-
-cz: がgit cz起動しますcommitizen+ cz-gitアダプタ
-czgまたはコマンドを使用する場合はCLIgit czgのみを起動しますczg
-
-## git-cz との違い
-
-git-czをより軽量化し、パフォーマンスが上げたものです。
-
-サイズの差は以下の通りです
-
-> 148 MB node_modules/git-cz
-> 1.9 MB node_modules/cz-git
-
-@[card](https://cz-git.qbb.sh/guide/why)
 
 ## cz-git の導入
 
@@ -293,6 +282,62 @@ module.exports = defineConfig({
 ```
 
 ![cz-git emoji](/images/cz-git/cz-git-emoji2.png)
+
+---
+
+## AIにコミットメッセージを書いてもらう
+
+AIにコミットメッセージを書いてもらいたい場合は、以下のコマンドでトークン情報を設定することができます。
+
+> 対応しているモデル: <https://cz-git.qbb.sh/recipes/openai>
+
+[GitHub Models](https://docs.github.com/ja/github-models)を使用する場合は以下のコマンドで設定できます。
+
+```sh
+czg --api-key="ghp_xxxxxx" --api-endpoint="https://models.inference.ai.azure.com" --api-model="gpt-4o-mini"
+```
+
+api-keyは以下のページから作成できます。
+
+<https://github.com/settings/tokens>
+
+コマンドを実行すると、`~/.config/.czrc`というファイルが作成されます。
+
+```json:~/.config/.czrc
+{
+  "openAIToken": "ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "apiEndpoint": "https://models.inference.ai.azure.com",
+  "apiModel": "gpt-4o-mini"
+}
+```
+
+このファイルはトークン情報を含んでいるため、dotfiles を育てている方は必ず`.gitignore`に追加しましょう。
+
+```diff text:.gitignore
++ diff .config/.czrc
+```
+
+## Lazygitから実行できるように設定する
+
+[Lazygit](https://github.com/jesseduffield/lazygit)から実行できるように設定しておくと幸せになれます。
+
+```config:~/.config/lazygit/config.yml
+# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+
+customCommands:
+  - command: czg
+    context: files
+    subprocess: true
+    key: c
+  - command: czg ai
+    context: files
+    subprocess: true
+    key: C
+```
+
+設定するとこんな感じでNeovimから出ることなくコミットできるので楽ちんですね🙌
+
+![czg lazygit](/images/cz-git/czg-lazygit.gif)
 
 ---
 
