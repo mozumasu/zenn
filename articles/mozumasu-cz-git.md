@@ -3,7 +3,7 @@ title: "CLIでもコミットメッセージはAIに書いてもらえる (cz-gi
 emoji: "⚡️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [git, czgit, czg]
-published: false
+published: true
 ---
 
 ## はじめに
