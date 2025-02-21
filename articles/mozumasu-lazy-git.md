@@ -790,6 +790,8 @@ AI にGit コミット メッセージの件名を生成させる設定もあり
 > 参照: [OpenAI | cz-git](https://cz-git.qbb.sh/recipes/openai)
 
 よく書くメッセージをエイリアス設定することもできるため、より快適にコミットメッセージを作成できるようになりそうですね😄。
+cz-gitの導入方法を以下の記事にまとめました。個人の学習用のリポジトリではAIに任せっきりです。
+@[card](https://zenn.dev/mozumasu/articles/mozumasu-cz-git)
 
 :::
 
