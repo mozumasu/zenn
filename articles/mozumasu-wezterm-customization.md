@@ -35,6 +35,8 @@ weztermの特徴は以下の通りです。
 `Leader`キー(自分はControl+Q) + `[`でコピーモードに入り、Vimのキーバインドで操作してコピーすることができます。
 ![alt wezterm after setting](/images/wezterm-customization/copy_mode.gif =700x)
 
+コピーモードのキーバインドはデフォルトでは`Control+Shift+X`に割り当てられています。
+
 他にも色々良さがあるので、詳しくは公式ドキュメントを参照していただければと思います。
 カスタマイズをたくさんしたい人にはオススメのターミナルです。
 
@@ -172,7 +174,7 @@ return {
         description = "(wezterm) Create new workspace:",
         action = wezterm.action_callback(function(window, pane, line)
           if line then
-            window:perform_aciton(
+            window:perform_action(
               act.SwitchToWorkspace({
                 name = line,
               }),
@@ -665,10 +667,39 @@ return config
 ![alt window_frame](/images/wezterm-customization/window_frame_setting.png =700x)
 透明になりましたね！！
 
-`config.use_fancy_tab_bar = false`を設定すると下記の画像のようになり、タブバーは透過ができなくなるため注意してください。
-カクカクしたタブをとるか、透過したタブをとるかはあなた次第です。
+~~`config.use_fancy_tab_bar = false`を設定すると下記の画像のようになり、タブバーは透過ができなくなるため注意してください。~~
+~~カクカクしたタブをとるか、透過したタブをとるかはあなた次第です。~~
 
 ![alt use_fancy_tab_bar](/images/wezterm-customization/use_fancy_tab_bar_setting.png =700x)
+
+:::message
+2025/04追記: use_fancy_tab_bar= falseでも透過できました!
+カクカクのタブでも透過できるのでよりスマートな見た目にすることもできます!
+
+それぞれ、タブバーの透過の方法が異ります。
+
+**use_fancy_tab_bar = trueの場合**
+
+```lua
+config.window_frame = {
+  inactive_titlebar_bg = "none",
+  active_titlebar_bg = "none",
+}
+```
+
+**use_fancy_tab_bar = falseの場合**
+
+```lua
+config.colors = {
+  tab_bar = {
+    background = "none",
+  },
+}
+```
+
+![alt use_fancy_tab_bar_false](/images/wezterm-customization/use_fancy_tab_bar_false.png =700x)
+
+:::
 
 > [use_fancy_tab_bar - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/lua/config/use_fancy_tab_bar.html)
 
@@ -1043,7 +1074,7 @@ return {
         description = "(wezterm) Create new workspace:",
         action = wezterm.action_callback(function(window, pane, line)
           if line then
-            window:perform_aciton(
+            window:perform_action(
               act.SwitchToWorkspace({
                 name = line,
               }),
