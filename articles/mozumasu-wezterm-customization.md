@@ -1,5 +1,5 @@
 ---
-title: "モテるターミナルにカスタマイズしよう（wezterm）"
+title: "モテるターミナルにカスタマイズしよう（WezTerm）"
 emoji: "💘"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [wezterm, CLI, terminal]
@@ -13,16 +13,16 @@ published: true
 
 完成系はこんな感じです。スケスケ&ぼかしが入っていていい感じですね！
 
-![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
+![alt WezTerm after setting](/images/wezterm-customization/after_setting.png =700x)
 現在有効になっているタブが黄色くなります。
 
-![alt wezterm after setting](/images/wezterm-customization/after_setting.gif =700x)
+![alt WezTerm after setting](/images/wezterm-customization/after_setting.gif =700x)
 
-ついでにNeoVimの画面も晒しておきます。
-![alt wezterm after setting](/images/wezterm-customization/after_setting_2.png =700x)
+ついでにNeovimの画面も晒しておきます。
+![alt WezTerm after setting](/images/wezterm-customization/after_setting_2.png =700x)
 
-使用しているターミナルは[wezterm](https://wezfurlong.org/wezterm/)です。
-weztermの特徴は以下の通りです。
+使用しているターミナルは[WezTerm](https://wezfurlong.org/wezterm/)です。
+WezTermの特徴は以下の通りです。
 
 - Rust製でとにかく早い
 - 軽量
@@ -33,7 +33,7 @@ weztermの特徴は以下の通りです。
 - **コピーモードが使いやすい！！！**
 
 `Leader`キー(自分はControl+Q) + `[`でコピーモードに入り、Vimのキーバインドで操作してコピーすることができます。
-![alt wezterm after setting](/images/wezterm-customization/copy_mode.gif =700x)
+![alt WezTerm after setting](/images/wezterm-customization/copy_mode.gif =700x)
 
 コピーモードのキーバインドはデフォルトでは`Control+Shift+X`に割り当てられています。
 
@@ -44,7 +44,7 @@ weztermの特徴は以下の通りです。
 
 読むのが面倒な人向けに完成系の設定ファイルを晒しておきます。
 
-:::details wezterm設定ファイル
+:::details WezTerm設定ファイル
 
 ```lua:~/.config/wezterm/wezterm.lua
 local wezterm = require("wezterm")
@@ -333,7 +333,7 @@ return {
 
 :::
 
-## weztermのインストール
+## WezTermのインストール
 
 Homebrewでインストールする場合は下記のコマンドを実行します。
 ※一部nightly限定の設定があるため、この記事ではnightly版を使用しています。
@@ -348,10 +348,10 @@ brew install --cask wezterm@nightly
 ```
 
 > Homebrew: <https://formulae.brew.sh/cask/wezterm>
-> wezterm公式: <https://wezfurlong.org/wezterm/installation>
+> WezTerm公式: <https://wezfurlong.org/wezterm/installation>
 
-weztermを立ち上げると下記のような画面が表示されます。
-![alt wezterm before setting](/images/wezterm-customization/before_setting.png)
+WezTermを立ち上げると下記のような画面が表示されます。
+![alt WezTerm before setting](/images/wezterm-customization/before_setting.png)
 ※画像のターミナルは[starship](https://starship.rs/)を導入しているため、プロンプトの部分はすでにカスタマイズされています。
 starshipのカスタマイズ方法は記憶の彼方にあるのでとりあえずコードだけ晒しておきます。
 :::details starshipの設定
@@ -583,7 +583,7 @@ return config
 「なんかタブがしっくりこないなぁ、、、」
 
 そんなあなたに朗報です。
-何とこのタブ、カスタマイズできます！！！！そう！weztermならね！！！
+何とこのタブ、カスタマイズできます！！！！そう！WezTermならね！！！
 
 ### タイトルバーの削除
 
@@ -979,7 +979,7 @@ return config
 
 \\\\⭐️⭐️完成⭐️⭐️//
 
-![alt wezterm after setting](/images/wezterm-customization/after_setting.png =700x)
+![alt WezTerm after setting](/images/wezterm-customization/after_setting.png =700x)
 
 公式ドキュメントには他にもたくさんの設定があります。
 ぜひ自分好みにカスタマイズしてみてください。
@@ -990,7 +990,7 @@ return config
 
 ### キーバインド設定ファイルを作成
 
-weztermのキーバインドはたくさんあります。
+WezTermのキーバインドはたくさんあります。
 下記のコマンドを入力すると、現在の設定が表示されます。
 
 ```shell
@@ -1234,9 +1234,9 @@ return {
 
 ## 最後に
 
-weztermの記事を書いた人はコメント欄でぜひ宣伝してください！
+WezTermの記事を書いた人はコメント欄でぜひ宣伝してください！
 ターミナル&dotfiles自慢もお待ちしています！
-いろんな人のカスタマイズを参考にしたい場合はweztermのGitHub Discussionsを見てみるのもいいかもしれません。
+いろんな人のカスタマイズを参考にしたい場合はWezTermのGitHub Discussionsを見てみるのもいいかもしれません。
 [Show your wezterms · wez/wezterm · Discussion #628](https://github.com/wez/wezterm/discussions/628)
 
-**weztermはいいぞ**
+**WezTermはいいぞ**
