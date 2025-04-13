@@ -879,13 +879,41 @@ brew services start sketchybar
 
 > 参照: [Setup | SketchyBar](https://felixkratz.github.io/SketchyBar/setup)
 
+### 外部モニター使用時に Menu barが隠れてしまう問題
+
+外部モニターを使用していると Menu bar が隠れてしまうことがあります。
+その場合は、モニターごとに AeroSpace の設定でギャップを調整して解決することができます。
+
+```diff toml:~/.config/aerospace/aerospace.toml
+[gaps]
+inner.horizontal = 10
+inner.vertical =   10
+outer.left =       10
+outer.bottom =     10
+outer.top =        10
+outer.right =      10
+- outer.top =        10
++ outer.top =        [{monitor.VY249 = 35}, 10]
+```
+
+モニター名は以下のコマンドで確認できます。
+
+```sh
+aerospace list-monitors
+1 | VY249
+```
+
+> 参照:  
+> [AeroSpace公式ドキュメント: list-monitors](https://nikitabobko.github.io/AeroSpace/commands#list-monitors)  
+> [GitHub issue: Aerospace overlapping sketchbar #610](https://github.com/FelixKratz/SketchyBar/issues/610)
+
+### SoichiroYamaneさんのdotfilesを試す
+
 ここからは自分好みにカスタマイズしていきましょう。
 他の人の設定例は[こちら](https://github.com/FelixKratz/SketchyBar/discussions/47)
 
 私はこちらの方の設定を使わせていただいています。
 @[card](https://github.com/SoichiroYamane/dotfiles)
-
-### SoichiroYamaneさんのdotfilesを試す
 
 dotfilesをクローンし、sketchybarの設定を追加します。
 元の設定は.bakをつけてバックアップしておきます。
