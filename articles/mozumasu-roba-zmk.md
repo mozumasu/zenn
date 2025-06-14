@@ -311,7 +311,83 @@ ZMKは日本語配列に対応していないため、以下のような対応�
 + #include "keymap_jp.h"
 ```
 
-あとは、定義したキーをkeymapファイルに反映すてばOKです。
+あとは、定義したキーをkeymapファイルに反映すれてばOKです。
+
+::: key
+
+```diff config:roBa.keymap
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+&kp Q             &kp W         &kp E    &kp R                    &kp T                                              &kp Y      &kp U  &lt 5 I    &kp O    &kp P
+&kp A             &kp S         &kp D    &kp F                    &kp G        &kp LS(LG(S))      &kp MINUS          &kp H      &kp J  &kp K      &kp L    &kp JP_COLON
+&mt LEFT_SHIFT Z  &kp X         &kp C    &kp V                    &kp B        &lt 1 JP_COLON     &lt 3 JP_SEMI      &kp N      &kp M  &kp COMMA  &kp DOT  &mt RIGHT_SHIFT JP_DQT
+&kp LEFT_COMMAND  &kp LEFT_ALT  &kp TAB  &mt LEFT_CONTROL ESCAPE  &lt 2 SPACE  &kp LANG2          &kp RIGHT_COMMAND  &kp LANG1                             &kp JP_SQT
+            >;
+
+            sensor-bindings = <&encoder_msc_down_up>;
+        };
+
+        FUNCTION {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                       &kp F1  &kp F2  &kp F3  &kp F4  &kp F5
+&trans  &trans  &trans  &trans  &trans  &trans      &kp F13  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10
+&trans  &trans  &trans  &trans  &trans  &trans      &trans   &trans  &trans  &trans  &trans  &kp F11
+&trans  &trans  &trans  &trans  &trans  &trans      &trans   &trans                          &kp F12
+            >;
+        };
+
+        NUM {
+            bindings = <
+&kp JP_MINUS                   &kp NUMBER_7  &kp NUMBER_8  &kp NUMBER_9  &kp JP_PLUS                                               &kp JP_CARET  &kp JP_AMPS  &kp JP_TILDE &kp JP_LPAR  &kp JP_RPAR
+&kp JP_SLASH                   &kp NUMBER_4  &kp NUMBER_5  &kp NUMBER_6  &kp JP_ASTRK  &kp LC(LA(KP_NUMBER_0))      &kp JP_UNDER   &kp JP_EXCL   &kp JP_AT    &kp JP_HASH  &kp JP_DLLR  &kp JP_PRCNT
+&mt LEFT_SHIFT KP_NUMBER_0     &kp NUMBER_1  &kp NUMBER_2  &kp NUMBER_3  &kp PERIOD    &kp JP_EQUAL                 &kp GRAVE      &kp JP_LBKT   &kp JP_RBKT  &kp JP_LBRC  &kp JP_RBRC  &kp JP_BSLH
+&trans                      &trans           &trans           &trans           &trans        &trans                 &trans         &trans                                               &kp JP_PIPE
+            >;
+        };
+
+        ARROW {
+            bindings = <
+&kp ESCAPE      &kp LC(LS(TAB))         &kp UP_ARROW    &kp LC(TAB)              &trans                       &trans  &trans  &trans      &trans  &trans
+&kp HOME        &kp LEFT_ARROW          &kp DOWN_ARROW  &kp RIGHT_ARROW          &kp END  &trans      &trans  &trans  &trans  &kp C_PLAY  &trans  &kp K_MUTE
+&kp LEFT_SHIFT  &kp LG(LS(LEFT_ARROW))  &trans          &kp LG(LS(RIGHT_ARROW))  &trans   &trans      &trans  &trans  &trans  &trans      &trans  &kp C_VOLUME_DOWN
+&trans          &trans                  &trans          &trans                   &trans   &trans      &trans  &trans                              &kp C_VOLUME_UP
+            >;
+
+            sensor-bindings = <&encoder_msc_down_up>;
+        };
+
+        MOUSE {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &mkp MB1  &mkp MB3  &mkp MB2  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                                &trans
+            >;
+        };
+
+        SCROLL {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                          &trans
+            >;
+        };
+
+        layer_6 {
+            bindings = <
+&trans  &trans        &trans        &trans        &trans                           &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4
+&trans  &trans        &trans        &trans        &trans  &trans      &trans       &trans        &trans        &trans        &trans        &trans
+&trans  &kp NUMBER_1  &kp NUMBER_2  &kp NUMBER_3  &trans  &trans      &bootloader  &trans        &trans        &trans        &trans        &bt BT_CLR
+&trans  &trans        &trans        &trans        &trans  &trans      &trans       &trans                                                  &bt BT_CLR_ALL
+            >;
+        };
+    };
+```
+
 自分で定義したキーは Keymap Editor で表示されません。
 ![JIS ZMK](/images/roba-zmk/jis-zmk.png)
 
