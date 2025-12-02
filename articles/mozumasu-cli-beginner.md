@@ -797,6 +797,12 @@ _Neovimでmanを表示_
 
 ![:h :Man@en](/images/cli-beginner/neovim-man.png =700x)
 
+Neovimからマニュアルを開きたい場合は、`:Man コマンド名` で開ける。
+シェルスクリプトを書いている時は `K` でマニュアルを開くこともできる。
+
+![カーソル位置のコマンドのマニュアルを開く](/images/cli-beginner/man-neovim-lsp.png)
+_Neovimでカーソル位置のコマンドのマニュアルを開く_
+
 :::details Neovimが無い場合のインストール方法
 
 Neovimが無い場合は以下のコマンドでインストールできる。
