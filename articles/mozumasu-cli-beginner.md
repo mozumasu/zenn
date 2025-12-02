@@ -19,7 +19,7 @@ CLIはそんな怠惰人間を支えてくれる最強の相棒である。
 man や help があると言われても英語がつらい。
 何から手をつければいいのかもわからない。
 
-そこで、この記事では「最初に知りたかった」と思える CLI の小技や理解の助けになるコツをまとめて紹介していく。
+そこで、この記事では「最初に知りたかった」 CLI の Tips を紹介していく。
 
 ### 自分の使っているシェルを確認しよう
 
@@ -145,7 +145,7 @@ bindkey | awk '{print $2}' | sort | uniq | wc -l
 上のコマンドを見て、「こんなの覚えられないよ~」と思った人もいるかもしれない。
 長いコマンドがでてきたら `|` (パイプ) ごとに実行してみると理解しやすい。
 
-まず、bindkeyコマンドだけを実行してみる。
+まず、 `bindkey` コマンドだけを実行してみる。
 
 ```sh
 bindkey
@@ -169,7 +169,7 @@ bindkey | awk '{print $2}'
 # ...
 ```
 
-次にsortをつなげてみる。
+次に `sort` をつなげてみる。
 出力結果を見ると、重複したものがまとめられていることがわかる。
 
 ```sh
@@ -185,7 +185,7 @@ bindkey | awk '{print $2}' | sort
 # ...
 ```
 
-uniqをつなげてみると、重複が取り除かれていることがわかる。
+`uniq` をつなげてみると、重複が取り除かれていることがわかる。
 
 ```sh
 bindkey | awk '{print $2}' | sort | uniq
@@ -198,7 +198,7 @@ bindkey | awk '{print $2}' | sort | uniq
 # ...
 ```
 
-最後にwc -lをつなげてみると、先ほどの出力結果の行数が数えられていることがわかる。
+最後に `wc -l` をつなげてみると、先ほどの出力結果の行数が数えられていることがわかる。
 
 ```sh
 bindkey | awk '{print $2}' | sort | uniq | wc -l
@@ -249,6 +249,14 @@ bindkey -lL main
 bindkey -e
 ```
 
+これは余談だが、 emacs モードの方がキーバインドの数が多い。
+
+```sh
+bindkey | awk '{print $2}' | sort | uniq | wc -l
+
+#     69
+```
+
 ### 設定の永続化
 
 この設定を今回のセッションだけではなく、永続化したい場合は zshの設定ファイル (`~/.zshrc`など) に追記しよう。
@@ -262,14 +270,6 @@ bindkey -e
 ```sh
 # 設定を読み直すために、ログインシェルとして起動しなおす
 exec $SHELL -l 
-```
-
-これは余談だが、 emacs モードの方がキーバインドの数が多い。
-
-```sh
-bindkey | awk '{print $2}' | sort | uniq | wc -l
-
-#     69
 ```
 
 ### おすすめキーバインド
@@ -428,10 +428,10 @@ bindkey '^Z' fancy-ctrl-z
 ##### redo
 
 undo は知ってるのに redo を使っていない人はけっこう多い。
-以下のように設定しておくと、Ctrl-_ (undo) をしすぎた時に、Ctrl-x Ctrl-r でやり直しができる。
+以下のように設定しておくと、Control-_ (undo) をしすぎた時に、Control-x Control-r でやり直しができる。
 
 ```sh:~/.zshrc
-# Ctrl-x Ctrl-r で redo
+# Control-x Control-r で redo
 bindkey '^X^R' redo
 ```
 
@@ -453,8 +453,8 @@ bindkey '^[e' edit-command-line
 
 ##### history-beginning-search-backward-end / history-beginning-search-forward-end
 
-Ctrl-p / Ctrl-n を単なる履歴の上下ではなく、今入力している文字列で前方一致する履歴だけをたどる ことができる。
-例えば、docker と入力してから Ctrl-p を押すと、docker で始まる過去のコマンドだけをたどれる。
+Control-p / Control-n を単なる履歴の上下ではなく、**今入力している文字列で前方一致する履歴だけをたどる**ことができる。
+例えば、docker と入力してから Control-p を押すと、docker で始まる過去のコマンドだけをたどれる。
 前方が一致している単語だけをたどるので、目的のコマンドにたどり着きやすい。
 
 設定は以下の通り。
@@ -467,7 +467,7 @@ autoload -Uz history-search-end
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end  history-search-end
 
-# Ctrl-p / Ctrl-n を前方一致履歴検索に割り当て
+# Control-p / Control-n を前方一致履歴検索に割り当て
 bindkey '^p' history-beginning-search-backward-end
 bindkey '^n' history-beginning-search-forward-end
 ```
@@ -825,7 +825,11 @@ nvim
 
 ## おわりに
 
-最初に知りたかったCLIのTipsたちを紹介してきました。
-ぜひ試してみてください。
+最初に知りたかった CLI の Tips を紹介してきた。
+参考になれば幸いである。
+
+:::message
 
 明日の TechBullのアドカレは Ryo Ninomiya さんの記事です! おたのしみに!
+
+:::
