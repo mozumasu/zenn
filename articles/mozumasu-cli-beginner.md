@@ -840,6 +840,13 @@ Neovim で開くと、 [プラグインで翻訳](https://zenn.dev/mozumasu/arti
 
 :::message
 
-明日の TechBullのアドカレは Ryo Ninomiya さんの記事です! おたのしみに!
+**謝辞**
+[Vim-jp Slack](https://vim-jp.org/docs/chat.html) の tech-cli チャンネルにてフィードバックをくださった皆様、ありがとうございました!🙇
+
+:::
+
+:::message
+
+明日の [TechBullのアドカレ](https://adventar.org/calendars/11900) は Ryo Ninomiya さんの記事です! おたのしみに!
 
 :::
