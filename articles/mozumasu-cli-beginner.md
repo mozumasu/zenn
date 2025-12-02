@@ -351,6 +351,66 @@ Altキーが効かない場合はターミナルの設定で「AltキーをMeta�
 
 :::
 
+:::details コラム: run-help をより便利にする設定
+
+初期状態だと、run-help は `man` コマンドのエイリアスになっているだけで、zsh固有のヘルプ機能が使えない。
+
+```sh
+# run-help の実態を確認
+type run-help
+# run-help is an alias for man
+```
+
+> run-help=manの設定は zsh の ソースコード内でされている
+>
+> ```zsh:zsh/Src/hashtable.c
+> /* add the default aliases */
+> aliastab->addnode(aliastab, ztrdup("run-help"), createaliasnode(ztrdup("man"), 0));
+> aliastab->addnode(aliastab, ztrdup("which-command"), createaliasnode(ztrdup("whence"), 0));
+> ```
+>
+> ref: <https://github.com/zsh-users/zsh/blob/master/Src/hashtable.c#L1214-L1216>
+
+zsh固有のヘルプ機能を使うには、以下の設定を追加しよう。
+
+```zsh:~/.zshrc
+unalias run-help 2>/dev/null
+autoload -Uz run-help
+```
+
+設定すると、 run-help の実態が関数になっていることが確認できる。
+
+```sh
+type run-help
+
+# run-help is a shell function from /usr/share/zsh/5.9/functions/run-help
+```
+
+run-helpの関数の中身は `functions run-help` で確認できる。
+
+この設定により、 `functions` コマンドのような、man では見つからない zsh 固有のコマンドのヘルプも開けるようになる。
+
+```sh
+# man で開こうとしてもマニュアルが見つからない
+man functions
+# No manual entry for functions
+```
+
+コマンドを入力して `ESC→H` (run-help) を実行すると、マニュアルが見つかる。
+
+```sh
+# コマンドを入力して
+functions # ESC→H でマニュアルが開く
+```
+
+![run-help functions](/images/cli-beginner/run-help-functions.png =700x)
+
+`/^ *functions`で検索して該当箇所にジャンプできる
+
+![run-help functions jump](/images/cli-beginner/run-help-functions-jump.png =700x)
+
+:::
+
 :::details コラム: bindkey に出ないのに使えるキーがある理由
 
 `Control + z` を押すと、今のコマンドが一時停止 (suspend) する。
