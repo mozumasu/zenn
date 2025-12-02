@@ -1,5 +1,5 @@
 ---
-title: "最速CLI入門 ~最初から知っておきたかったTips集~"
+title: "爆速CLI入門 ~最初に知りたかったTips~"
 emoji: "🌸"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [zsh, cli, plamo翻訳, ghost]
@@ -13,13 +13,13 @@ published: false
 怠惰はプログラマの美徳である。
 CLIはそんな怠惰人間を支えてくれる最強の相棒である。
 
-すべてをキーボードで操作し、あらゆる作業を自動化すべくCLIを学習し始めるわけだが、いきなり壁にぶつかる。
-
+キーボードだけで操作し、自動化を積み重ねていく。
+そんな世界へ踏み込もうとすると、最初の一歩で壁にぶつかる。
 本を開けば 呪文のようなコマンドオプションが並び、由来もわからない。
-manやhelpで使い方を調べられるとはいえ、こちとら英語アレルギーである。
-そもそも何からやればいいのかさえわからない。
+man や help があると言われても英語がつらい。
+何から手をつければいいのかもわからない。
 
-この記事では、そんな入門の壁を乗り越えるためのTipsを紹介していく。
+そこで、この記事では「最初に知りたかった」と思える CLI の小技や理解の助けになるコツをまとめて紹介していく。
 
 ### 自分の使っているシェルを確認しよう
 
@@ -242,14 +242,14 @@ bindkey -lL main
 # bindkey -A emacs main
 ```
 
-たいていの環境では emacsモードがデフォルトになっているため、emacsモードに変更して使用することをオススメする。
+たいていの環境では emacsモードがデフォルトになっているため、emacsモードに変更することをオススメする。
 
 ```sh
 # emacsモードに変更
 bindkey -e
 ```
 
-ちなみに emacs モードの方がキーバインドの数が多い。
+これは余談だが、 emacs モードの方がキーバインドの数が多い。
 
 ```SHELL
 bindkey | awk '{print $2}' | sort | uniq | wc -l
@@ -408,43 +408,413 @@ bindkey '^Z' fancy-ctrl-z
 '^n'   history-beginning-search-forward-end   # 入力内容で前方一致検索
 ```
 
-コマンドを編集しているとふと vim のキーバインドが恋しくなるときがある。
-そんな時は `edit-command-line` がオススメだ。
+それぞれのキーバインドについて紹介してく。
 
-設定されているキーバインドの中から `edit` を含むものを探してみよう。
-出力が無い場合はまだ設定できていないので、以下のコマンドで設定しよう。
+##### redo
 
-```sh
-# editを含むキーバインドの確認
-bindkey | grep edit
+undo は知ってるのに redo を使っていない人はけっこう多い。
+以下のように設定しておくと、Ctrl-_ (undo) をしすぎた時に、Ctrl-x Ctrl-r でやり直しができる。
 
-# 出力が無い場合、以下のコマンドで設定
-autoload edit-command-line
-zle -N edit-command-line
-bindkey "^[e" edit-command-line
+```sh:~/.zshrc
+# Ctrl-x Ctrl-r で redo
+bindkey '^X^R' redo
 ```
 
-## オプションが覚えられない →
+##### edit-command-line
+
+コマンドを編集しているとふと vim のキーバインドが恋しくなる時がある。
+そんな時は `edit-command-line` がオススメだ。
+
+以下の設定を追加しておくと、`Esc→e` で現在の行を `$EDITOR` で開けるようになる。
+
+```sh:~/.zshrc
+# edit-command-line を読み込む
+autoload -Uz edit-command-line
+zle -N edit-command-line
+
+# Esc→e (Alt-e) で現在行を $EDITOR で編集
+bindkey '^[e' edit-command-line
+```
+
+##### history-beginning-search-backward-end / history-beginning-search-forward-end
+
+Ctrl-p / Ctrl-n を単なる履歴の上下ではなく、今入力している文字列で前方一致する履歴だけをたどる ことができる。
+例えば、docker と入力してから Ctrl-p を押すと、docker で始まる過去のコマンドだけをたどれる。
+前方が一致している単語だけをたどるので、目的のコマンドにたどり着きやすい。
+
+設定は以下の通り。
+
+```sh:~/.zshrc
+# 前方一致履歴検索のベースになるウィジェットを読み込む
+autoload -Uz history-search-end
+
+# 前方一致しながら行末にカーソルを置くウィジェットを定義
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end  history-search-end
+
+# Ctrl-p / Ctrl-n を前方一致履歴検索に割り当て
+bindkey '^p' history-beginning-search-backward-end
+bindkey '^n' history-beginning-search-forward-end
+```
+
+## 使えるコマンドを増やしたい → tlrcで要約チェックだ!
+
+使えるコマンドを増やしたい、でも何をどこまで抑えておくべきかわからない。
+そんな時に便利なのが tldrコマンド である。
+実用的な使用例に焦点を当てた、より簡潔なヘルプを確認することができる。
+
+@[card](https://github.com/tldr-pages/tlrc)
+
+インストールは Homebrew で簡単にできる。
+
+```sh
+# tlrcをインストール
+brew install tlrc
+```
+
+例えば、`wc` コマンドの使い方を知りたいときは以下のように実行する。
+
+```sh
+# tldrでwcの使い方を確認
+tldr wc
+```
+
+実行すると以下のようなコマンドの使い方の要約が確認できる。
+
+![tldr wc の出力](/images/cli-beginner/tldr-wc.png)
+_tldrコマンドでwcコマンドの使い方を確認_
+
+## オプションが覚えられない → helpとmanは最高の情報源
 
 オプションといえば、`ls -la`でいう`-la`の部分である。
-そう、あの一文字しかない パっとみて意味不明なアレである。
+そう、あのパっとみて何かわからないやつのことである。
+オプションは何の略か確認すると頭に入りやすい。
+そんな時に使えるのが `--help` と `man` である。
 
-## 英語がつらい → PLaMo翻訳 / plamo-translate-cli
+例えば、`tldr` のコマンドオプションを確認したいときは以下のように実行する。
 
-英語がつらい人にぜひ試してほしいのが plamo-translate-cli である。
-ブラウザなら: PLaMo翻訳、CLIなら plamo-translate-cli である。
+```sh
+tldr --help
 
-[PLaMo翻訳](https://translate.preferredai.jp/)
-紹介スライド: [PLaMo翻訳 〜もう不自然な機械翻訳とはサヨナラ!PLaMo翻訳が変革するビジネス〜 - Speaker Deck](https://speakerdeck.com/pfn/20251014-plamo-translate-ceatec2025)
+# Options:
+#   -u, --update                    Update the cache
+#   -l, --list                      List all pages in the current platform
+#   -a, --list-all                  List all pages
+```
 
-@[card](https://github.com/Timac/VPNStatus)
+出力を見ると、`-u` は `--update` の略であることがわかる。
+また、manコマンドでより詳しい情報を確認することもできる。
+
+```sh
+man tldr
+```
+
+![man tldr の出力](/images/cli-beginner/man-tldr.png =700x)
+_man tldrの出力_
+
+このように `--help` と `man` はコマンドの使い方を知る上で最高の情報源である。
+
+しかし、英語が苦手な人にとっては読むのがつらい。
+そんな人にオススメの対処方法を紹介していく。
+
+## 英語がつらい
+
+英語がつらい人にぜひ試してほしいのが PLaMo翻訳 である。
+ブラウザの拡張機能とCLIツールの両方が提供されている。
+
+@[card](https://translate.preferredai.jp/)
+
+PLaMo翻訳の紹介スライドもあるのでぜひ見てほしい。
+@[speakerdeck](accaf3540e7f40d7a6e0d85ff31fd360)
+
+### PLaMo翻訳のブラウザ拡張機能
+
+拡張機能版はサブスク形式で提供されているが、無料で試せるFreeプランも用意されている。
+ページのレイアウトを崩さずに翻訳できる上に、ショートカットキーひとつで実行できる手軽さが魅力である。
+一度使うと作業の流れがグッと快適になり、手放せなくなるツールのひとつになるはず。
+
+@[card](https://chromewebstore.google.com/detail/plamo-translate/ioijepjbllchodiajdakejdbjmdgggoj)
+
+![PLaMo翻訳のデモ](/images/cli-beginner/plamo-demo.gif)
+_動作している様子_
+
+単語単位で知りたい場合はMouse Dictionaryという拡張機能もオススメだ。
+ホバーした単語の意味をポップアップで表示してくれる。
+
+@[card](https://chromewebstore.google.com/detail/mouse-dictionary/dnclbikcihnpjohihfcmmldgkjnebgnj)
+
+![Mouse Dictionaryのデモ](/images/cli-beginner/mouse-dictionary-demo.png)
+_ポップアップウィンドウのカスタマイズはCSSできるため、自分好みにできるのも嬉しいポイント。_
+
+### PLaMo翻訳のCLIツール: plamo-translate-cli
+
+plamo-translate-cli は、[plamo-2-translate](https://huggingface.co/pfnet/plamo-2-translate) という翻訳用の言語モデルをローカル環境で使うためのCLIツールである。
+
+@[card](https://github.com/pfnet/plamo-translate-cli)
+
+インストールは uv コマンドで簡単にできる。
+
+```sh
+# plamo-translate-cliをインストール
+uv tool install plamo-translate-cli
+
+# uvが無い場合は以下のコマンドでインストール
+brew install uv
+```
+
+> 参照: [uv — Homebrew Formulae](https://formulae.brew.sh/formula/uv)
+
+`| plamo-translate --to <言語>` のようにパイプで繋いで使うことができる。
+
+```sh
+# plamo-translateのプロセスを起動
+# これによりモデルの読み込み時間をスキップできる
+plamo-translate server
+
+# tldr wcの出力を日本語に翻訳
+tldr wc | plamo-translate --to Japanese
+```
+
+![plamo-translate-cliのデモ](/images/cli-beginner/plamo-translate-cli-demo.png =700x)
+_実際に翻訳してみた様子_
+
+### Ghostでプロセス管理
+
+plamo-translate-cli のプロセス用にタブを一つ占有するのはもったいない。
+そんな時に便利なのが Ghost である。
+
+@[card](https://github.com/skanehira/ghost?tab=readme-ov-file)
+
+Ghost は シンプルなバックグラウンドプロセス管理ツールで、TUIでプロセスの状態を確認できる。
+
+![ghost TUI](https://github.com/skanehira/ghost/raw/main/images/ghost.png)
+
+:::details ghostインストール
+
+公式ドキュメントより引用
+
+```sh
+git clone https://github.com/skanehira/ghost.git
+cd ghost
+cargo build --release
+```
+
+:::message
+
+ビルドが失敗する場合は、GitHubリポジトリに記載されたRequirementsを満たしているか確認しよう。
+
+> Requirements
+>
+> - Unix-based system (Linux, macOS, BSD)
+> - Rust 1.80+ (2024 edition)
+> - lsof (optional, used for port detection)
+
+:::
+
+`ghost run <管理したいコマンド>` でバックグラウンド実行できる。
+なので、plamo-translate-cli のサーバーのプロセスを ghost で管理するには以下のコマンドを実行すればよい。
+
+```sh
+# ghost run で plamo-translateのサーバーをバックグラウンド実行
+ghost run plamo-translate server
+```
+
+プロセスは `ghost` コマンドで確認できる。
+
+```sh
+# TUIでプロセス管理
+ghost
+```
 
 ### manの日本語化
 
-## コマンドが覚えられない
+ここまでで help や tldr を使ってコマンドの使い方を調べる方法を紹介した。
+せっかくなら **man コマンドも日本語で読みたい** と感じる人もいるはず。
 
-## なにからやればいいのかわからない
+じつは man の日本語マニュアルを翻訳・公開している JM Project というプロジェクトがある。
+ここで配布されている日本語 man ページを入れておくと、標準コマンドの説明を自然な日本語で読めるようになる。
+
+@[card](https://linuxjm.sourceforge.io/)
+
+マニュアルのダウンロード手順は以下の通り。
+ダウンロードリンクはこちらにあったものを使用している。
+
+[Release v20251115 · linux-jm/manual](https://github.com/linux-jm/manual/releases/tag/v20251115)
+
+```sh
+# 作業用のディレクトリへ移動 (自分はDownloadsディレクトリにした)
+cd ~/Downloads
+
+# manの日本語マニュアルページをダウンロード
+curl -L -O https://github.com/linux-jm/manual/releases/download/v20251115/man-pages-ja-20251115.tar.gz
+
+# ダウンロードしたファイルを展開
+tar xfz man-pages-ja-20251115.tar.gz
+
+# 解答されているかチェック
+ls | grep man
+# man-pages-ja-20231115
+# man-pages-ja-20231115.tar.gz
+
+# 展開したディレクトリに移動
+cd man-pages-ja-20251115
+```
+
+インストールの際に、インストール先、 ユーザー、グループを指定する必要がある。
+必要な情報をあらかじめ確認しておこう。
+
+```sh
+# ユーザー名を確認
+$ whoami
+mozumasu
+
+# グループ名を確認
+$ id -gn
+staff
+
+# マニュアルのインストール先のディレクトリが存在しているか確認
+$ ls -d ${HOME}/.local/share/man
+
+# 存在しない場合は作成
+mkdir -p ${HOME}/.local/share/man
+```
+
+インストールの設定を行うには、展開したディレクトリに移動して `make config` を実行する。
+
+```sh
+# インストール設定
+make config
+
+# インストール先、ユーザー名、グループ名を指定する
+# 他の項目はデフォルトのままでよいので、Enterキーを押して進める
+[INSTALLATION INFORMATION]
+(just Return if you accept default)
+   Install directory   [/usr/share/man/en_US.UTF-8] ?: ${HOME}/.local/share/man
+   compress manual with..
+      0: none
+      1: gzip
+      2: bzip2
+      3: compress
+   select [0..3] :
+   uname of page owner [root] ?: mozumasu
+   group of page owner [root] ?: staff
+
+   Directory:    ${HOME}/.local/share/man
+   Compression:  none
+   Page uid/gid: mozumasu/staff
+
+All OK? (Yes, [C]ontinue / No, [R]eselect) : Y
+# 残りはEnterキーを押して進める
+```
+
+以下のメッセージが出力されたらインストール完了である。
+
+```sh
+# インストール中の出力
+-n install GNU_gzip: zmore.1 ..
+done.
+-n install GNU_gzip: znew.1 ..
+done.
+```
+
+試しにインストールしたマニュアルで `ls` コマンドを確認してみよう。
+`-M` で使用するマニュアルのパスを指定できる
+
+```sh
+man -M ${HOME}/.local/share/man ls
+```
+
+うまくインストールができていれば日本語のマニュアルが表示される。
+
+![日本語のマニュアル](/images/cli-beginner/man-ja.png)
+
+毎回パスを設定するのは面倒なので、zshの設定ファイル (~/.zshrcなど) にマニュアルのパスを追加しておくと `man ls` で日本語のマニュアルを参照することができる。
+
+```sh:~/.zshrc
+export MANPATH="$HOME/.local/share/man:$MANPATH"
+```
+
+#### manをカラー表示にする
+
+せっかくならカラーでマニュアルが見れたら便利だとは思わないだろうか?
+
+以下のようなNeovimでmanを見る関数を作成することで、カラーでマニュアルを見ることができる。
+zshの設定ファイルに以下の関数を追加してみよう。
+
+```sh:~/.zshrc
+man() {
+  local p="$PAGER"
+  local m="$MANPAGER"
+  local val ret
+
+  unset PAGER
+  unset MANPAGER
+
+  val=$(command man "$@" 2>&1)
+  ret=$?
+
+  if [ $ret -eq 0 ]; then
+    printf '%s\n' "$val" | col -bx | nvim -R -c 'set ft=man' -
+  else
+    printf '%s\n' "$val"
+  fi
+
+  if [ -n "$p" ]; then
+    export PAGER="$p"
+  fi
+  if [ -n "$m" ]; then
+    export MANPAGER="$m"
+  fi
+
+  return $ret
+}
+```
+
+:::details Neovimが無い場合のインストール方法
+
+Neovimが無い場合は以下のコマンドでインストールできる。
+
+```sh
+brew install neovim
+```
+
+お試しでリッチな設定がされたNeovimを使いたい場合は、LazyVimがオススメだ。
+すぐに使い始められるNeovimを体験できる。
+
+@[card](https://www.lazyvim.org/)
+
+LazyVimのインストール手順は以下の通り。
+
+```sh
+# 既に~/.config/nvimが存在する場合はバックアップを取っておく
+mv ~/.config/nvim{,.bak}
+mv ~/.local/share/nvim{,.bak}
+mv ~/.local/state/nvim{,.bak}
+mv ~/.cache/nvim{,.bak}
+
+# LazyVimのスターターを~/.config/nvimにクローン
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+# 後で自分のリポジトリで管理できるように .git フォルダを削除
+rm -rf ~/.config/nvim/.git
+# Neovimを起動してプラグインをインストール
+nvim
+```
+
+> 参照: [🛠️ Installation | LazyVim](https://www.lazyvim.org/installation)
+
+:::
+
+```sh
+exec $SHELL -l 
+```
+
+再度、`man ls` を実行するとカラーで表示される。
+
+![日本語のマニュアル](/images/cli-beginner/man-ja-color.png)
 
 ## おわりに
 
-そのうちNeovimとかdotfilesとかも書きたいなぁと思っている。
+最初に知りたかったな~というCLIのTipsたちをを紹介してきました。
+ぜひ試してみてください。
+
+明日の TechBullのアドカレは Ryo Ninomiya さんの記事です! おたのしみに!
