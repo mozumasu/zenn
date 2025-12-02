@@ -15,7 +15,7 @@ CLIはそんな怠惰人間を支えてくれる最強の相棒である。
 
 キーボードだけで操作し、自動化を積み重ねていく。
 そんな世界へ踏み込もうとすると、最初の一歩で壁にぶつかる。
-本を開けば 呪文のようなコマンドオプションが並び、由来もわからない。
+本を開けば呪文のようなコマンドオプションが並び、由来もわからない。
 man や help があると言われても英語がつらい。
 何から手をつければいいのかもわからない。
 
@@ -249,9 +249,24 @@ bindkey -lL main
 bindkey -e
 ```
 
+### 設定の永続化
+
+この設定を今回のセッションだけではなく、永続化したい場合は zshの設定ファイル (`~/.zshrc`など) に追記しよう。
+
+```sh:~/.zshrc
+bindkey -e
+```
+
+また、設定ファイルを更新したら以下のコマンドで再読み込みしよう。
+
+```sh
+# 設定を読み直すために、ログインシェルとして起動しなおす
+exec $SHELL -l 
+```
+
 これは余談だが、 emacs モードの方がキーバインドの数が多い。
 
-```SHELL
+```sh
 bindkey | awk '{print $2}' | sort | uniq | wc -l
 
 #     69
@@ -651,10 +666,10 @@ curl -L -O https://github.com/linux-jm/manual/releases/download/v20251115/man-pa
 # ダウンロードしたファイルを展開
 tar xfz man-pages-ja-20251115.tar.gz
 
-# 解答されているかチェック
+# 展開されているかチェック
 ls | grep man
-# man-pages-ja-20231115
-# man-pages-ja-20231115.tar.gz
+# man-pages-ja-20251115
+# man-pages-ja-20251115.tar.gz
 
 # 展開したディレクトリに移動
 cd man-pages-ja-20251115
@@ -804,17 +819,13 @@ nvim
 
 :::
 
-```sh
-exec $SHELL -l 
-```
-
 再度、`man ls` を実行するとカラーで表示される。
 
 ![日本語のマニュアル](/images/cli-beginner/man-ja-color.png)
 
 ## おわりに
 
-最初に知りたかったな~というCLIのTipsたちをを紹介してきました。
+最初に知りたかったCLIのTipsたちを紹介してきました。
 ぜひ試してみてください。
 
 明日の TechBullのアドカレは Ryo Ninomiya さんの記事です! おたのしみに!
