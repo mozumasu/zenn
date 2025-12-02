@@ -3,7 +3,7 @@ title: "爆速CLI入門 ~最初に知りたかったTips~"
 emoji: "🌸"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [zsh, cli, plamo翻訳, ghost]
-published: false
+published: true
 ---
 
 この記事は[TechBullのアドカレ](https://adventar.org/calendars/11900)2日目の記事です。
