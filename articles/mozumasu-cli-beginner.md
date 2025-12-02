@@ -722,6 +722,12 @@ All OK? (Yes, [C]ontinue / No, [R]eselect) : Y
 # 残りはEnterキーを押して進める
 ```
 
+インストール設定が完了したら、`make install` でインストールを実行する。
+
+```sh
+make install
+```
+
 以下のメッセージが出力されたらインストール完了である。
 
 ```sh
