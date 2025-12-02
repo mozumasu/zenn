@@ -758,38 +758,44 @@ export MANPATH="$HOME/.local/share/man:$MANPATH"
 #### manをカラー表示にする
 
 せっかくならカラーでマニュアルが見れたら便利だとは思わないだろうか?
-
-以下のようなNeovimでmanを見る関数を作成することで、カラーでマニュアルを見ることができる。
-zshの設定ファイルに以下の関数を追加してみよう。
+`MANPAGER` 環境変数で lessコマンド を指定し、 `LESS_TERMCAP` 系の環境変数を設定することで色を付けることができる。
 
 ```sh:~/.zshrc
-man() {
-  local p="$PAGER"
-  local m="$MANPAGER"
-  local val ret
+export MANPAGER=less                 # man 専用ページャーとして less を使う
+export LESS=-R                       # 色付き表示を保持
 
-  unset PAGER
-  unset MANPAGER
+export LESS_TERMCAP_mb=$'\e[1;31m'   # 強調 赤
+export LESS_TERMCAP_md=$'\e[1;34m'   # 太字 青
+export LESS_TERMCAP_me=$'\e[0m'      # reset
 
-  val=$(command man "$@" 2>&1)
-  ret=$?
+export LESS_TERMCAP_so=$'\e[7m'      # 反転
+export LESS_TERMCAP_se=$'\e[0m'
 
-  if [ $ret -eq 0 ]; then
-    printf '%s\n' "$val" | col -bx | nvim -R -c 'set ft=man' -
-  else
-    printf '%s\n' "$val"
-  fi
-
-  if [ -n "$p" ]; then
-    export PAGER="$p"
-  fi
-  if [ -n "$m" ]; then
-    export MANPAGER="$m"
-  fi
-
-  return $ret
-}
+export LESS_TERMCAP_us=$'\e[4;32m'   # 下線 緑
+export LESS_TERMCAP_ue=$'\e[0m'
 ```
+
+この設定を追加して再度 `man ls` を実行するとカラーで表示されるようになる。
+
+![man lessでカラー表示](/images/cli-beginner/man-less.png)
+_lessでmanをカラー表示_
+
+:::details man で Neovim を使う場合
+
+もちろん、 man の表示に Neovim を使うこともできる。
+
+```sh:~/.zshrc
+export MANPAGER='nvim +Man!'
+```
+
+この状態で `man ls` を実行すると、 Neovim でマニュアルが開くようになる。
+
+![man Neovimでカラー表示](/images/cli-beginner/man-neovim.png)
+_Neovimでmanを表示_
+
+この設定は Neovim のヘルプに記載があるので、設定を忘れてしまった場合は `:h :Man@en` で確認しよう。
+
+![:h :Man@en](/images/cli-beginner/neovim-man.png)
 
 :::details Neovimが無い場合のインストール方法
 
@@ -804,7 +810,7 @@ brew install neovim
 
 @[card](https://www.lazyvim.org/)
 
-LazyVimのインストール手順は以下の通り。
+LazyVim のインストール手順は以下の通り。
 
 ```sh
 # 既に~/.config/nvimが存在する場合はバックアップを取っておく
@@ -823,11 +829,9 @@ nvim
 
 > 参照: [🛠️ Installation | LazyVim](https://www.lazyvim.org/installation)
 
+Neovim で開くと、 [プラグインで翻訳](https://zenn.dev/mozumasu/articles/mozumasu-translate-in-vim) もできるので日本語版のマニュアルが無いコマンドでも安心だ。
+
 :::
-
-再度、`man ls` を実行するとカラーで表示される。
-
-![日本語のマニュアル](/images/cli-beginner/man-ja-color.png)
 
 ## おわりに
 
