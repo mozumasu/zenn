@@ -795,7 +795,7 @@ _Neovimでmanを表示_
 
 この設定は Neovim のヘルプに記載があるので、設定を忘れてしまった場合は `:h :Man@en` で確認しよう。
 
-![:h :Man@en](/images/cli-beginner/neovim-man.png)
+![:h :Man@en](/images/cli-beginner/neovim-man.png =700x)
 
 :::details Neovimが無い場合のインストール方法
 
