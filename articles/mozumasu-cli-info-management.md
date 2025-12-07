@@ -45,6 +45,7 @@ Neovimで画像を表示できるようになったこともあり、これを�
 nbはメモを管理するCLIツールです。
 
 @[card](https://github.com/xwmx/nb)
+
 以下のように、コマンドでメモを追加/編集/検索などができます。
 
 ```sh:nbの基本操作コマンド
@@ -70,6 +71,17 @@ rg "キーワード" "$(nb notebooks current --path)"
 メモは自動保存されるため、保存をサボってしまう人でも安心ですね。
 GitHubリポジトリと連携する設定をしておくと、自動でpushまでやってくれます。
 
+nbのインストールはHomebrewで簡単に行えます。
+
+```sh
+# nbのインストール
+brew install xwmx/taps/nb
+# 最新版の場合
+brew install xwmx/taps/nb --head
+```
+
+### nbのnotebook管理
+
 nbのメモはnotebookという単位で管理することができます。
 ディレクトリ構造は以下のようになります。
 
@@ -77,18 +89,19 @@ nbのメモはnotebookという単位で管理することができます。
 ~/.nb/
 ├── home/       # デフォルトのnotebook
 │   ├── .git/
-│   ├── 1.md
-│   └── 2.md
+│   ├── 20251031152222.md
+│   └── 20251101093045.md
 └── work/       # 追加したnotebook
     ├── .git/
-    ├── 1.md
-    └── 2.md
+    ├── 20251105140030.md
+    └── 20251106183012.md
 ```
 
-例えば、普段使いのメモはhomeというnotebookに、仕事用のメモはworkというnotebookに分けることができます。
-notebookごとにGitリポジトリを紐づける設定ができるので、普段使いのメモはプライベートリポジトリに、仕事用のメモはローカルのみで管理といった使い方も可能です。
+例えば、普段使いのメモは home 、仕事用のメモは work のように notebook で分けて管理できます。
+notebookごとにGitリポジトリを紐づける設定ができるので、普段使いのメモはプライベートリポジトリに、仕事用のメモはローカルのみで管理するといった使い方も可能です。
 
-notebookのディレクトリはコマンドで簡単に作成できます。
+notebook のディレクトリはコマンドで簡単に作成できます。
+コマンドで操作が可能なため、ディレクトリ構造を意識せずにメモを管理できます。
 
 ```sh:notebookの操作コマンド
 # notebook一覧を表示
@@ -108,20 +121,169 @@ nb ls work:
 nb edit work:1
 ```
 
-## nbの導入
-
 ### nbの設定
+
+#### nbで使用するエディタの設定
+
+設定ファイルは`~/.nbrc`を使用します。
+このファイルはnbをインストールと同時に自動生成されます。
+内容は以下のようになっています。
+
+```sh:~/.nbrc
+#!/usr/bin/env bash
+###############################################################################
+# .nbrc
+#
+# Configuration file for `nb`, a command line note-taking, bookmarking,
+# and knowledge base application with encryption, search, Git-backed syncing,
+# and more in a single portable script.
+#
+# Edit this file manually or manage settings using the `nb settings`
+# subcommand. Configuration options are set as environment variables, eg:
+#   export NB_ENCRYPTION_TOOL=gpg
+#
+# https://github.com/xwmx/nb
+###############################################################################
+```
+
+エディタを設定するには以下のコマンドを実行します。
 
 ```sh
 # 使用するエディタを設定
 nb set editor nvim
 ```
 
-設定ファイルは`~/.nbrc`を使用します。
+すると、`~/.nbrc` に以下の行が追加されます。
+
+```sh
+export EDITOR="nvim" # Set by `nb` • Thu Jan  9 12:52:05 JST 2025
+```
+
+このように、コマンドで設定を行うと自動的に設定ファイルに追記してくれます。
+もちろん、手動で設定ファイルを編集しても問題ありません。
+
+#### nbのファイルを管理するディレクトリの設定
+
+各プロジェクトの移動はghqで行なっているため、nbのメモを保存するディレクトリもghqの管理下に置くことにしました。
+ghqで使用しているディレクトリの指定は以下のように設定しています。
+
+```sh
+[ghq]
+ root = ~/src
+```
+
+このディレクトリ配下であればghq listでnbのリポジトリも表示されるようになります。
+ghq getでGitHubからリポジトリをクローンすると、`ghqのroot` + `github.com/自分のユーザー名/` 配下に配置されるため `github.com/mozumasu/nb` をnb管理ディレクトリに設定します。
+
+```sh
+nb set nb_dir
+# ~/src/github.com/mozumasu/nbを入力してEnter
+```
+
+上記のコマンドを実行すると、 `~/.nbrc` に以下の行が追加されます。
+
+```sh
+export NB_DIR="${NB_DIR:-/Users/mozumasu/src/github.com/mozumasu/nb}" # Set by `nb` • Sat Jan 11 20:09:06 JST 2025
+```
+
+:::message
+
+`~` は実際のパスである/Users/mozumasuとして解釈されます。
+.nbrcに手動で~表記にしてもうまく反映されないため注意しましょう
+
+:::
+
+ノートを追加して、実際に ~/src/github.com/mozumasu/nb 配下にnbのディレクトリが追加されるか確認してみましょう。
+
+```sh
+# ノートを追加
+nb notebooks add example
+# ノートに対応するディレクトリが作成されているか確認
+ls ~/src/github.com/mozumasu/nb
+# example/ home/
+```
+
+#### GitHubリポジトリと連携する
+
+nbのノートブックをGitHub管理して別端末でも利用できるように設定します。
+どのノートブックのリポジトリかわかるように、nb-ノートブック名でリモートリポジトリを作成しましょう。
+
+```sh
+# デフォルトのnotebook (home) を管理するGitHubリポジトリを作成
+gh repo create nb-home --private
+```
+
+用意したリモートリポジトリをnbのnotebookに紐づけます。
+
+```sh
+# 使用するノートブックを指定
+nb use home
+# 使用するリモートリポジトリの設定
+nb remote set git@github.com:mozumasu/nb-home.git
+```
+
+これで、homeノートブックの変更が自動でGitHubリポジトリにpushされるようになります。
+
+#### リストで表示される絵文字のカスタマイズ
+
+`nb ls` でノート一覧を表示したときに、ノートの種類ごとに絵文字が表示されます。
+この絵文字は設定ファイルでカスタマイズ可能です。
+
+![nbのリストの絵文字](/images/info-management/nb-indicators.png)
+
+```sh:~/.nbrc
+export  NB_INDICATOR_AUDIO="🔉"
+export  NB_INDICATOR_BOOKMARK="🔖"
+export  NB_INDICATOR_DOCUMENT="📄"
+export  NB_INDICATOR_EBOOK="📖"
+export  NB_INDICATOR_ENCRYPTED="🔒"
+export  NB_INDICATOR_FOLDER="📂"
+export  NB_INDICATOR_IMAGE="🌄"
+export  NB_INDICATOR_PINNED="📌"
+export  NB_INDICATOR_TODO="✔️ "
+export  NB_INDICATOR_TODO_DONE="✅"
+export  NB_INDICATOR_VIDEO="📹"
+```
+
+:::details 最終的な~/.nbrcの例
+
+```sh:~/.nbrc
+#!/usr/bin/env bash
+###############################################################################
+# .nbrc
+#
+# Configuration file for `nb`, a command line note-taking, bookmarking,
+# and knowledge base application with encryption, search, Git-backed syncing,
+# and more in a single portable script.
+#
+# Edit this file manually or manage settings using the `nb settings`
+# subcommand. Configuration options are set as environment variables, eg:
+#   export NB_ENCRYPTION_TOOL=gpg
+#
+# https://github.com/xwmx/nb
+###############################################################################
+
+export EDITOR="nvim"                                                  # Set by `nb` • Thu Jan  9 12:52:05 JST 2025
+export NB_DIR="${NB_DIR:-/Users/mozumasu/src/github.com/mozumasu/nb}" # Set by `nb` • Sat Jan 11 20:09:06 JST 2025
+
+export NB_INDICATOR_AUDIO="🔉"
+export NB_INDICATOR_BOOKMARK="🔖"
+export NB_INDICATOR_DOCUMENT="📄"
+export NB_INDICATOR_EBOOK="📖"
+export NB_INDICATOR_ENCRYPTED="🔒"
+export NB_INDICATOR_FOLDER="📂"
+export NB_INDICATOR_IMAGE="🌄"
+export NB_INDICATOR_PINNED="📌"
+export NB_INDICATOR_TODO="✔️ "
+export NB_INDICATOR_TODO_DONE="✅"
+export NB_INDICATOR_VIDEO="📹"
+```
+
+:::
 
 ### zeno.zshと組みあわせて幸せに
 
-しかし、いちいち `nb ls` でノート番号を確認して `nb edit 番号` とするのは面倒です。
+いちいち `nb ls` でノート番号を確認して `nb edit 番号` とするのは面倒です。
 Tab補完で、fzfのようにプレビューが出せれば最高ですよね。
 それ、zeno.zshでできちゃうんです。
 
@@ -133,6 +295,8 @@ zeno.zsh は zsh/fishのプラグインで以下の機能があります。
 - スニペット設定
 - fzf補完
 - コマンド履歴検索
+
+@[card](https://github.com/yuki-yano/zeno.zsh)
 
 #### zeno.zshのインストール
 
@@ -172,6 +336,27 @@ shell = "zsh"
 # [plugins.base16]
 # github = "chriskempson/base16-shell"
 ```
+
+zeno.zshをインストールしたい場合は、以下のようにpluginsセクションに追記します。
+
+```diff toml:~/.config/sheldon/plugins.toml
+[plugins]
++ [plugins.zeno]
++ github = "yuki-yano/zeno.zsh"
++ [plugins.fast-syntax-highlighting]
++ github = "zdharma-continuum/fast-syntax-highlighting"
+```
+
+:::message
+
+zsh-syntax-highlightingを使用している場合、zeno.zshの補完がうまく動作しないことがあります。
+そのため、fast-syntax-highlightingに乗り換えることをおすすめします。
+
+> FAQ
+> Q: zsh-syntax-highlighting does not work well.
+> A: Use fast-syntax-highlighting instead.
+
+:::
 
 :::message
 
@@ -236,9 +421,108 @@ completions:
 +   - name: List All Note
 +     keyword: nbla
 +     snippet: nb ls --all
++
++   - name: nb search
++     keyword: nbg
++     snippet: rg "{{keyword}}" "$(nb notebooks current --path)"
 ```
 
 スニペットは以下のように、`space` キーで展開できます。
+
+![zeno.zshのスニペットをnbで使う](/images/info-management/nb-zeno-snippet.gif)
+
+### nb用に設定したシェル関数
+
+#### nba: URLから記事をメモに追加
+
+URLを渡すと記事のタイトルを自動取得してnbにメモを追加する関数です。
+
+![nbにURLから記事を追加する](/images/info-management/nb-add-link.gif)
+
+```sh:~/.zshrc
+# nb add article - Add a note with article title and URL
+# Usage: nba <url>              - Auto-fetch title from URL
+#        nba <title> <url>      - Use specified title
+function nba() {
+  if [ $# -lt 1 ]; then
+    echo "Usage: nba <url>           # Auto-fetch title"
+    echo "       nba <title> <url>   # Manual title"
+    return 1
+  fi
+
+  local title=""
+  local url=""
+
+  if [ $# -eq 1 ]; then
+    url="$1"
+    echo "Fetching title from: $url"
+
+    title=$(curl -sL --max-redirs 3 --max-time 5 --compressed "$url" | head -c 512 | perl -0777 -ne 'print $1 if /<title[^>]*>([^<]+)<\/title>/i')
+    title=$(echo "$title" | perl -pe 's/^\s+|\s+$//g; s/\s+/ /g')
+
+    if [ -z "$title" ]; then
+      echo "Error: Could not fetch title from URL"
+      return 1
+    fi
+    echo "Title: $title"
+  else
+    title="$1"
+    url="$2"
+  fi
+
+  local content="# ${title}
+
+参照: [${title}](${url})"
+
+  nb add --filename "${title}.md" --content "$content"
+  echo "Note created: [${title}](${url})"
+}
+```
+
+#### nbq: 検索結果をfzfで選択して編集
+
+`nb search`の検索結果をfzfでプレビューしながら選択し、そのまま編集できる関数です。
+![nbの検索結果をfzfでプレビューして編集する](/images/info-management/nb-fzf-grep.gif)
+
+```sh:~/.zshrc
+# nb query - Search notes and select with fzf preview
+# Usage: nbq <search query>
+function nbq() {
+  if [ -z "$1" ]; then
+    echo "Usage: nbq <search query>"
+    return 1
+  fi
+
+  local query="$*"
+  local results=$(nb q "$query" --no-color 2>/dev/null | grep -E '^\[[0-9]+\]')
+
+  if [ -z "$results" ]; then
+    echo "No results found for: $query"
+    return 1
+  fi
+
+  export _NBQ_QUERY="$query"
+
+  local selected=$(echo "$results" | fzf --ansi \
+    --preview 'note_id=$(echo {} | sed -E "s/^\[([0-9]+)\].*/\1/")
+               echo "=== Note [$note_id] ==="
+               echo ""
+               nb show "$note_id" | head -5
+               echo ""
+               echo "=== Matching lines ==="
+               echo ""
+               nb show "$note_id" | grep -i --color=always -C 2 "$_NBQ_QUERY" | head -30' \
+    --preview-window=right:60%:wrap \
+    --header "Search: $query")
+
+  unset _NBQ_QUERY
+
+  if [ -n "$selected" ]; then
+    local note_id=$(echo "$selected" | sed -E 's/^\[([0-9]+)\].*/\1/')
+    nb edit "$note_id"
+  fi
+}
+```
 
 ## Neovim
 
