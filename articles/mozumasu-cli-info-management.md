@@ -617,6 +617,40 @@ return {
 ![nbのタイトルをバッファラインに表示](/images/info-management/nvim-buffer-tab-after.png)
 _bufferlineにnbのタイトルを表示_
 
+### ノートを追加する設定
+
+Neovimからnbのノートを追加できるようにします。
+まず、`config/nb.lua` にノート追加用の関数を追加します。
+
+```lua:~/.config/nvim/lua/config/nb.lua
+-- ノートを追加して開く
+function M.add_note(title)
+  local cmd = "NB_EDITOR=: NO_COLOR=1 nb add --no-color"
+  local timestamp = os.date("%Y%m%d%H%M%S")
+  if title and title ~= "" then
+    local escaped_title = title:gsub('"', '\\"')
+    cmd = cmd .. ' --filename "' .. timestamp .. '.md" --title "' .. escaped_title .. '"'
+  else
+    local readable_timestamp = os.date("%Y-%m-%d %H:%M:%S")
+    cmd = cmd .. ' --filename "' .. timestamp .. '.md" --title "' .. readable_timestamp .. '"'
+  end
+
+  local output = vim.fn.systemlist(cmd)
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  -- 追加されたノートのIDを取得
+  for _, line in ipairs(output) do
+    local note_id = line:match("%[(%d+)%]")
+    if note_id then
+      return note_id
+    end
+  end
+  return nil
+end
+```
+
 ### 検索の設定
 
 ノートのタイトルや、ノートの内容をgrep検索して開きたいときに便利なのがファジーファインダー系のプラグインです。
@@ -687,9 +721,26 @@ local function grep_notes()
   })
 end
 
+-- ノートを追加して開く
+local function add_note()
+  local nb = require("config.nb")
+  vim.ui.input({ prompt = "Note title (empty for timestamp): " }, function(title)
+    local note_id = nb.add_note(title)
+    if note_id then
+      local path = nb.get_note_path(note_id)
+      if path and path ~= "" then
+        vim.cmd.edit(path)
+      end
+    else
+      vim.notify("Failed to add note", vim.log.levels.ERROR)
+    end
+  end)
+end
+
 return {
   "folke/snacks.nvim",
   keys = {
+    { "<leader>na", add_note, desc = "nb add" },
     { "<leader>np", pick_notes, desc = "nb picker" },
     { "<leader>ng", grep_notes, desc = "nb grep" },
   },
@@ -698,6 +749,7 @@ return {
 
 この設定で以下のキーマップが使えます：
 
+- `<leader>na` - ノートを追加して開く
 - `<leader>np` - ノートのタイトル一覧から検索して開く
 - `<leader>ng` - ノートの内容をgrep検索して開く
 
