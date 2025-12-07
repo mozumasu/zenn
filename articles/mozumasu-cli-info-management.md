@@ -550,10 +550,15 @@ nbのファイル名は自動でタイムスタンプになるため、ファイ
 ```lua:~/.config/nvim/lua/config/nb.lua
 local M = {}
 
+-- nbのノートディレクトリパスを取得
+function M.get_nb_dir()
+  -- nbのディレクトリパスに合わせて変更してください
+  return vim.fn.expand("~/.nb")
+end
+
 -- nbノートのタイトルを取得する関数
 function M.get_title(filepath)
-  -- nbのディレクトリパスに合わせて変更してください
-  local nb_dir = vim.fn.expand("~/.nb")
+  local nb_dir = M.get_nb_dir()
   if not filepath:match("^" .. nb_dir) then
     return nil
   end
@@ -624,10 +629,10 @@ LazyVimでは `snacks.nvim` がデフォルトで使用されているので、�
 ![snacks.nvimでnbのノートを検索する](/images/info-management/nb-snacks.gif)
 _snacks.nvimでnbのノートを検索する_
 
-以下はsnacks.nvimでnbのノートを検索するプラグイン設定です。
+以下のファイルを作成すると、snacks.nvimでnbのノートを検索できるようになります。
 
 ```lua:~/.config/nvim/lua/plugins/nb.lua
--- snacks.nvimでノートを検索して開く
+-- snacks.nvimでノートをタイトル一覧から検索して開く
 local function pick_notes()
   local nb = require("config.nb")
   local Snacks = require("snacks")
@@ -673,17 +678,34 @@ local function pick_notes()
   })
 end
 
+-- snacks.nvimでノートの内容をgrep検索
+local function grep_notes()
+  local nb = require("config.nb")
+  local Snacks = require("snacks")
+  Snacks.picker.grep({
+    dirs = { nb.get_nb_dir() },
+  })
+end
+
 return {
   "folke/snacks.nvim",
   keys = {
     { "<leader>np", pick_notes, desc = "nb picker" },
+    { "<leader>ng", grep_notes, desc = "nb grep" },
   },
 }
 ```
 
-この設定で `<leader>np` を押すとnbのノート一覧がsnacks.nvimのピッカーで表示され、プレビューを見ながらノートを選択して開くことができます。
+この設定で以下のキーマップが使えます：
+
+- `<leader>np` - ノートのタイトル一覧から検索して開く
+- `<leader>ng` - ノートの内容をgrep検索して開く
 
 ![ノートタイトルで検索して開く](/images/info-management/nb-snacks.png)
+_タイトル検索でノートを開く_
+
+![grepしてノートを開く](/images/info-management/nb-snacks-grep.png)
+_grep検索でノートを開く_
 
 ## WezTerm
 
