@@ -281,7 +281,7 @@ export NB_INDICATOR_VIDEO="📹"
 
 :::
 
-### zeno.zshと組みあわせて幸せに
+### zeno.zshとnbを組みあわせて幸せに
 
 いちいち `nb ls` でノート番号を確認して `nb edit 番号` とするのは面倒です。
 Tab補完で、fzfのようにプレビューが出せれば最高ですよね。
@@ -335,6 +335,12 @@ shell = "zsh"
 #
 # [plugins.base16]
 # github = "chriskempson/base16-shell"
+```
+
+合わせて、以下のコマンドを zshの設定ファイル(`~/.zshrc`)に追記して、プラグインを読み込むようにします。
+
+```sh:~/.zshrc
+eval "$(sheldon source)"
 ```
 
 zeno.zshをインストールしたい場合は、以下のようにpluginsセクションに追記します。
@@ -406,10 +412,6 @@ completions:
   ...
 
 + snippets:
-+   - name: Add Note
-+     keyword: nba
-+     snippet: nb add
-+ 
 +   - name: Edit Note
 +     keyword: nbe
 +     snippet: nb edit
@@ -526,24 +528,157 @@ function nbq() {
 
 ## Neovim
 
-最も効率よくテキストするためのキーバインドたち!
-自由にカスタマイズ可能なキーバインド!
-プラグインで見た目もリッチに!
+Neovimをメモ編集用のエディタとして使用している理由は以下の通りです。
 
-といった感じでカスタマイズ性が高いためです。
+- 最も効率よくテキストするためのキーバインド
+- 見た目もキーバインドもカスタマイズ可能
+- 外部コマンドが実行できる
+- 普段使用しているプラグインをそのまま使える
 
-### なぜNeovimを使うのか?
+nb用に設定したNeovimの設定を紹介していきます。
 
-### snacks.nvim: ファジーファインダー
+### バッファタイトルの設定
 
-ノートのタイトルや、ノートの内容をgrep検索して開きたいときに便利なのが `snacks.nvim` です。
+nbのファイル名は自動でタイムスタンプになるため、ファイル名だけでは内容がわかりません。
+
+![nvimでnbのノートを表示](/images/info-management/nvim-buffer-tab-before.png)
+
+タブやバッファラインにファイル名ではなく1行目のタイトルを表示できます。
+
+まず、nbのヘルパー関数を定義します。
+
+```lua:~/.config/nvim/lua/config/nb.lua
+local M = {}
+
+-- nbノートのタイトルを取得する関数
+function M.get_title(filepath)
+  -- nbのディレクトリパスに合わせて変更してください
+  local nb_dir = vim.fn.expand("~/.nb")
+  if not filepath:match("^" .. nb_dir) then
+    return nil
+  end
+
+  local file = io.open(filepath, "r")
+  if not file then
+    return nil
+  end
+
+  local first_line = file:read("*l")
+  file:close()
+
+  if first_line then
+    -- "# タイトル" 形式からタイトルを抽出
+    return first_line:match("^#%s+(.+)")
+  end
+  return nil
+end
+
+return M
+```
+
+LazyVimではタブの表示に [bufferline.nvim](https://github.com/akinsho/bufferline.nvim) がデフォルトで使われているので、以下のように設定を拡張します。
+
+```lua:~/.config/nvim/lua/plugins/bufferline.lua
+return {
+  "akinsho/bufferline.nvim",
+  opts = function(_, opts)
+    local nb = require("config.nb")
+    opts.options = opts.options or {}
+    opts.options.name_formatter = function(buf)
+      local title = nb.get_title(buf.path)
+      return title or buf.name
+    end
+  end,
+}
+```
+
+![nbのタイトルをバッファラインに表示](/images/info-management/nvim-buffer-tab-after.png)
+_bufferlineにnbのタイトルを表示_
+
+### 検索の設定
+
+ノートのタイトルや、ノートの内容をgrep検索して開きたいときに便利なのがファジーファインダー系のプラグインです。
+LazyVimでは `snacks.nvim` がデフォルトで使用されているので、これを活用します。
 
 @[card](https://github.com/folke/snacks.nvim)
 
-普段から使用しているプラグインをそのまま使えるのは非常に便利です。
+検索でもファイル名ではなく、メモのタイトルで検索できるようにしています。
 
 ![snacks.nvimでnbのノートを検索する](/images/info-management/nb-snacks.gif)
 _snacks.nvimでnbのノートを検索する_
+
+以下は最小構成のnb用LazyVimプラグイン設定です。
+
+```lua:~/.config/nvim/lua/plugins/nb.lua
+-- nbコマンドを実行してノート一覧を取得
+local function list_notes()
+  local output = vim.fn.systemlist("NB_EDITOR=: NO_COLOR=1 nb list --no-color")
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+  return output
+end
+
+-- ノートIDからファイルパスを取得
+local function get_note_path(note_id)
+  local path = vim.fn.system("NB_EDITOR=: NO_COLOR=1 nb show --path " .. note_id)
+  return vim.trim(path)
+end
+
+-- snacks.nvimでノートを検索して開く
+local function pick_notes()
+  local Snacks = require("snacks")
+  local notes = list_notes()
+  if not notes then
+    vim.notify("Failed to get notes", vim.log.levels.ERROR)
+    return
+  end
+
+  -- ノート一覧をパース
+  local items = {}
+  for _, line in ipairs(notes) do
+    local note_id, title = line:match("^%[(.-)%]%s+(.+)")
+    if note_id then
+      table.insert(items, {
+        text = string.format("[%s] %s", note_id, title or "No title"),
+        note_id = note_id,
+      })
+    end
+  end
+
+  -- ピッカーを表示
+  Snacks.picker({
+    title = "nb Notes",
+    items = items,
+    format = function(item)
+      return { { item.text } }
+    end,
+    preview = function(ctx)
+      local item = ctx.item
+      if not item.file then
+        item.file = get_note_path(item.note_id)
+      end
+      return Snacks.picker.preview.file(ctx)
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if item then
+        local path = get_note_path(item.note_id)
+        vim.cmd.edit(path)
+      end
+    end,
+  })
+end
+
+return {
+  "folke/snacks.nvim",
+  keys = {
+    { "<leader>np", pick_notes, desc = "nb picker" },
+  },
+}
+```
+
+この設定で `<leader>np` を押すとnbのノート一覧がsnacks.nvimのピッカーで表示され、プレビューを見ながらノートを選択して開くことができます。
 
 ## WezTerm
 
