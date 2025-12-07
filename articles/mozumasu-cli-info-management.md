@@ -6,19 +6,28 @@ topics: [neovim, cli, wezterm, nb]
 published: false
 ---
 
-## なぜyouはターミナルでメモを?
+:::message
 
-もともと私はNotionユーザーでした。
-しかし、GUIがメインのツールはどうしてもカスタマイズに限界があったり、キーバインドを強制されたりと、**「人間がツールに合わせないといけない」** という課題がありました。
+この記事は[ミライトデザイン Advent Calendar 2025](https://qiita.com/advent-calendar/2025/miraito-inc)の7日目です。
+6日目は[FrozenVoice](https://qiita.com/FrozenVoice)さんの「[2025年に導入して満足度が高かったアイテム紹介](https://qiita.com/FrozenVoice/items/8cd876a9b6b7ee6af282)」という記事でした。
 
-また、情報整理にかける時間を減らし、最小限のキー入力でメモを取れるようにしたいという思いもありました。
+:::
 
-とくに検索機能は弱く、正規表現での検索ができなかったり、検索結果のプレビューができなかったりと、**「情報を取り出す」** という点でストレスを感じることが多々ありました。
+## なぜターミナルでメモを?
 
-Neovimで画像を表示できるようになったこともあり、これを機にターミナルでメモを取る環境を整えることにしました。
+ターミナルでメモを取る最大のメリットは **カスタマイズ性** と **CLIコマンドでの操作** です。
+自分好みのキーバインド、検索機能、ワークフローを自由に構築できます。
+
+たとえば以下のようなことが可能です。
+
+- CLIコマンド一発でメモを作成・検索・編集
+- 正規表現でメモを検索し、fzfでプレビューしながら選択
+- URLを渡すだけでタイトルを自動取得してメモを作成
+- Neovimからメモの検索・作成・編集をすべて完結
+
+また、最近ではNeovimで画像を表示できるようになり、CLIでのメモ管理がより実用的になりました。
 
 @[card](https://www.reddit.com/r/neovim/comments/1irk9mg/snacksimage_inline_image_math_video_frame/)
-[snacks.image: inline image / math / video (frame) rendering : r/neovim](https://www.reddit.com/r/neovim/comments/1irk9mg/snacksimage_inline_image_math_video_frame/)
 
 ### メモに求めるもの
 
@@ -776,3 +785,23 @@ Neovimからnbのノートを追加できるようにします。
 
 ![Neovimからnbのノートを追加する](/images/info-management/nb-nvim-add-note.gif)
 _NbのノートをNeovimから追加する_
+
+## おわりに
+
+この記事では、nb・Neovim・zeno.zshを組み合わせたターミナルでのメモ管理環境を紹介しました。
+
+- **nb**: CLIでメモの作成・検索・編集ができる
+- **シェル関数**: `nba`でURL からタイトルを自動取得、`nbq`でfzfプレビュー付き検索
+- **Neovim連携**: snacks.nvimでメモの検索・追加をエディタ内で完結
+- **zeno.zsh**: fzf補完でノート選択を快適に
+
+ターミナルでのメモ管理は、最初の設定に少し手間がかかりますが、一度構築してしまえば自分だけのワークフローを実現できます。
+
+この記事が、みなさんのメモ環境構築の参考になれば幸いです。
+
+:::message
+
+[ミライトデザイン Advent Calendar 2025](https://qiita.com/advent-calendar/2025/miraito-inc) の8日目は [ucan](https://qiita.com/ucan-lab) さんの「PHP8.5かMapTilerのどちらか」になる予定です。
+ぜひお楽しみに~🎄
+
+:::
