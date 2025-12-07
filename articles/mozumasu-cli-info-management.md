@@ -3,7 +3,7 @@ title: "ターミナルでメモ管理 (Neovim, nb, zeno.zsh) "
 emoji: "📝"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [neovim, cli, wezterm, nb]
-published: false
+published: true
 ---
 
 :::message
