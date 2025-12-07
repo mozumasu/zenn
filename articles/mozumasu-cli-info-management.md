@@ -1,5 +1,5 @@
 ---
-title: "ターミナルでメモ管理 (Neovim/nb/WezTerm/zeno.zsh) "
+title: "ターミナルでメモ管理 (Neovim, nb, zeno.zsh) "
 emoji: "📝"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [neovim, cli, wezterm, nb]
