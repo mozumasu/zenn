@@ -984,6 +984,85 @@ Neovimから画像をnbにインポートし、マークダウンリンクを挿
 
 :::
 
+### リンクを挿入する設定
+
+snacks.nvimのpickerを使って、nbの画像やノートを選択してリンクを挿入できるようにします。
+
+`plugins/nb.lua` にリンク挿入の関数とキーマップを追加します。
+
+```diff lua:~/.config/nvim/lua/plugins/nb.lua
++ -- リンクを挿入
++ local function link_item()
++   local nb = require("config.nb")
++   local Snacks = require("snacks")
++   local raw_items = nb.list_notes()
++
++   if not raw_items or #raw_items == 0 then
++     vim.notify("No items found", vim.log.levels.WARN)
++     return
++   end
++
++   -- アイテム一覧をパース
++   local items = {}
++   for _, line in ipairs(raw_items) do
++     local note_id = line:match("^%[(.-)%]")
++     if note_id then
++       local is_image = line:match("🌄") ~= nil
++       local name = is_image and line:match("%[%d+%]%s*🌄%s*(.+)$") or line:match("%[%d+%]%s*(.+)$")
++       if name then
++         table.insert(items, {
++           text = line,
++           note_id = note_id,
++           name = vim.trim(name),
++           is_image = is_image,
++         })
++       end
++     end
++   end
++
++   Snacks.picker({
++     title = "nb Link",
++     items = items,
++     format = function(item)
++       return { { item.text } }
++     end,
++     preview = function(ctx)
++       local item = ctx.item
++       if not item.file then
++         item.file = nb.get_note_path(item.note_id)
++       end
++       return Snacks.picker.preview.file(ctx)
++     end,
++     confirm = function(picker, item)
++       picker:close()
++       if item then
++         local link
++         if item.is_image then
++           link = string.format("![%s](%s)", item.name, item.name)
++         else
++           link = string.format("[[%s]]", item.name)
++         end
++         vim.api.nvim_put({ link }, "c", true, true)
++       end
++     end,
++   })
++ end
+
+  return {
+    "folke/snacks.nvim",
+    keys = {
+      { "<leader>na", add_note, desc = "nb add" },
+      { "<leader>ni", import_image, desc = "nb import image" },
++     { "<leader>nl", link_item, desc = "nb link" },
+      { "<leader>np", pick_notes, desc = "nb picker" },
+      { "<leader>ng", grep_notes, desc = "nb grep" },
+    },
+  }
+```
+
+これで `<leader>nl` でプレビュー付きのpickerが表示されます。
+画像（🌄マーク付き）を選択すると `![filename](filename)` 形式、ノートを選択すると `[[title]]` 形式で挿入されます。
+
 ## おわりに
 
 この記事では、nb・Neovim・zeno.zshを組み合わせたターミナルでのメモ管理環境を紹介しました。
