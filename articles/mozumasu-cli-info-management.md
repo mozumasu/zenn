@@ -443,7 +443,6 @@ completions:
 合わせてサブコマンドのヘルプを確認するための補完を設定するのもおすすめです。
 
 ```yaml:~/.config/zeno/config.yml
-# TODO
 completions:
   - name: nb subcommands
     patterns:
@@ -452,7 +451,6 @@ completions:
     sourceCommand: nb subcommands
     options:
       --prompt: "'nb subcommand >'"
-    callback: echo {}
 ```
 
 スニペットを登録する場合は以下のように追記してください。
