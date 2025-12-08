@@ -875,6 +875,115 @@ Neovimからnbのノートを追加できるようにします。
 ![Neovimからnbのノートを追加する](/images/info-management/nb-nvim-add-note.gif)
 _NbのノートをNeovimから追加する_
 
+### 画像をインポートする設定
+
+Neovimから画像をnbにインポートし、マークダウンリンクを挿入できるようにします。
+`config/nb.lua` に画像インポート用の関数を追加します（`return M` の前に追加）。
+
+```diff lua:~/.config/nvim/lua/config/nb.lua
++ -- 画像をnbにインポートする
++ function M.import_image(image_path, new_filename)
++   if not image_path or image_path == "" then
++     return nil, "No path provided"
++   end
++
++   -- 前後の空白とクォートを除去してパスを展開
++   local cleaned_path = image_path:gsub("^%s*['\"]?", ""):gsub("['\"]?%s*$", "")
++   local expanded_path = vim.fn.expand(cleaned_path)
++
++   -- ファイルが存在するか確認
++   if vim.fn.filereadable(expanded_path) == 0 then
++     return nil, "File not found: " .. expanded_path
++   end
++
++   -- シェルエスケープを使用してコマンドを構築
++   local escaped_path = vim.fn.shellescape(expanded_path)
++   local cmd = "NB_EDITOR=: NO_COLOR=1 nb import --no-color " .. escaped_path
++
++   -- 新しいファイル名が指定されていれば追加
++   local final_filename
++   if new_filename and new_filename ~= "" then
++     -- 拡張子がなければ元の拡張子を追加
++     if not new_filename:match("%.%w+$") then
++       local ext = vim.fn.fnamemodify(expanded_path, ":e")
++       new_filename = new_filename .. "." .. ext
++     end
++     cmd = cmd .. " " .. vim.fn.shellescape(new_filename)
++     final_filename = new_filename
++   else
++     final_filename = vim.fn.fnamemodify(expanded_path, ":t")
++   end
++
++   local output = vim.fn.systemlist(cmd)
++
++   if vim.v.shell_error ~= 0 then
++     return nil, "Import failed"
++   end
++
++   -- インポートされたファイル名を取得
++   for _, line in ipairs(output) do
++     local note_id = line:match("%[(%d+)%]")
++     if note_id then
++       return note_id, final_filename
++     end
++   end
++   return nil, "Could not parse import result"
++ end
+
+  return M
+```
+
+`plugins/nb.lua` にも画像インポート関数とキーマップを追加します。
+
+```diff lua:~/.config/nvim/lua/plugins/nb.lua
++ -- 画像をインポートしてマークダウンリンクを挿入
++ local function import_image()
++   local nb = require("config.nb")
++   vim.ui.input({ prompt = "Image path: ", completion = "file" }, function(image_path)
++     if not image_path or image_path == "" then
++       return
++     end
++
++     -- 新しいファイル名を入力（空ならそのまま）
++     vim.ui.input({ prompt = "New filename (empty to keep original): " }, function(new_filename)
++       local note_id, result = nb.import_image(image_path, new_filename)
++       if note_id then
++         local filename = result
++         local link = string.format("![%s](%s)", filename, filename)
++         vim.api.nvim_put({ link }, "c", true, true)
++         vim.notify("Imported: " .. filename, vim.log.levels.INFO)
++       else
++         vim.notify(result or "Failed to import image", vim.log.levels.ERROR)
++       end
++     end)
++   end)
++ end
+
+  return {
+    "folke/snacks.nvim",
+    keys = {
+      { "<leader>na", add_note, desc = "nb add" },
++     { "<leader>ni", import_image, desc = "nb import image" },
+      { "<leader>np", pick_notes, desc = "nb picker" },
+      { "<leader>ng", grep_notes, desc = "nb grep" },
+    },
+  }
+```
+
+これで `<leader>ni` で画像をインポートできるようになります。
+
+1. 画像パスを入力（ペースト）
+2. 新しいファイル名を入力（空Enterで元の名前を使用）
+
+画像がnbにインポートされ、カーソル位置にマークダウンの画像リンクが挿入されます。
+
+:::message
+
+ターミナル上で画像をペーストするとパスが入力されるため、`<leader>ni` を押した後にペーストするだけで画像をインポートできます。
+ファイル名の入力時に拡張子を省略すると、元の拡張子が自動で付与されます。
+
+:::
+
 ## おわりに
 
 この記事では、nb・Neovim・zeno.zshを組み合わせたターミナルでのメモ管理環境を紹介しました。
