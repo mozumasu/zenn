@@ -481,6 +481,12 @@ completions:
 
 ![zeno.zshのスニペットをnbで使う](/images/info-management/nb-zeno-snippet.gif)
 
+:::message
+
+`exec $SHELL -l` などでシェルを再起動しても反映されないときは、新しいタブで設定が反映されるか確認してみてください。
+
+:::
+
 ### nb用に設定したシェル関数
 
 #### nba: URLから記事をメモに追加
