@@ -1182,6 +1182,146 @@ snacks.nvimのpickerを使って、nbの画像やノートを選択してリン�
 これで `<leader>nl` でプレビュー付きのpickerが表示されます。
 画像（🌄マーク付き）を選択すると `![filename](filename)` 形式、ノートを選択すると `[[title]]` 形式で挿入されます。
 
+## Claude Codeとの連携
+
+マークダウンファイルでローカルにファイルがあるため、Claude Codeとの相性も良いです。
+ログ用のノートを作成して、スラッシュコマンドでセッションの内容を追記したり、要約を追加したりしています。
+
+```sh
+# ログ用ノートを作成
+nb notebooks add log
+```
+
+合わせてHooksでフォーマットの設定を行うと、Claude Codeで編集した内容が自動で整形されるため便利です。
+以下の例では、 [rumdl](https://github.com/rvben/rumdl) を使用してマークダウンファイルをフォーマットしています。
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Write|Edit|MultiEdit",
+      "hooks": [{
+        "type": "command",
+         "command": "jq -r '.tool_input.file_path | select(endswith(\".md\"))' | xargs -r rumdl fmt"
+      }]
+    }]
+  }
+}
+```
+
+:::details rumdlの紹介
+
+インストール
+
+```sh
+brew install rumdl
+```
+
+使い方
+
+```sh
+# 現在のディレクトリ内の Markdown ファイルを Lint する
+rumdl check .
+
+# ファイル形式をチェック（修正不可能な違反が残っていても成功時は終了コード 0 を返す）
+rumdl fmt .
+
+# 自動修正できない違反を報告する（違反が残っている場合は終了コード1を返す）
+rumdl check --fix .
+
+# デフォルトの設定ファイルを作成する
+rumdl init
+```
+
+設定ファイルは次の場所に配置できます。
+
+- プロジェクトディレクトリまたは親ディレクトリ内に .rumdl.toml または rumdl.toml
+- .config/rumdl.toml ([config-dir](https://github.com/pi0/config-dir) 規約に準拠)
+
+既存の`.markdownlint.json` や `.markdownlint.yaml` を使用することもできるため、rumdlを導入する際に既存の設定を活かすことも可能です。
+
+```toml:~/.config/rumdl.toml
+# rumdl 設定ファイル
+
+# グローバル設定オプション
+[global]
+# 無効にするルールのリスト（必要に応じてコメント解除して修正）
+# disable = ["MD013", "MD033"]
+
+# 排他的に有効にするルールのリスト（指定した場合、これらのルールのみが実行されます）
+# enable = ["MD001", "MD003", "MD004"]
+
+# リント対象に含めるファイル/ディレクトリパターンのリスト（指定した場合、これらのみがリントされます）
+# include = [
+#    "docs/*.md",
+#    "src/**/*.md",
+#    "README.md"
+# ]
+
+# リント対象から除外するファイル/ディレクトリパターンのリスト
+exclude = [
+    # 除外する一般的なディレクトリ
+    ".git",
+    ".github",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+
+    # 特定のファイルまたはパターン
+    "CHANGELOG.md",
+    "LICENSE.md",
+]
+
+# ディレクトリをスキャンする際に .gitignore ファイルを尊重する（デフォルト: true）
+respect-gitignore = true
+
+# Markdown フレーバー/方言（有効にするにはコメント解除）
+# オプション: mkdocs, gfm, commonmark
+# flavor = "mkdocs"
+
+# ルール固有の設定（必要に応じてコメント解除して修正）
+
+# [MD003]
+# style = "atx"  # 見出しスタイル (atx, atx_closed, setext)
+
+# [MD004]
+# style = "asterisk"  # 順序なしリストスタイル (asterisk, plus, dash, consistent)
+
+# [MD007]
+# indent = 4  # 順序なしリストのインデント
+
+# [MD013]
+# line-length = 100  # 行の長さ
+# code-blocks = false  # コードブロックを行の長さチェックから除外
+# tables = false  # テーブルを行の長さチェックから除外
+# headings = true  # 見出しを行の長さチェックに含める
+
+# [MD044]
+# names = ["rumdl", "Markdown", "GitHub"]  # 正しく大文字小文字を使用すべき固有名詞
+# code-blocks = false  # コードブロックで固有名詞をチェックする（デフォルト: false、コードブロックをスキップ）
+```
+
+:::
+
+スラッシュコマンドは以下のものを使用しています。
+
+- <https://github.com/mozumasu/dotfiles/blob/main/.config/claude/commands/nb-log.md>
+- <https://github.com/mozumasu/dotfiles/blob/main/.config/claude/commands/nb.md>
+
+Claude Codeがアクセスできるように `/add-dir` コマンドか、`claude/setting.json` でnbのノートディレクトリを追加しておきましょう。
+
+```json:~/.config/claude/settings.json
+{
+  "permissions": {
+    "additionalDirectories": [
+      "~/src/github.com/mozumasu/nb", # ここにnbのノートディレクトリを追加
+      "~/src/github.com/mozumasu/zenn/articles"
+    ]
+  },
+}
+```
+
 ## おわりに
 
 この記事では、nb・Neovim・zeno.zshを組み合わせたターミナルでのメモ管理環境を紹介しました。
