@@ -886,6 +886,66 @@ _タイトル検索でノートを開く_
 ![grepしてノートを開く](/images/info-management/nb-snacks-grep.png)
 _grep検索でノートを開く_
 
+#### 削除機能の追加
+
+picker内でノートを削除できるようにします。
+`config/nb.lua` に削除用の関数を追加します（`return M` の前に追加）。
+
+```diff lua:~/.config/nvim/lua/config/nb.lua
++ -- ノートを削除
++ function M.delete_note(note_id)
++   local output = M.run_cmd("delete --force " .. note_id)
++   return output ~= nil
++ end
+
+  return M
+```
+
+`plugins/nb.lua` の `pick_notes` にも削除アクションとキーバインドを追加します。
+
+```diff lua:~/.config/nvim/lua/plugins/nb.lua
+  Snacks.picker({
+    title = "nb Notes",
+    items = items,
+    -- ... 省略 ...
+    confirm = function(picker, item)
+      picker:close()
+      if item then
+        vim.cmd.edit(nb.get_note_path(item.note_id))
+      end
+    end,
++   actions = {
++     delete_note = function(picker)
++       local item = picker:current()
++       if item then
++         vim.ui.select({ "Yes", "No" }, {
++           prompt = "Delete: " .. item.name .. "?",
++         }, function(choice)
++           if choice == "Yes" then
++             if nb.delete_note(item.note_id) then
++               vim.notify("Deleted: " .. item.name, vim.log.levels.INFO)
++               picker:close()
++               pick_notes()
++             else
++               vim.notify("Failed to delete", vim.log.levels.ERROR)
++             end
++           end
++         end)
++       end
++     end,
++   },
++   win = {
++     input = {
++       keys = {
++         ["<C-d>"] = { "delete_note", mode = { "n", "i" }, desc = "Delete note" },
++       },
++     },
++   },
+  })
+```
+
+これで picker 内で `<C-d>` を押すと、確認ダイアログが表示され、選択中のノートを削除できます。
+
 ### ノートを追加する設定
 
 Neovimからnbのノートを追加できるようにします。
