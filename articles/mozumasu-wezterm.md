@@ -976,11 +976,140 @@ return module
 
 ### leaderキーの設定
 
-`leader`キーはVimの`<Leader>`のようなもので、キーバインドのprefixとして使います。
-デフォルトは`Control+a`ですが、Emacsの行頭移動と被るため`Control+q`に変更しています。
+`leader`キーは、キーバインドの`prefix`として使う特別なキーです。
+`leader`キーを起点にすることで、既存のキー操作と衝突しにくくなります。
+デフォルトでは設定されていないため追加する必要があります。
+
+```diff lua:~/.config/wezterm/keymaps.lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+local module = {}
+
++ -- leaderキーの設定
++ -- Ctrl+q を押してから2秒以内に次のキーを押す
++ local leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+
+local keys = {
+  -- いろんなキーバインドが続く...
+}
+
+local key_tables = {
+  -- モードごとのキーバインドが続く...
+}
+
+function module.apply_to_config(config)
+  config.keys = keys
+  config.key_tables = key_tables
++ config.leader = leader
+end
+
+return module
+```
+
+leaderキーを設定したら、`mods = "LEADER"` を使ったキーバインドが使えるようになります。
+これによってどのキーに割り当てても、既存のキーバインドと衝突しにくくなります。
+
+```lua :~/.config/wezterm/keymaps.lua
+-- ペイン操作（keys テーブル内に追加）
+{ key = "r", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) }, -- Control+q → r 横分割
+{ key = "d", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },   -- Control+q → d 縦分割
+{ key = "x", mods = "LEADER", action = act({ CloseCurrentPane = { confirm = true } }) },        -- Control+q → d ペインを閉じる
+```
+
+:::message
+
+**mods（修飾キー）とは？**
+
+`mods` は `modifiers`（修飾キー）の略で、キーバインドで使う修飾キーを指定します。
+
+| mods | キー |
+| --- | --- |
+| `CTRL` | Control |
+| `SHIFT` | Shift |
+| `ALT` | Alt / Option |
+| `SUPER` | Cmd (Mac) / Win (Windows) |
+| `LEADER` | 設定したleaderキー |
+
+複数の修飾キーを組み合わせる場合は `SHIFT|CTRL` のように `|` で繋げます。
+:::
+
+### プロンプトごとの移動
+
+### 複数の操作をまとめる
+
+`wezterm.action_callback` を使うと、複数の操作を1つのキーバインドにまとめられます。
+
+以下は「直前のコマンドと出力をコピーする」キーバインドの例です。
 
 ```lua
-config.leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+{
+  key = "z",
+  mods = "LEADER",
+  action = wezterm.action_callback(function(window, pane)
+    -- コピーモードに入る
+    window:perform_action(act.ActivateCopyMode, pane)
+
+    -- 直前のコマンド入力位置に移動
+    window:perform_action(act.CopyMode({ MoveBackwardZoneOfType = "Input" }), pane)
+
+    -- セル選択モードを開始
+    window:perform_action(act.CopyMode({ SetSelectionMode = "Cell" }), pane)
+
+    -- 次のプロンプトまで選択（コマンドと出力を含む）
+    window:perform_action(act.CopyMode({ MoveForwardZoneOfType = "Prompt" }), pane)
+
+    -- 1行上に移動して行末まで（現在のプロンプト行を除外）
+    window:perform_action(act.CopyMode("MoveUp"), pane)
+    window:perform_action(act.CopyMode("MoveToEndOfLineContent"), pane)
+
+    -- クリップボードにコピー
+    window:perform_action(
+      act.Multiple({
+        { CopyTo = "ClipboardAndPrimarySelection" },
+        { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+      }),
+      pane
+    )
+
+    -- ステータスバーに通知を表示
+    window:set_right_status("Copied!")
+    -- 3秒後にクリア
+    wezterm.time.call_after(3, function()
+      window:set_right_status("")
+    end)
+  end),
+},
+```
+
+`Ctrl+q → z` を押すだけで、直前に実行したコマンドとその出力がクリップボードにコピーされます。
+
+もう一つ、検索モードを使いやすくする例を紹介します。
+
+```lua
+{
+  key = "f",
+  mods = "SUPER",
+  action = wezterm.action_callback(function(window, pane)
+    -- 検索モードを開く
+    window:perform_action(act.Search("CurrentSelectionOrEmptyString"), pane)
+    -- 前回の検索パターンと選択をクリア
+    window:perform_action(
+      act.Multiple({
+        act.CopyMode("ClearPattern"),
+        act.CopyMode("ClearSelectionMode"),
+      }),
+      pane
+    )
+  end),
+},
+```
+
+`Cmd+f` で検索モードを開くと同時に、前回の検索パターンをクリアして新しい検索をすぐに始められます。
+このキーバインドを使用する場合は、既存の `Cmd+f` キーバインドを無効化してください。
+
+```diff lua:~/.config/wezterm/keymaps.lua
+- { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
 ```
 
 ### キーテーブル
