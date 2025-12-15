@@ -526,59 +526,152 @@ WezTermではLuaの**モジュール**という仕組みを使って、設定フ
 
 :::
 
-```lua:~/.config/wezterm/appearance.lua
--- 外観設定をまとめたモジュール
+手順は以下の通りです。
 
--- weztermモジュールを読み込む
-local wezterm = require 'wezterm'
+1. 分割したい設定ごとにファイルを作成
+2. メインの設定ファイルでモジュールを読み込む
 
--- 他のファイルに公開するためのテーブル（入れ物）を作る
-local module = {}
-
--- config に外観設定を適用する関数
--- この関数は module テーブルに入れるので外部から使える
-function module.apply_to_config(config)
-  -- 背景の透過
-  config.window_background_opacity = 0.85
-  -- 背景のぼかし
-  config.macos_window_background_blur = 20
-end
-
--- module テーブルを返すことで、外部から使えるようになる
-return module
-```
-
-`~/.config/wezterm/wezterm.lua` で作成したモジュールを使います。
-
-```lua:~/.config/wezterm/wezterm.lua
-local wezterm = require 'wezterm'
-local config = wezterm.config_builder()
-
--- 自作モジュールの読み込み（.luaは省略可能）
-local appearance = require 'appearance'
-
--- モジュール内の関数を呼び出して設定を適用
-appearance.apply_to_config(config)
-
-return config
-```
-
-`require 'appearance'` で `appearance.lua` の内容を読み込み、`module` テーブルが返されます。
-これを `appearance` 変数に格納することで、`appearance.apply_to_config(config)` のように関数を呼び出せます。
-
-```lua:~/.config/wezterm/wezterm.lua
-local wezterm = require 'wezterm'
-local config = wezterm.config_builder()
-
--- 各モジュールを読み込んで設定を適用
-require('appearance').apply_to_config(config)
-require('keybinds').apply_to_config(config)
-require('tabbar').apply_to_config(config)
-
-return config
-```
+さっそく、先ほど出力した `keymaps.lua` をモジュールとして使えるように修正していきましょう。
+`1. 分割したい設定ごとにファイルを作成`はできているため、`2. メインの設定ファイルでモジュールを読み込む`を行います。
 
 > ref: [Making your own Lua Modules - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/files.html#making-your-own-lua-modules)
+
+### 1. モジュール化する
+
+```lua :~/.config/wezterm/keymaps.lua
+# モジュール化前
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+return {
+  keys = {
+    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+    { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+    -- いろんなキーバインドが続く...
+  },
+
+  key_tables = {
+    copy_mode = {
+      { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+      -- コピーモードのキーバインドが続く...
+    },
+
+    search_mode = {
+      { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
+      -- 検索モードのキーバインドが続く...
+    },
+  },
+}
+```
+
+```diff lua:~/.config/wezterm/keymaps.lua
+# モジュール化後
+local wezterm = require("wezterm")
+local act = wezterm.action
+
++ -- 他のファイルに公開するためのテーブル（入れ物）を作る
++ local module = {}
+
+- return {
+-   keys = {
+-     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+-     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+-     -- いろんなキーバインドが続く...
+-   },
+- 
+-   key_tables = {
+-     copy_mode = {
+-       { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+-       -- コピーモードのキーバインドが続く...
+-     },
+- 
+-     search_mode = {
+-       { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
+-       -- 検索モードのキーバインドが続く...
+-     },
+-   },
+- }
++ local keys = {
++     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
++     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
++     -- いろんなキーバインドが続く...
++ }
++ 
++ local key_tables = {
++   copy_mode = {
++     { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
++     -- コピーモードのキーバインドが続く...
++   },
++   search_mode = {
++     { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
++     -- 検索モードのキーバインドが続く...
++   },
++ }
+
++ -- この関数は module テーブルに入れるので外部から使える
++ -- config にキーバインドを適用する関数
++ function module.apply_to_config(config)
++   config.keys = keys
++   config.key_tables = key_tables
++ end
+
++ -- module テーブルを返すことで、外部から使えるようになる
++ return module
+```
+
+### 2. メインの設定ファイルでモジュールを読み込む
+
+`~/.config/wezterm/wezterm.lua` で作成したモジュールを使います。
+`require 'keymaps'` で `keymaps.lua` の内容を読み込み、`module` テーブルが返されます。
+これを `keymap` 変数に格納することで、`keymaps.apply_to_config(config)` のように関数を呼び出せます。
+
+```diff lua:~/config/wezterm/wezterm.lua
+local wezterm = require("wezterm")
+
+ -- ここに設定内容を記述していく
+local config = wezterm.config_builder()
+
+ -- 設定ファイルの変更を自動で読み込む
+config.automatically_reload_config = true
+
+ -- macSKK向け: Control-jで改行されないようにする設定
+config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
+
+ -- Claude Codeで改行できるようにする
+config.keys = { { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") } }
+
+ -- font
+config.font_size = 14.0
+config.font = wezterm.font("HackGen Console NF")
+
+ -- 背景の透過度とぼかし
+config.window_background_opacity = 0.7
+config.macos_window_background_blur = 13
+
++ -- 自作モジュールの読み込み (.luaは省略可能)
++ local keymaps = require 'keymaps'
+
++ -- モジュール内の関数を呼び出して設定を適用
++ keymaps.apply_to_config(config)
+
+return config
+```
+
+自作モジュールの読み込みと設定の適用はまとめて書くこともできます。
+
+```lua
+-- モジュールを読み込んで設定を適用
+require('keymaps').apply_to_config(config)
+```
+
+:::details ここまでの設定ファイルまとめ
+
+```lua :~/.config/wezterm/wezterm.lua
+```
+
+```lua :~/.config/wezterm/keymaps.lua
+```
+:::
 
 ## キーバインドの設定
 
