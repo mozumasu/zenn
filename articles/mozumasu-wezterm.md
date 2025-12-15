@@ -681,6 +681,21 @@ wezterm.log_info("keymaps.lua loaded!")  -- ログに出力
 `Ctrl+Shift+Alt+T` を押すと、ターミナルに `keymaps module loaded!` と入力されれば成功です。
 確認後は削除しても構いません。
 
+### メインファイルに設定したキーバインドも移行しておく
+
+メインのファイルに記述したキーバインド設定も、モジュールに移行しておきましょう。
+
+```diff lua:~/.config/wezterm/wezterm.lua
+- -- Claude Codeで改行できるようにする
+- config.keys = { { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") } }
+```
+
+```diff lua:~/.config/wezterm/keymaps.lua
+ -- keys テーブル内に追加
++   -- Claude Codeで改行できるようにする
++ { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") },
+```
+
 :::details ここまでの設定ファイルまとめ
 
 ```lua :~/.config/wezterm/wezterm.lua
@@ -694,9 +709,6 @@ config.automatically_reload_config = true
 
 -- macSKK向け: Control-jで改行されないようにする設定
 config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
-
--- Claude Codeで改行できるようにする
-config.keys = { { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") } }
 
 -- font
 config.font_size = 14.0
@@ -945,6 +957,8 @@ local key_tables = {
     { key = "RightArrow", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
     { key = "UpArrow", mods = "NONE", action = act.CopyMode("MoveUp") },
     { key = "DownArrow", mods = "NONE", action = act.CopyMode("MoveDown") },
+    -- Claude Codeで改行できるようにする
+    { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") },
   },
 
   search_mode = {
@@ -1035,6 +1049,38 @@ leaderキーを設定したら、`mods = "LEADER"` を使ったキーバイン�
 :::
 
 ### プロンプトごとの移動
+
+プロンプトとは、コマンドを入力する行の先頭に表示される記号や文字列のことです（`$`, `❯` など）。
+
+WezTermはシェル統合機能を使うと、このプロンプト単位で移動できるようになります。
+**実行したコマンドの位置に直接ジャンプできる**ため、長い出力をスクロールして探す必要がなくなります。
+
+```lua
+-- プロンプト間の移動（keys テーブル内に追加）
+{ key = "[", mods = "ALT", action = act.ScrollToPrompt(-1) }, -- 前のプロンプトへ
+{ key = "]", mods = "ALT", action = act.ScrollToPrompt(1) },  -- 次のプロンプトへ
+```
+
+:::message alert
+**シェル統合の設定が必要**
+
+この機能を使うには、シェル側でWezTermのシェル統合を有効にする必要があります。
+
+```sh
+mkdir -p ~/.config/zsh/
+touch ~/.config/zsh/wezterm.sh
+```
+
+[wezterm/assets/shell-integration/wezterm.sh at main · wezterm/wezterm](https://github.com/wezterm/wezterm/blob/main/assets/shell-integration/wezterm.sh)のコードをコピーして、`~/.config/zsh/wezterm.sh` に貼り付けます。
+
+```sh
+# .zshrc に追加
+source "~/.config/zsh/wezterm.sh"
+```
+
+> ref: [Shell Integration - Wez's Terminal Emulator](https://wezterm.org/shell-integration.html)
+
+:::
 
 ### 複数の操作をまとめる
 
