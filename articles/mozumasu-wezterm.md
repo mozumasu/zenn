@@ -526,151 +526,443 @@ WezTermではLuaの**モジュール**という仕組みを使って、設定フ
 
 :::
 
-手順は以下の通りです。
-
-1. 分割したい設定ごとにファイルを作成
-2. メインの設定ファイルでモジュールを読み込む
-
-さっそく、先ほど出力した `keymaps.lua` をモジュールとして使えるように修正していきましょう。
-`1. 分割したい設定ごとにファイルを作成`はできているため、`2. メインの設定ファイルでモジュールを読み込む`を行います。
+前章で `wezterm show-keys --lua` を使って `keymaps.lua` を出力しました。
+このファイルをモジュール化して、メインの設定ファイルから読み込めるようにしましょう。
 
 > ref: [Making your own Lua Modules - Wez's Terminal Emulator](https://wezfurlong.org/wezterm/config/files.html#making-your-own-lua-modules)
 
-### 1. モジュール化する
+### keymaps.lua をモジュール化する
 
-```lua :~/.config/wezterm/keymaps.lua
-# モジュール化前
+先ほど出力した `keymaps.lua` はそのままでは読み込めません。
+WezTermのモジュールとして使うには、**`apply_to_config` 関数を持つテーブルを返す形式**に変更する必要があります。
+
+変更のポイントは3つです。
+
+1. 外部に公開するための `module` テーブルを作成
+2. 設定を適用する `apply_to_config` 関数を定義
+3. 最後に `module` テーブルを返す
+
+```lua:~/.config/wezterm/keymaps.lua（モジュール化後）
 local wezterm = require("wezterm")
 local act = wezterm.action
 
-return {
-  keys = {
-    { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
-    { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
-    -- いろんなキーバインドが続く...
+-- ① 外部に公開するためのテーブルを作成
+local module = {}
+
+-- キーバインドの定義（元の return { keys = {...} } の中身）
+local keys = {
+  { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+  { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+  -- いろんなキーバインドが続く...
+}
+
+local key_tables = {
+  copy_mode = {
+    { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+    -- コピーモードのキーバインドが続く...
   },
-
-  key_tables = {
-    copy_mode = {
-      { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
-      -- コピーモードのキーバインドが続く...
-    },
-
-    search_mode = {
-      { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
-      -- 検索モードのキーバインドが続く...
-    },
+  search_mode = {
+    { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
+    -- 検索モードのキーバインドが続く...
   },
 }
+
+-- ② config にキーバインドを適用する関数を定義
+function module.apply_to_config(config)
+  config.keys = keys
+  config.key_tables = key_tables
+end
+
+-- ③ module テーブルを返す
+return module
 ```
 
-```diff lua:~/.config/wezterm/keymaps.lua
-# モジュール化後
-local wezterm = require("wezterm")
-local act = wezterm.action
+:::message
 
-+ -- 他のファイルに公開するためのテーブル（入れ物）を作る
-+ local module = {}
+**変更前との違い**
 
-- return {
--   keys = {
--     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
--     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
--     -- いろんなキーバインドが続く...
--   },
-- 
--   key_tables = {
--     copy_mode = {
--       { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
--       -- コピーモードのキーバインドが続く...
--     },
-- 
--     search_mode = {
--       { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
--       -- 検索モードのキーバインドが続く...
--     },
--   },
-- }
-+ local keys = {
-+     { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
-+     { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
-+     -- いろんなキーバインドが続く...
-+ }
-+ 
-+ local key_tables = {
-+   copy_mode = {
-+     { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
-+     -- コピーモードのキーバインドが続く...
-+   },
-+   search_mode = {
-+     { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
-+     -- 検索モードのキーバインドが続く...
-+   },
-+ }
+```lua
+-- 変更前: テーブルを直接返していた
+return {
+  keys = { ... },
+  key_tables = { ... },
+}
 
-+ -- この関数は module テーブルに入れるので外部から使える
-+ -- config にキーバインドを適用する関数
-+ function module.apply_to_config(config)
-+   config.keys = keys
-+   config.key_tables = key_tables
-+ end
-
-+ -- module テーブルを返すことで、外部から使えるようになる
-+ return module
+-- 変更後: apply_to_config 関数を持つ module を返す
+return module
 ```
 
-### 2. メインの設定ファイルでモジュールを読み込む
+:::
 
-`~/.config/wezterm/wezterm.lua` で作成したモジュールを使います。
-`require 'keymaps'` で `keymaps.lua` の内容を読み込み、`module` テーブルが返されます。
-これを `keymap` 変数に格納することで、`keymaps.apply_to_config(config)` のように関数を呼び出せます。
+### メインの設定ファイルでモジュールを読み込む
 
-```diff lua:~/config/wezterm/wezterm.lua
+`~/.config/wezterm/wezterm.lua` で作成したモジュールを読み込みます。
+
+```diff lua:~/.config/wezterm/wezterm.lua
 local wezterm = require("wezterm")
-
- -- ここに設定内容を記述していく
 local config = wezterm.config_builder()
 
- -- 設定ファイルの変更を自動で読み込む
 config.automatically_reload_config = true
-
- -- macSKK向け: Control-jで改行されないようにする設定
 config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
-
- -- Claude Codeで改行できるようにする
-config.keys = { { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") } }
-
- -- font
 config.font_size = 14.0
 config.font = wezterm.font("HackGen Console NF")
-
- -- 背景の透過度とぼかし
 config.window_background_opacity = 0.7
 config.macos_window_background_blur = 13
 
-+ -- 自作モジュールの読み込み (.luaは省略可能)
++ -- 自作モジュールの読み込み（.lua は省略可能）
 + local keymaps = require 'keymaps'
-
 + -- モジュール内の関数を呼び出して設定を適用
 + keymaps.apply_to_config(config)
 
 return config
 ```
 
-自作モジュールの読み込みと設定の適用はまとめて書くこともできます。
+:::message
+**require の仕組み**
 
 ```lua
--- モジュールを読み込んで設定を適用
+local keymaps = require 'keymaps'
+```
+
+この1行で以下のことが起きます。
+
+1. `~/.config/wezterm/keymaps.lua` を読み込む
+2. ファイル末尾の `return module` で返された `module` テーブルを取得
+3. それを `keymaps` 変数に格納
+
+その後 `keymaps.apply_to_config(config)` を呼ぶと、モジュール内で定義した関数が実行されます。
+:::
+
+読み込みと設定の適用は1行にまとめることもできます。
+
+```lua
 require('keymaps').apply_to_config(config)
 ```
+
+### 動作確認
+
+モジュールが正しく読み込まれているか確認しましょう。
+
+#### 1. エラーがないか確認
+
+WezTermはホットリロードに対応しているため、設定ファイルを保存すると自動的に再読み込みされます。
+エラーがあると画面上部に赤いエラーメッセージが表示されます。
+
+よくあるエラー:
+
+- `module 'keymaps' not found` → ファイルが `~/.config/wezterm/` にない
+- `attempt to call a nil value` → `apply_to_config` 関数が定義されていない、または `return module` を忘れている
+
+#### 2. デバッグオーバーレイで確認
+
+`Ctrl+Shift+L` でデバッグオーバーレイを開くと、ログやエラーメッセージを確認できます。
+
+モジュール内にログを追加して、読み込まれているか確認することもできます。
+
+```lua
+-- keymaps.lua の先頭に追加
+local wezterm = require("wezterm")
+wezterm.log_info("keymaps.lua loaded!")  -- ログに出力
+```
+
+#### 3. キーバインドが動作するか確認
+
+実際にキーバインドを試して、設定が反映されているか確認しましょう。
+
+- `Ctrl+Tab` → 次のタブに移動
+- `Ctrl+Shift+T` → 新しいタブを開く
+
+これらが動作すれば、モジュールは正しく読み込まれています。
 
 :::details ここまでの設定ファイルまとめ
 
 ```lua :~/.config/wezterm/wezterm.lua
+---@type Wezterm
+local wezterm = require("wezterm")
+
+local config = wezterm.config_builder()
+
+-- 設定ファイルの変更を自動で読み込む
+config.automatically_reload_config = true
+
+-- macSKK向け: Control-jで改行されないようにする設定
+config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
+
+-- Claude Codeで改行できるようにする
+config.keys = { { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") } }
+
+-- font
+config.font_size = 14.0
+config.font = wezterm.font("HackGen Console NF")
+
+-- 背景の透過度とぼかし
+config.window_background_opacity = 0.7
+config.macos_window_background_blur = 13
+
+require("keymaps").apply_to_config(config)
+
+return config
 ```
 
 ```lua :~/.config/wezterm/keymaps.lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+local module = {}
+
+local keys = {
+  { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+  { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+  { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
+  { key = "!", mods = "CTRL", action = act.ActivateTab(0) },
+  { key = "!", mods = "SHIFT|CTRL", action = act.ActivateTab(0) },
+  { key = '"', mods = "ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = '"', mods = "SHIFT|ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "#", mods = "CTRL", action = act.ActivateTab(2) },
+  { key = "#", mods = "SHIFT|CTRL", action = act.ActivateTab(2) },
+  { key = "$", mods = "CTRL", action = act.ActivateTab(3) },
+  { key = "$", mods = "SHIFT|CTRL", action = act.ActivateTab(3) },
+  { key = "%", mods = "CTRL", action = act.ActivateTab(4) },
+  { key = "%", mods = "SHIFT|CTRL", action = act.ActivateTab(4) },
+  { key = "%", mods = "ALT|CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "%", mods = "SHIFT|ALT|CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "&", mods = "CTRL", action = act.ActivateTab(6) },
+  { key = "&", mods = "SHIFT|CTRL", action = act.ActivateTab(6) },
+  { key = "'", mods = "SHIFT|ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "(", mods = "CTRL", action = act.ActivateTab(-1) },
+  { key = "(", mods = "SHIFT|CTRL", action = act.ActivateTab(-1) },
+  { key = ")", mods = "CTRL", action = act.ResetFontSize },
+  { key = ")", mods = "SHIFT|CTRL", action = act.ResetFontSize },
+  { key = "*", mods = "CTRL", action = act.ActivateTab(7) },
+  { key = "*", mods = "SHIFT|CTRL", action = act.ActivateTab(7) },
+  { key = "+", mods = "CTRL", action = act.IncreaseFontSize },
+  { key = "+", mods = "SHIFT|CTRL", action = act.IncreaseFontSize },
+  { key = "-", mods = "CTRL", action = act.DecreaseFontSize },
+  { key = "-", mods = "SHIFT|CTRL", action = act.DecreaseFontSize },
+  { key = "-", mods = "SUPER", action = act.DecreaseFontSize },
+  { key = "0", mods = "CTRL", action = act.ResetFontSize },
+  { key = "0", mods = "SHIFT|CTRL", action = act.ResetFontSize },
+  { key = "0", mods = "SUPER", action = act.ResetFontSize },
+  { key = "1", mods = "SHIFT|CTRL", action = act.ActivateTab(0) },
+  { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
+  { key = "2", mods = "SHIFT|CTRL", action = act.ActivateTab(1) },
+  { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
+  { key = "3", mods = "SHIFT|CTRL", action = act.ActivateTab(2) },
+  { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
+  { key = "4", mods = "SHIFT|CTRL", action = act.ActivateTab(3) },
+  { key = "4", mods = "SUPER", action = act.ActivateTab(3) },
+  { key = "5", mods = "SHIFT|CTRL", action = act.ActivateTab(4) },
+  { key = "5", mods = "SHIFT|ALT|CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "5", mods = "SUPER", action = act.ActivateTab(4) },
+  { key = "6", mods = "SHIFT|CTRL", action = act.ActivateTab(5) },
+  { key = "6", mods = "SUPER", action = act.ActivateTab(5) },
+  { key = "7", mods = "SHIFT|CTRL", action = act.ActivateTab(6) },
+  { key = "7", mods = "SUPER", action = act.ActivateTab(6) },
+  { key = "8", mods = "SHIFT|CTRL", action = act.ActivateTab(7) },
+  { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
+  { key = "9", mods = "SHIFT|CTRL", action = act.ActivateTab(-1) },
+  { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
+  { key = "=", mods = "CTRL", action = act.IncreaseFontSize },
+  { key = "=", mods = "SHIFT|CTRL", action = act.IncreaseFontSize },
+  { key = "=", mods = "SUPER", action = act.IncreaseFontSize },
+  { key = "@", mods = "CTRL", action = act.ActivateTab(1) },
+  { key = "@", mods = "SHIFT|CTRL", action = act.ActivateTab(1) },
+  { key = "C", mods = "CTRL", action = act.CopyTo("Clipboard") },
+  { key = "C", mods = "SHIFT|CTRL", action = act.CopyTo("Clipboard") },
+  { key = "F", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
+  { key = "F", mods = "SHIFT|CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
+  { key = "H", mods = "CTRL", action = act.HideApplication },
+  { key = "H", mods = "SHIFT|CTRL", action = act.HideApplication },
+  { key = "K", mods = "CTRL", action = act.ClearScrollback("ScrollbackOnly") },
+  { key = "K", mods = "SHIFT|CTRL", action = act.ClearScrollback("ScrollbackOnly") },
+  { key = "L", mods = "CTRL", action = act.ShowDebugOverlay },
+  { key = "L", mods = "SHIFT|CTRL", action = act.ShowDebugOverlay },
+  { key = "M", mods = "CTRL", action = act.Hide },
+  { key = "M", mods = "SHIFT|CTRL", action = act.Hide },
+  { key = "N", mods = "CTRL", action = act.SpawnWindow },
+  { key = "N", mods = "SHIFT|CTRL", action = act.SpawnWindow },
+  { key = "P", mods = "CTRL", action = act.ActivateCommandPalette },
+  { key = "P", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
+  { key = "Q", mods = "CTRL", action = act.QuitApplication },
+  { key = "Q", mods = "SHIFT|CTRL", action = act.QuitApplication },
+  { key = "R", mods = "CTRL", action = act.ReloadConfiguration },
+  { key = "R", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+  { key = "T", mods = "CTRL", action = act.SpawnTab("CurrentPaneDomain") },
+  { key = "T", mods = "SHIFT|CTRL", action = act.SpawnTab("CurrentPaneDomain") },
+  {
+    key = "U",
+    mods = "CTRL",
+    action = act.CharSelect({ copy_on_select = true, copy_to = "ClipboardAndPrimarySelection" }),
+  },
+  {
+    key = "U",
+    mods = "SHIFT|CTRL",
+    action = act.CharSelect({ copy_on_select = true, copy_to = "ClipboardAndPrimarySelection" }),
+  },
+  { key = "V", mods = "CTRL", action = act.PasteFrom("Clipboard") },
+  { key = "V", mods = "SHIFT|CTRL", action = act.PasteFrom("Clipboard") },
+  { key = "W", mods = "CTRL", action = act.CloseCurrentTab({ confirm = true }) },
+  { key = "W", mods = "SHIFT|CTRL", action = act.CloseCurrentTab({ confirm = true }) },
+  { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
+  { key = "X", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+  { key = "Z", mods = "CTRL", action = act.TogglePaneZoomState },
+  { key = "Z", mods = "SHIFT|CTRL", action = act.TogglePaneZoomState },
+  { key = "[", mods = "SHIFT|SUPER", action = act.ActivateTabRelative(-1) },
+  { key = "]", mods = "SHIFT|SUPER", action = act.ActivateTabRelative(1) },
+  { key = "^", mods = "CTRL", action = act.ActivateTab(5) },
+  { key = "^", mods = "SHIFT|CTRL", action = act.ActivateTab(5) },
+  { key = "_", mods = "CTRL", action = act.DecreaseFontSize },
+  { key = "_", mods = "SHIFT|CTRL", action = act.DecreaseFontSize },
+  { key = "c", mods = "SHIFT|CTRL", action = act.CopyTo("Clipboard") },
+  { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+  { key = "f", mods = "SHIFT|CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
+  { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
+  { key = "h", mods = "SHIFT|CTRL", action = act.HideApplication },
+  { key = "h", mods = "SUPER", action = act.HideApplication },
+  { key = "k", mods = "SHIFT|CTRL", action = act.ClearScrollback("ScrollbackOnly") },
+  { key = "k", mods = "SUPER", action = act.ClearScrollback("ScrollbackOnly") },
+  { key = "l", mods = "SHIFT|CTRL", action = act.ShowDebugOverlay },
+  { key = "m", mods = "SHIFT|CTRL", action = act.Hide },
+  { key = "m", mods = "SUPER", action = act.Hide },
+  { key = "n", mods = "SHIFT|CTRL", action = act.SpawnWindow },
+  { key = "n", mods = "SUPER", action = act.SpawnWindow },
+  { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
+  { key = "q", mods = "SHIFT|CTRL", action = act.QuitApplication },
+  { key = "q", mods = "SUPER", action = act.QuitApplication },
+  { key = "r", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+  { key = "r", mods = "SUPER", action = act.ReloadConfiguration },
+  { key = "t", mods = "SHIFT|CTRL", action = act.SpawnTab("CurrentPaneDomain") },
+  { key = "t", mods = "SUPER", action = act.SpawnTab("CurrentPaneDomain") },
+  {
+    key = "u",
+    mods = "SHIFT|CTRL",
+    action = act.CharSelect({ copy_on_select = true, copy_to = "ClipboardAndPrimarySelection" }),
+  },
+  { key = "v", mods = "SHIFT|CTRL", action = act.PasteFrom("Clipboard") },
+  { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+  { key = "w", mods = "SHIFT|CTRL", action = act.CloseCurrentTab({ confirm = true }) },
+  { key = "w", mods = "SUPER", action = act.CloseCurrentTab({ confirm = true }) },
+  { key = "x", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+  { key = "z", mods = "SHIFT|CTRL", action = act.TogglePaneZoomState },
+  { key = "{", mods = "SUPER", action = act.ActivateTabRelative(-1) },
+  { key = "{", mods = "SHIFT|SUPER", action = act.ActivateTabRelative(-1) },
+  { key = "}", mods = "SUPER", action = act.ActivateTabRelative(1) },
+  { key = "}", mods = "SHIFT|SUPER", action = act.ActivateTabRelative(1) },
+  { key = "phys:Space", mods = "SHIFT|CTRL", action = act.QuickSelect },
+  { key = "PageUp", mods = "SHIFT", action = act.ScrollByPage(-1) },
+  { key = "PageUp", mods = "CTRL", action = act.ActivateTabRelative(-1) },
+  { key = "PageUp", mods = "SHIFT|CTRL", action = act.MoveTabRelative(-1) },
+  { key = "PageDown", mods = "SHIFT", action = act.ScrollByPage(1) },
+  { key = "PageDown", mods = "CTRL", action = act.ActivateTabRelative(1) },
+  { key = "PageDown", mods = "SHIFT|CTRL", action = act.MoveTabRelative(1) },
+  { key = "LeftArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Left") },
+  { key = "LeftArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Left", 1 }) },
+  { key = "RightArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Right") },
+  { key = "RightArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Right", 1 }) },
+  { key = "UpArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Up") },
+  { key = "UpArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Up", 1 }) },
+  { key = "DownArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Down") },
+  { key = "DownArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Down", 1 }) },
+  { key = "Copy", mods = "NONE", action = act.CopyTo("Clipboard") },
+  { key = "Paste", mods = "NONE", action = act.PasteFrom("Clipboard") },
+}
+
+local key_tables = {
+  copy_mode = {
+    { key = "Tab", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+    { key = "Tab", mods = "SHIFT", action = act.CopyMode("MoveBackwardWord") },
+    { key = "Enter", mods = "NONE", action = act.CopyMode("MoveToStartOfNextLine") },
+    { key = "Escape", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "Space", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
+    { key = "$", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+    { key = "$", mods = "SHIFT", action = act.CopyMode("MoveToEndOfLineContent") },
+    { key = ",", mods = "NONE", action = act.CopyMode("JumpReverse") },
+    { key = "0", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+    { key = ";", mods = "NONE", action = act.CopyMode("JumpAgain") },
+    { key = "F", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
+    { key = "F", mods = "SHIFT", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
+    { key = "G", mods = "NONE", action = act.CopyMode("MoveToScrollbackBottom") },
+    { key = "G", mods = "SHIFT", action = act.CopyMode("MoveToScrollbackBottom") },
+    { key = "H", mods = "NONE", action = act.CopyMode("MoveToViewportTop") },
+    { key = "H", mods = "SHIFT", action = act.CopyMode("MoveToViewportTop") },
+    { key = "L", mods = "NONE", action = act.CopyMode("MoveToViewportBottom") },
+    { key = "L", mods = "SHIFT", action = act.CopyMode("MoveToViewportBottom") },
+    { key = "M", mods = "NONE", action = act.CopyMode("MoveToViewportMiddle") },
+    { key = "M", mods = "SHIFT", action = act.CopyMode("MoveToViewportMiddle") },
+    { key = "O", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
+    { key = "O", mods = "SHIFT", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
+    { key = "T", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
+    { key = "T", mods = "SHIFT", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
+    { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+    { key = "V", mods = "SHIFT", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+    { key = "^", mods = "NONE", action = act.CopyMode("MoveToStartOfLineContent") },
+    { key = "^", mods = "SHIFT", action = act.CopyMode("MoveToStartOfLineContent") },
+    { key = "b", mods = "NONE", action = act.CopyMode("MoveBackwardWord") },
+    { key = "b", mods = "ALT", action = act.CopyMode("MoveBackwardWord") },
+    { key = "b", mods = "CTRL", action = act.CopyMode("PageUp") },
+    { key = "c", mods = "CTRL", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
+    { key = "e", mods = "NONE", action = act.CopyMode("MoveForwardWordEnd") },
+    { key = "f", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = false } }) },
+    { key = "f", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
+    { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
+    { key = "g", mods = "NONE", action = act.CopyMode("MoveToScrollbackTop") },
+    { key = "g", mods = "CTRL", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "h", mods = "NONE", action = act.CopyMode("MoveLeft") },
+    { key = "j", mods = "NONE", action = act.CopyMode("MoveDown") },
+    { key = "k", mods = "NONE", action = act.CopyMode("MoveUp") },
+    { key = "l", mods = "NONE", action = act.CopyMode("MoveRight") },
+    { key = "m", mods = "ALT", action = act.CopyMode("MoveToStartOfLineContent") },
+    { key = "o", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEnd") },
+    { key = "q", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "t", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = true } }) },
+    { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
+    { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
+    { key = "v", mods = "CTRL", action = act.CopyMode({ SetSelectionMode = "Block" }) },
+    { key = "w", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+    {
+      key = "y",
+      mods = "NONE",
+      action = act.Multiple({
+        { CopyTo = "ClipboardAndPrimarySelection" },
+        { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+      }),
+    },
+    { key = "PageUp", mods = "NONE", action = act.CopyMode("PageUp") },
+    { key = "PageDown", mods = "NONE", action = act.CopyMode("PageDown") },
+    { key = "End", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+    { key = "Home", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+    { key = "LeftArrow", mods = "NONE", action = act.CopyMode("MoveLeft") },
+    { key = "LeftArrow", mods = "ALT", action = act.CopyMode("MoveBackwardWord") },
+    { key = "RightArrow", mods = "NONE", action = act.CopyMode("MoveRight") },
+    { key = "RightArrow", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
+    { key = "UpArrow", mods = "NONE", action = act.CopyMode("MoveUp") },
+    { key = "DownArrow", mods = "NONE", action = act.CopyMode("MoveDown") },
+  },
+
+  search_mode = {
+    { key = "Enter", mods = "NONE", action = act.CopyMode("PriorMatch") },
+    { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
+    { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
+    { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
+    { key = "r", mods = "CTRL", action = act.CopyMode("CycleMatchType") },
+    { key = "u", mods = "CTRL", action = act.CopyMode("ClearPattern") },
+    { key = "PageUp", mods = "NONE", action = act.CopyMode("PriorMatchPage") },
+    { key = "PageDown", mods = "NONE", action = act.CopyMode("NextMatchPage") },
+    { key = "UpArrow", mods = "NONE", action = act.CopyMode("PriorMatch") },
+    { key = "DownArrow", mods = "NONE", action = act.CopyMode("NextMatch") },
+  },
+}
+
+function module.apply_to_config(config)
+  config.disable_default_key_bindings = true
+  config.keys = keys
+  config.key_tables = key_tables
+end
+
+return module
 ```
+
 :::
 
 ## キーバインドの設定
