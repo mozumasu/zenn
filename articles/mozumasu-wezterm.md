@@ -642,16 +642,16 @@ require('keymaps').apply_to_config(config)
 ### 動作確認
 
 モジュールが正しく読み込まれているか確認しましょう。
+確認方法は3つあります。
+
+1. **エラーがないか確認** - 設定ファイル保存時にエラーが出ないか
+2. **デバッグオーバーレイで確認** - ログを見て読み込みを確認
+3. **確認用のキーバインドを追加** - 実際に動作するか試す
 
 #### 1. エラーがないか確認
 
 WezTermはホットリロードに対応しているため、設定ファイルを保存すると自動的に再読み込みされます。
-エラーがあると画面上部に赤いエラーメッセージが表示されます。
-
-よくあるエラー:
-
-- `module 'keymaps' not found` → ファイルが `~/.config/wezterm/` にない
-- `attempt to call a nil value` → `apply_to_config` 関数が定義されていない、または `return module` を忘れている
+エラーがあるとデバック画面が自動で表示されるので、内容を確認してください。
 
 #### 2. デバッグオーバーレイで確認
 
@@ -665,14 +665,21 @@ local wezterm = require("wezterm")
 wezterm.log_info("keymaps.lua loaded!")  -- ログに出力
 ```
 
-#### 3. キーバインドが動作するか確認
+> ref: [Troubleshooting - Wez's Terminal Emulator](https://wezterm.org/troubleshooting.html)
 
-実際にキーバインドを試して、設定が反映されているか確認しましょう。
+#### 3. 確認用のキーバインドを追加
 
-- `Ctrl+Tab` → 次のタブに移動
-- `Ctrl+Shift+T` → 新しいタブを開く
+モジュールが読み込まれているか確認するため、テスト用のキーバインドを追加してみましょう。
 
-これらが動作すれば、モジュールは正しく読み込まれています。
+`keymaps.lua` の `keys` テーブルに以下を追加します。
+
+```lua
+-- keys テーブル内に追加
+{ key = "t", mods = "CTRL|SHIFT|ALT", action = act.SendString("keymaps module loaded!") },
+```
+
+`Ctrl+Shift+Alt+T` を押すと、ターミナルに `keymaps module loaded!` と入力されれば成功です。
+確認後は削除しても構いません。
 
 :::details ここまでの設定ファイルまとめ
 
