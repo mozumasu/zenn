@@ -229,6 +229,7 @@ wezterm show-keys --lua > ~/.config/wezterm/keymaps.lua
 ```
 
 すると、以下のようなファイルが生成されます。
+内容見てみると 2つのテーブル `keysテーブル (keys = {...}の部分)` と、`key_tablesテーブル (key_tables = {...} の部分)` を返していることがわかります。
 
 ```lua :~/.config/wezterm/keymaps.lua
 local wezterm = require("wezterm")
@@ -673,9 +674,12 @@ wezterm.log_info("keymaps.lua loaded!")  -- ログに出力
 
 `keymaps.lua` の `keys` テーブルに以下を追加します。
 
-```lua
--- keys テーブル内に追加
-{ key = "t", mods = "CTRL|SHIFT|ALT", action = act.SendString("keymaps module loaded!") },
+```diff lua :~/.config/wezterm/keymaps.lua
+keys = {
+  ...
+  -- keys テーブル内に追加
++ { key = "t", mods = "CTRL|SHIFT|ALT", action = act.SendString("keymaps module loaded!") },
+}
 ```
 
 `Ctrl+Shift+Alt+T` を押すと、ターミナルに `keymaps module loaded!` と入力されれば成功です。
@@ -1048,9 +1052,208 @@ leaderキーを設定したら、`mods = "LEADER"` を使ったキーバイン�
 複数の修飾キーを組み合わせる場合は `SHIFT|CTRL` のように `|` で繋げます。
 :::
 
+### 重複したキーを削除する
+
+デフォルトのキーバインドの設定では重複した設定がされています。
+
+```lua :~/.config/wezterm/keymaps.lua
+  -- 重複した設定
+  { key = "x", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+  { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
+  { key = "X", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+```
+
+自分の見やすい方を残しておくとよいでしょう。
+
+```diff lua :~/.config/wezterm/keymaps.lua
+ -- 必要なものだけに絞る
+- { key = "x", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+  { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
+- { key = "X", mods = "SHIFT|CTRL", action = act.ActivateCopyMode },
+```
+
+:::details 重複を除いた設定
+
+```lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+
+local module = {}
+
+local leader = { key = "q", mods = "CTRL", timeout_milliseconds = 2000 }
+
+local keys = {
+  -- 終了
+  { key = "q", mods = "SUPER", action = act.QuitApplication },
+  -- ウィンドウ操作
+  { key = "Enter", mods = "ALT", action = act.ToggleFullScreen },
+  { key = "n", mods = "SUPER", action = act.SpawnWindow },
+  -- タブ操作
+  { key = "Tab", mods = "CTRL", action = act.ActivateTabRelative(1) },
+  { key = "Tab", mods = "SHIFT|CTRL", action = act.ActivateTabRelative(-1) },
+  { key = "1", mods = "SUPER", action = act.ActivateTab(0) },
+  { key = "2", mods = "SUPER", action = act.ActivateTab(1) },
+  { key = "3", mods = "SUPER", action = act.ActivateTab(2) },
+  { key = "4", mods = "SUPER", action = act.ActivateTab(3) },
+  { key = "5", mods = "SUPER", action = act.ActivateTab(4) },
+  { key = "6", mods = "SUPER", action = act.ActivateTab(5) },
+  { key = "7", mods = "SUPER", action = act.ActivateTab(6) },
+  { key = "8", mods = "SUPER", action = act.ActivateTab(7) },
+  { key = "9", mods = "SUPER", action = act.ActivateTab(-1) },
+  { key = "t", mods = "SUPER", action = act.SpawnTab("CurrentPaneDomain") },
+  { key = "w", mods = "SUPER", action = act.CloseCurrentTab({ confirm = true }) },
+  -- Pane操作
+  { key = '"', mods = "ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "%", mods = "ALT|CTRL", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "LeftArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Left") },
+  { key = "LeftArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Left", 1 }) },
+  { key = "RightArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Right") },
+  { key = "RightArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Right", 1 }) },
+  { key = "UpArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Up") },
+  { key = "UpArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Up", 1 }) },
+  { key = "DownArrow", mods = "SHIFT|CTRL", action = act.ActivatePaneDirection("Down") },
+  { key = "DownArrow", mods = "SHIFT|ALT|CTRL", action = act.AdjustPaneSize({ "Down", 1 }) },
+
+  -- フォントサイズ変更
+  { key = "+", mods = "SUPER", action = act.IncreaseFontSize },
+  { key = "-", mods = "SUPER", action = act.DecreaseFontSize },
+  { key = "0", mods = "SUPER", action = act.ResetFontSize },
+
+  { key = "c", mods = "SUPER", action = act.CopyTo("Clipboard") },
+  { key = "v", mods = "SUPER", action = act.PasteFrom("Clipboard") },
+  { key = "C", mods = "CTRL", action = act.CopyTo("Clipboard") },
+
+  -- Debug
+  { key = "L", mods = "CTRL", action = act.ShowDebugOverlay },
+  { key = "R", mods = "CTRL", action = act.ReloadConfiguration },
+  { key = "r", mods = "SUPER", action = act.ReloadConfiguration },
+
+  -- コマンドパレット
+  { key = "P", mods = "CTRL", action = act.ActivateCommandPalette },
+  -- 文字選択パレット
+  {
+    key = "U",
+    mods = "CTRL",
+    action = act.CharSelect({ copy_on_select = true, copy_to = "ClipboardAndPrimarySelection" }),
+  },
+
+  -- モード切替
+  -- コピーモード
+  { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
+  -- サーチモード
+  { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
+  -- アクティブペインのズーム切替
+  { key = "Z", mods = "CTRL", action = act.TogglePaneZoomState },
+
+  -- 誤爆するので非有効にしがち
+  { key = "k", mods = "SUPER", action = act.ClearScrollback("ScrollbackOnly") },
+  { key = "m", mods = "SUPER", action = act.Hide },
+  { key = "H", mods = "CTRL", action = act.HideApplication },
+
+  -- control + space がMaccOSのIME切り替えに使われるので、別のキーに割り当て
+  -- { key = "phys:Space", mods = "SHIFT|CTRL", action = act.QuickSelect },
+  { key = " ", mods = "SUPER", action = act.QuickSelect },
+
+  -- スクロール
+  { key = "PageUp", mods = "SHIFT", action = act.ScrollByPage(-1) },
+  { key = "PageDown", mods = "SHIFT", action = act.ScrollByPage(1) },
+
+  -- コピー・ペースト
+  { key = "Copy", mods = "NONE", action = act.CopyTo("Clipboard") },
+  { key = "Paste", mods = "NONE", action = act.PasteFrom("Clipboard") },
+
+  -- Claude Codeで改行できるようにする
+  { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n") },
+}
+
+local key_tables = {
+  copy_mode = {
+    -- モードの終了
+    { key = "c", mods = "CTRL", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "q", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+    { key = "Escape", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
+
+    -- Vim風のキーバインド
+    { key = "h", mods = "NONE", action = act.CopyMode("MoveLeft") },
+    { key = "j", mods = "NONE", action = act.CopyMode("MoveDown") },
+    { key = "k", mods = "NONE", action = act.CopyMode("MoveUp") },
+    { key = "l", mods = "NONE", action = act.CopyMode("MoveRight") },
+    { key = "0", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+    { key = "^", mods = "NONE", action = act.CopyMode("MoveToStartOfLineContent") },
+    { key = "$", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+    { key = ",", mods = "NONE", action = act.CopyMode("JumpReverse") },
+    { key = ";", mods = "NONE", action = act.CopyMode("JumpAgain") },
+    { key = "g", mods = "NONE", action = act.CopyMode("MoveToScrollbackTop") },
+    { key = "G", mods = "NONE", action = act.CopyMode("MoveToScrollbackBottom") },
+    { key = "w", mods = "NONE", action = act.CopyMode("MoveForwardWord") },
+    { key = "e", mods = "NONE", action = act.CopyMode("MoveForwardWordEnd") },
+    { key = "b", mods = "NONE", action = act.CopyMode("MoveBackwardWord") },
+    { key = "t", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = true } }) },
+    { key = "f", mods = "NONE", action = act.CopyMode({ JumpForward = { prev_char = false } }) },
+    { key = "T", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = true } }) },
+    { key = "F", mods = "NONE", action = act.CopyMode({ JumpBackward = { prev_char = false } }) },
+    { key = "H", mods = "NONE", action = act.CopyMode("MoveToViewportTop") },
+    { key = "L", mods = "NONE", action = act.CopyMode("MoveToViewportBottom") },
+    { key = "O", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEndHoriz") },
+    { key = "M", mods = "NONE", action = act.CopyMode("MoveToViewportMiddle") },
+    { key = "o", mods = "NONE", action = act.CopyMode("MoveToSelectionOtherEnd") },
+    { key = "m", mods = "ALT", action = act.CopyMode("MoveToStartOfLineContent") },
+    { key = "b", mods = "CTRL", action = act.CopyMode("PageUp") },
+    { key = "f", mods = "CTRL", action = act.CopyMode("PageDown") },
+    { key = "u", mods = "CTRL", action = act.CopyMode({ MoveByPage = -0.5 }) },
+    { key = "d", mods = "CTRL", action = act.CopyMode({ MoveByPage = 0.5 }) },
+    { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
+    { key = "v", mods = "CTRL", action = act.CopyMode({ SetSelectionMode = "Block" }) },
+    { key = "V", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+    {
+      key = "y",
+      mods = "NONE",
+      action = act.Multiple({
+        { CopyTo = "ClipboardAndPrimarySelection" },
+        { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+      }),
+    },
+    { key = "PageUp", mods = "NONE", action = act.CopyMode("PageUp") },
+    { key = "PageDown", mods = "NONE", action = act.CopyMode("PageDown") },
+    { key = "End", mods = "NONE", action = act.CopyMode("MoveToEndOfLineContent") },
+    { key = "Home", mods = "NONE", action = act.CopyMode("MoveToStartOfLine") },
+    { key = "LeftArrow", mods = "NONE", action = act.CopyMode("MoveLeft") },
+    { key = "LeftArrow", mods = "ALT", action = act.CopyMode("MoveBackwardWord") },
+    { key = "RightArrow", mods = "NONE", action = act.CopyMode("MoveRight") },
+    { key = "RightArrow", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
+    { key = "UpArrow", mods = "NONE", action = act.CopyMode("MoveUp") },
+    { key = "DownArrow", mods = "NONE", action = act.CopyMode("MoveDown") },
+  },
+
+  search_mode = {
+    { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
+    { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
+    { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
+    { key = "r", mods = "CTRL", action = act.CopyMode("CycleMatchType") },
+    { key = "u", mods = "CTRL", action = act.CopyMode("ClearPattern") },
+  },
+}
+
+function module.apply_to_config(config)
+  config.disable_default_key_bindings = true
+  config.keys = keys
+  config.key_tables = key_tables
+  config.leader = leader
+end
+
+return module
+```
+
+:::
+
 ### プロンプトごとの移動
 
-プロンプトとは、コマンドを入力する行の先頭に表示される記号や文字列のことです（`$`, `❯` など）。
+プロンプトとは、ターミナルでコマンド入力を促すために表示される文字列です。
+
+```sh
+# プロンプトの例
+mozu@macbook ~/repo ❯
+```
 
 WezTermはシェル統合機能を使うと、このプロンプト単位で移動できるようになります。
 **実行したコマンドの位置に直接ジャンプできる**ため、長い出力をスクロールして探す必要がなくなります。
@@ -1084,11 +1287,59 @@ source "~/.config/zsh/wezterm.sh"
 
 ### 複数の操作をまとめる
 
-`wezterm.action_callback` を使うと、複数の操作を1つのキーバインドにまとめられます。
+複数のアクションを1つのキーバインドにまとめる方法は2つあります。
 
-以下は「直前のコマンドと出力をコピーする」キーバインドの例です。
+#### act.Multiple
+
+シンプルにアクションを順番に実行するだけなら `act.Multiple` を使います。
 
 ```lua
+-- コピーしてコピーモードを終了
+{
+  key = "y",
+  mods = "NONE",
+  action = act.Multiple({
+    { CopyTo = "ClipboardAndPrimarySelection" },
+    { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+  }),
+},
+```
+
+#### wezterm.action_callback
+
+以下のような複雑な処理が必要な場合は `wezterm.action_callback` を使います。
+
+- **条件分岐**: ペインの状態によって処理を変える
+- **タイマー**: 一定時間後に処理を実行
+- **状態取得**: ペインの情報を取得して利用
+- **ループ処理**: 同じ操作を繰り返す
+
+```lua
+-- wezterm.action_callbackの基本形
+action = wezterm.action_callback(function(window, pane)
+  -- ここにLuaコードを書く
+  window:perform_action(act.SomeAction, pane)
+end)
+```
+
+#### 使い分けのポイント
+
+| 方法 | 使いどころ |
+| --- | --- |
+| `act.Multiple` | アクションを順番に実行するだけ |
+| `wezterm.action_callback` | 条件分岐・タイマー・状態取得が必要 |
+
+迷ったら `act.Multiple` で書いてみて、複雑になりそうなら `wezterm.action_callback` に切り替えるのがおすすめです。
+
+#### 例: 直前のコマンドと出力をコピー
+
+以下は「直前のコマンドと出力をコピーする」キーバインドの例です。
+`Ctrl+q → z` を押すだけで、直前に実行したコマンドとその出力がクリップボードにコピーされます。
+
+この例では **タイマー処理** (`wezterm.time.call_after`) と **Lua API** (`window:set_right_status`) を使っているため、`act.Multiple` ではなく `wezterm.action_callback` が必要です。
+
+```lua
+-- 直前のコマンドと出力をコピーする
 {
   key = "z",
   mods = "LEADER",
@@ -1118,6 +1369,7 @@ source "~/.config/zsh/wezterm.sh"
       pane
     )
 
+    -- タイマーとLua APIはact.Multipleでは使えない
     -- ステータスバーに通知を表示
     window:set_right_status("Copied!")
     -- 3秒後にクリア
@@ -1128,39 +1380,175 @@ source "~/.config/zsh/wezterm.sh"
 },
 ```
 
-`Ctrl+q → z` を押すだけで、直前に実行したコマンドとその出力がクリップボードにコピーされます。
+#### 例: 検索モードで前回の検索パターンが残らないようにする
 
 もう一つ、検索モードを使いやすくする例を紹介します。
-
-```lua
-{
-  key = "f",
-  mods = "SUPER",
-  action = wezterm.action_callback(function(window, pane)
-    -- 検索モードを開く
-    window:perform_action(act.Search("CurrentSelectionOrEmptyString"), pane)
-    -- 前回の検索パターンと選択をクリア
-    window:perform_action(
-      act.Multiple({
-        act.CopyMode("ClearPattern"),
-        act.CopyMode("ClearSelectionMode"),
-      }),
-      pane
-    )
-  end),
-},
-```
-
 `Cmd+f` で検索モードを開くと同時に、前回の検索パターンをクリアして新しい検索をすぐに始められます。
 このキーバインドを使用する場合は、既存の `Cmd+f` キーバインドを無効化してください。
 
+```lua
+-- 検索モードを開いて前回の検索パターンをクリア
+{
+  key = "f",
+  mods = "SUPER",
+  action = act.Multiple({
+    act.Search("CurrentSelectionOrEmptyString"),
+    act.CopyMode("ClearPattern"),
+    act.CopyMode("ClearSelectionMode"),
+  }),
+},
+```
+
 ```diff lua:~/.config/wezterm/keymaps.lua
+ -- 既存の Cmd + f を削除
 - { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
 ```
 
 ### キーテーブル
 
 キーテーブルを使うと、特定のモードでのみ有効なキーバインドを定義できます。
+WezTermにはデフォルトで `copy_mode` と `search_mode` の2つのキーテーブルが用意されています。
+
+#### copy_mode（コピーモード）
+
+コピーモードは、Vimライクなキーバインドでテキストを選択・コピーできます。
+コピーモードへの切り替えは `act.ActivateCopyMode` で設定できます。
+以下の例では`Ctrl+Shift+X` がコピーモードに割りあてられています。
+
+```lua
+   -- コピーモードのキーバインドを設定
+  { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
+```
+
+設定は `key_tables内にあるcopy_mode` で設定します。
+
+```lua
+-- コピーモードで使えるキーバインドを設定
+local key_tables = {
+  copy_mode = {
+    -- ここにコピーモードのキーバインドを記載する
+  }
+```
+
+#### search_mode（検索モード）
+
+検索モードではターミナル内のテキストを検索できます。
+キーバインドは`act.Search`で設定します。
+
+```lua
+   -- 検索モードのキーバインドを設定
+  { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
+```
+
+それぞれのキーバインドは以下のように、`key`テーブル内の`search_mode`テーブル内で定義されています。
+
+```lua
+-- 検索モードで使えるキーバインドを設定
+local key_tables = {
+  search_mode = {
+    -- ここに検索モードのキーバインドを記載する
+  }
+}
+```
+
+### 検索モードとコピーモードの連携
+
+そのままでは通常のモードとコピーモード、検索モードの操作が分断されているため、それぞれのモードでの操作をスムーズに連携させる設定をしていきます。
+
+#### コピーモード/検索モードへの切り替え設定
+
+モードを切り替える際、前回の状態（検索パターンや選択範囲）が残っていると操作しづらいことがあります。
+切り替え時にクリアするように設定しておくと快適です。
+
+```diff lua :~/.config/wezterm/keymaps.lua
+- { key = "X", mods = "CTRL", action = act.ActivateCopyMode },
++ -- コピーモードへ切り替え（前回の状態をクリア）
++ {
++   key = "X",
++   mods = "CTRL",
++   action = act.Multiple({
++     act.ActivateCopyMode,
++     act.CopyMode("ClearPattern"),
++     act.CopyMode("ClearSelectionMode"),
++   }),
++ },
+
+- { key = "f", mods = "SUPER", action = act.Search("CurrentSelectionOrEmptyString") },
++ -- 検索モードへ切り替え（前回の状態をクリア）
++ {
++   key = "f",
++   mods = "SUPER",
++   action = act.Multiple({
++     act.Search("CurrentSelectionOrEmptyString"),
++     act.CopyMode("ClearPattern"),
++     act.CopyMode("ClearSelectionMode"),
++   }),
++ },
+```
+
+#### コピーモードの最適化
+
+コピーモード中にも次の検索パターンにジャンプできるようにしておくと、検索条件にヒットした周辺の文章を読む時に重宝します。
+また、検索モードに戻る際は`/`を使うように設定しています。
+
+```diff lua
+  copy_mode = {
++   -- 検索結果へジャンプ
++   { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
++   { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
++   -- コピーモードから検索モードへ
++   { key = "/", mods = "NONE", action = act.Search("CurrentSelectionOrEmptyString") },
+  },
+```
+
+また、コピーを連続でしたい時があるのでコピー後は通常モードに戻らないように設定しています。
+デフォルトでは `y` でコピーすると自動でコピーモードが終了しますが、この行を削除することで連続コピーが可能になります。
+
+```diff lua
+    {
+      key = "y",
+      mods = "NONE",
+      action = act.Multiple({
+        { CopyTo = "ClipboardAndPrimarySelection" },
+-       { Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+      }),
+    },
+```
+
+#### 検索モードの最適化
+
+検索モードでは `Ctrl+n`/`Ctrl+p` で検索結果間を移動できます。
+デフォルトでは移動後も検索モードのままですが、そのまま選択操作をしようとすると検索パターンを編集してしまうことがあります。
+
+移動と同時にコピーモードへ移行するように設定すると、すぐにテキスト選択を始められます。
+
+```diff lua
+  search_mode = {
+-   { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
+-   { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
++   -- 次/前の検索結果に移動してコピーモードへ
++   {
++     key = "n",
++     mods = "CTRL",
++     action = act.Multiple({
++       act.CopyMode("NextMatch"),
++       act.ActivateCopyMode,
++     }),
++   },
++   {
++     key = "p",
++     mods = "CTRL",
++     action = act.Multiple({
++       act.CopyMode("PriorMatch"),
++       act.ActivateCopyMode,
++     }),
++   },
+  },
+```
+
+### 自作のキーテーブル
+
+自分でキーテーブルを作成することもできます。以下はペインサイズ調整モードの例です。
 
 ```lua
 -- キーテーブルのアクティブ状態をステータスバーに表示
