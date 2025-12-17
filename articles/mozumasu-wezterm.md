@@ -1548,36 +1548,48 @@ local key_tables = {
 
 ### 自作のキーテーブル
 
-自分でキーテーブルを作成することもできます。以下はペインサイズ調整モードの例です。
+`copy_mode` や `search_mode` 以外にも、自分でキーテーブルを作成できます。
+
+以下はペインサイズ調整モードの例です。`Leader → s` でモードに入り、`h`/`j`/`k`/`l` でサイズを調整、`Escape` や `q` でモードを抜けます。
 
 ```lua
--- キーテーブルのアクティブ状態をステータスバーに表示
-wezterm.on("update-right-status", function(window, pane)
-  local name = window:active_key_table()
-  if name then
-    name = "TABLE: " .. name
-  end
-  window:set_right_status(name or "")
-end)
-
-config.keys = {
-  -- ... 上記のキーバインド ...
-
-  -- Paneサイズ調整モードに入る
-  { key = "s", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
+local keys = {
+  -- 自作モード setting_mode に入る
+  {
+    key = "s",
+    mods = "LEADER",
+    action = act.ActivateKeyTable({
+      name = "setting_mode",
+      one_shot = false, -- キーを押してもモードを維持（連続操作可能）
+    }),
+  },
 }
 
-config.key_tables = {
-  -- Paneサイズ調整モード (leader + s)
-  resize_pane = {
+local key_tables = {
+  -- 自作モードで使うキーバインド
+  setting_mode = {
+    -- Paneサイズの調整（hjklで連続調整できる）
     { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
     { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
     { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
     { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
-    { key = "Enter", action = "PopKeyTable" },  -- モード終了
+
+    -- モードを抜ける（PopKeyTableでキーテーブルを終了）
+    { key = "Escape", action = "PopKeyTable" },
+    { key = "q", action = "PopKeyTable" },
+    { key = "c", mods = "CTRL", action = "PopKeyTable" },
   },
 }
 ```
+
+:::message
+**`one_shot` オプション**
+
+- `true`: キーを1回押すとモードが終了（デフォルト）
+- `false`: 明示的に抜けるまでモードを維持
+
+ペインサイズ調整のように連続操作したい場合は `false` にします。
+:::
 
 ## 外観のカスタマイズ
 
