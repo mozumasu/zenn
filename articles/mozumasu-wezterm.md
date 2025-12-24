@@ -40,6 +40,7 @@ published: false
 ├── wezterm.lua          # メイン設定ファイル
 ├── keymaps.lua          # キーバインド設定
 ├── appearance.lua       # 外観設定
+├── functions.lua        # カスタム機能（透明度調整など）
 └── tab.lua              # タブ設定
 ```
 
@@ -1589,6 +1590,83 @@ local key_tables = {
 - `false`: 明示的に抜けるまでモードを維持
 
 ペインサイズ調整のように連続操作したい場合は `false` にします。
+:::
+
+#### 応用: 透明度を動的に変更する
+
+自作モードに透明度調整機能を追加する例です。
+`;` で透明度アップ、`-` でダウン、`0` でリセットできます。
+
+この例では **`EmitEvent`** でカスタムイベントを発火し、**`wezterm.on`** でイベントを受け取って処理しています。
+`wezterm.on` 内で `window:set_config_overrides()` を使うと、WezTermを再起動せずに設定を動的に変更できます。
+
+イベントハンドラを含む複雑な処理は、専用のモジュール `functions.lua` を作成して管理します。
+
+```lua :~/.config/wezterm/functions.lua
+local wezterm = require("wezterm")
+local act = wezterm.action
+local module = {}
+
+function module.apply_to_config(config)
+  -- setting_mode に透明度調整キーを追加
+  table.insert(config.key_tables.setting_mode, { key = ";", action = act.EmitEvent("increase-opacity") })
+  table.insert(config.key_tables.setting_mode, { key = "-", action = act.EmitEvent("decrease-opacity") })
+  table.insert(config.key_tables.setting_mode, { key = "0", action = act.EmitEvent("reset-opacity") })
+end
+
+-- イベントハンドラ内でモードが解除されるため、再度アクティブ化する関数
+local function reactivate_setting_mode(window)
+  window:perform_action(
+    wezterm.action.ActivateKeyTable({ name = "setting_mode", one_shot = false }),
+    window:active_pane()
+  )
+end
+
+-- 透明度を調整する共通関数
+local function adjust_opacity(window, delta, config)
+  local overrides = window:get_config_overrides() or {}
+  local current = overrides.window_background_opacity or config.window_background_opacity or 1.0
+
+  local new_opacity = current + delta
+  new_opacity = math.max(0.1, math.min(1.0, new_opacity)) -- 0.1〜1.0の範囲に制限
+
+  overrides.window_background_opacity = new_opacity
+  window:set_config_overrides(overrides)
+
+  reactivate_setting_mode(window) -- モードを維持
+end
+
+-- カスタムイベントのハンドラ
+wezterm.on("increase-opacity", function(window, config)
+  adjust_opacity(window, 0.1, config)
+end)
+
+wezterm.on("decrease-opacity", function(window, config)
+  adjust_opacity(window, -0.1, config)
+end)
+
+wezterm.on("reset-opacity", function(window, config)
+  local overrides = window:get_config_overrides() or {}
+  overrides.window_background_opacity = config.window_background_opacity
+  window:set_config_overrides(overrides)
+  reactivate_setting_mode(window)
+end)
+
+return module
+```
+
+メインの設定ファイルで読み込みます。`keymaps` の後に読み込むことで、`setting_mode` にキーを追加できます。
+
+```diff lua :~/.config/wezterm/wezterm.lua
+  require("keymaps").apply_to_config(config)
++ require("functions").apply_to_config(config)
+```
+
+:::message
+**なぜ `reactivate_setting_mode` が必要？**
+
+`EmitEvent` でイベントを発火すると、キーテーブルのモードが自動的に解除されます。
+連続して透明度を調整したい場合は、イベントハンドラ内でモードを再アクティブ化する必要があります。
 :::
 
 ## 外観のカスタマイズ
