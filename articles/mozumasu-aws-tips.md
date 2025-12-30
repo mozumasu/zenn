@@ -240,6 +240,43 @@ export AWS_PROFILE=Sandbox
 
 @[card](https://starship.rs/config/#aws)
 
+## プロジェクトディレクトリに移動したら自動でプロファイルを設定する: direnv
+
+検証用のリポジトリなど、特定のAWSプロファイルしか使わないこともあると思います。
+この場合、毎回 `export AWS_PROFILE=xxx` を実行したり、 `--profile xxx` でプロファイルを指定するのは面倒です。
+direnv を使うと、ディレクトリに移動するだけで自動的に環境変数を設定できます。
+
+@[card](https://github.com/direnv/direnv)
+
+```sh
+# direnvのインストール
+brew install direnv
+```
+
+シェルへのフック設定を `~/.zshrc` に追加します。
+
+```sh:~/.zshrc
+eval "$(direnv hook zsh)"
+```
+
+プロジェクトディレクトリに `.envrc` ファイルを作成し、使用するプロファイルを設定します。
+
+```config:.envrc
+export AWS_PROFILE=Sandbox
+```
+
+初回は `direnv allow` で `.envrc` を許可する必要があります。
+
+```console
+direnv allow
+```
+
+これ以降、このディレクトリに `cd` するたびに自動で `AWS_PROFILE=Sandbox` が設定されます。
+ディレクトリを離れると環境変数は自動的に解除されるため、プロファイルの切り替え忘れを防げます。
+direnvが効いている環境はプロンプトに `direnv allowed` と表示しておくのもオススメです。
+
+![direnvのステータスをstarshipで表示する](/images/aws-tips/starship-direnv-status.png =700x)
+
 ## プロファイル指定でコンソールを開く: aws-vault
 
 AWSのコンソールのURLをブックマークで管理してアクセスするのは面倒です。
